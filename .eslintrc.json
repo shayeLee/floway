@@ -1,0 +1,62 @@
+{
+	"root": true,
+	"env": {
+		"es6": true,
+		"browser": true,
+		"node": true
+	},
+	"parser": "babel-eslint",
+	"parserOptions": {
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true,
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "globals": {
+    "ReactDOM": false,
+    "React": false,
+    "jest": false,
+    "test": false,
+    "expect": false,
+    "describe": false,
+    "it": false
+  },
+  "plugins": ["react"],
+  "extends": ["eslint:recommended", "plugin:react/recommended"],
+  "settings": {
+    "react": {
+      "version": "16.4.1"
+    }
+  },
+	"rules": {
+    "no-console": 0,
+    "react/prop-types": 0,
+    "no-extra-boolean-cast": 0,
+    "no-else-return": [1, { "allowElseIf": false }],
+    "no-loop-func": 1,
+    "arrow-spacing": 1,
+    "eqeqeq": 2,
+    "no-restricted-properties": [
+      2,
+      {
+        "object": "disallowedObjectName",
+        "property": "disallowedPropertyName"
+      },
+      {
+        "object": "disallowedObjectName",
+        "property": "anotherDisallowedPropertyName",
+        "message": "Please use allowedObjectName.allowedPropertyName."
+      }
+    ],
+    "no-return-assign": [2, "always"],
+    "no-sequences": 2,
+    "no-throw-literal": 2,
+    "no-unmodified-loop-condition": 2,
+    "no-useless-return": 2,
+    "prefer-promise-reject-errors": [2, {"allowEmptyReject": true}],
+    "require-await": 2,
+    "jsx-quotes": [2, "prefer-double"],
+    "prefer-const": 2
+	}
+}

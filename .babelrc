@@ -1,0 +1,60 @@
+{
+	"presets": [
+		[
+			"env",
+			{
+				"modules": false,
+				"targets": {
+					"browsers": ["last 3 versions", "not ie <= 8"]
+				}
+			}
+		],
+		"react"
+	],
+	"plugins": [
+    [
+      "transform-runtime",
+      {
+        "polyfill": false,
+        "regenerator": true
+      }
+    ],
+    "external-helpers",
+		"transform-class-properties",
+		"syntax-dynamic-import",
+		"transform-decorators-legacy"
+  ],
+  "env": {
+		"test": {
+      "presets": [
+        [
+          "env",
+          {
+            "modules": false,
+            "targets": {
+              "browsers": [
+                "last 5 versions",
+                "IE 9"
+              ]
+            }
+          }
+        ],
+        "react"
+      ],
+      "plugins": [
+        [
+          "transform-runtime",
+          {
+            "polyfill": false,
+            "regenerator": true
+          }
+        ],
+        "external-helpers",
+        "syntax-dynamic-import",
+        "transform-es2015-modules-commonjs",
+        "transform-class-properties",
+        "transform-decorators-legacy"
+      ]
+		}
+	}
+}
