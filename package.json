@@ -4,7 +4,7 @@
   "description": "react-rx",
   "main": "index.js",
   "scripts": {
-    "test": "jest --config ./jest.config.js --watch --onlyChanged",
+    "test": "jest ./__tests__ --config ./jest.config.js --watch --onlyChanged",
     "doc": "jsdoc -c ./jsdoc.config.json",
     "dev": "gulp dev",
     "build": "gulp build"

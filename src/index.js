@@ -3,13 +3,14 @@ import { map, pluck, filter } from "rxjs/operators";
 import { pipeFromArray } from "rxjs/internal/util/pipe";
 import { combineAll } from "rxjs/internal/operators/combineAll";
 
-let _config = {};
+/* let _config = {};
 const _setConfig = function(customConfig) {
   _config = Object.assign({}, _config, customConfig);
 };
-export const setConfig = _setConfig;
+export const setConfig = _setConfig; */
 
 const rxStore = {};
+export const __rxStore__ = rxStore;
 
 /**
  * 获取持久化数据
@@ -17,7 +18,7 @@ const rxStore = {};
  * @param {string} name
  * @param {*} defaultValue
  * @param {promise} origin
- * @param {object} options
+ * @param {object} [options]
  * @param {boolean} [options.refresh=false] - 是否刷新数据
  */
 const _persistence = async function(name, defaultValue, origin, options) {
@@ -49,14 +50,10 @@ const _persistence = async function(name, defaultValue, origin, options) {
   } else {
     data = await _getNewData();
   }
+  
+  cacheData = data;
+  storageData = JSON.stringify(data);
 
-  if (data === defaultValue) {
-    cacheData = null;
-    storageData = null;
-  } else {
-    cacheData = data;
-    storageData = JSON.stringify(data);
-  }
   localStorage.setItem(name, storageData);
   if (_options.refresh || !isCache) {
     rxStore[name] = cacheData;
@@ -89,30 +86,48 @@ export const distributor$ = _distributor$;
  * @param {*} defaultValue - 可观察对象推送的默认数据
  */
 const Attract = function(type, defaultValue) {
-  this.pipe = function () {
+  const event$ = _distributor$.pipe(
+    pluck(type),
+    filter(action => action)
+  )
+  const processEvent$ = generateObs(event$);
+
+  processEvent$.pipe = function () {
     var operations = [];
     for (var i = 0; i < arguments.length; i++) {
       operations.push(arguments[i]);
     }
 
-    const event$ = _distributor$.pipe(
-      pluck(type),
-      filter(action => action)
-    );
     const obs$ = pipeFromArray(operations)(event$);
+    
+    return generateObs(obs$);
+  }
+
+  function generateObs(obs$) {
     const obs$$ = new BehaviorSubject(defaultValue).pipe(
-      filter((data) => isCorrectVal(data))
+      filter((data) => {
+        return isCorrectVal(data);
+      })
     );
     obs$.subscribe(obs$$);
-    
+
     return obs$$;
   }
+
+  return processEvent$;
 };
 export const attract = function (type, defaultValue) {
-  return new Attract(type, defaultValue);
+  // return new Attract(type, defaultValue);
+  return Attract(type, defaultValue);
 }
 
-const _permeate = function (suspendedObserverMap, param1, param2) {
+const _permeate = function (observablesMap, param1, param2) {
+  try {
+    React.PureComponent
+  } catch(err) {
+    throw new ReferenceError("请提供有效的全局对象React，本库不单独引入react.js");
+  }
+
   const initObservers = param1;
   let options = param2 || {};
   if (isCorrectVal(param1) && !isCorrectVal(param2) && !isCorrectVal(initObservers.subscribe)) {
@@ -127,19 +142,19 @@ const _permeate = function (suspendedObserverMap, param1, param2) {
       _initObservers = initObservers ? [initObservers] : null;
     }
 
-    if (!_isObject(suspendedObserverMap))
+    if (!_isObject(observablesMap))
       throw new TypeError(
-        `方法permeate()的参数suspendedObserverMap必须是object类型`
+        `方法permeate()的参数observablesMap必须是object类型`
       );
-    const suspendedObserverKeys = Object.keys(suspendedObserverMap);
+    const suspendedObserverKeys = Object.keys(observablesMap);
     const _suspendedObservers = [];
     if (suspendedObserverKeys.length > 0) {
       suspendedObserverKeys.forEach(key => {
-        _suspendedObservers.push(suspendedObserverMap[key]);
+        _suspendedObservers.push(observablesMap[key]);
       });
     } else {
       throw new TypeError(
-        `方法permeate()的参数suspendedObserverMap不允许传一个空的object`
+        `方法permeate()的参数observablesMap不允许传一个空的object`
       );
     }
 
