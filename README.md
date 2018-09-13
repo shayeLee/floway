@@ -66,8 +66,8 @@ class CompB extends React.Component {
 export permeate({ testData: testData$ })(CompB);
 ```
 可观察对象`testData$`是可以供任何组件消费的，并且不受个数限制，但是对于同一个消费者它只会推送一次数据（当有观察者订阅的时候，`testData$`会主动向该观察者推送一次数据）；<br>
-这样可能会带来一个问题：在组件完成初始渲染之后，`this.props.testData`将永远无法更新数据，除非组件卸载重装；
-如何解决这个问题？
+这样可能会带来一个问题：在组件完成初始渲染之后，`this.props.testData`将永远无法更新数据，除非组件卸载重装；<br>
+如何解决这个问题？<br>
 这个问题可以用事件触发器`distributor$`来解决，它提供了一个`next`函数使用户能够手动推送事件，然后我们需要对`testData$`做一些改造，使之能够接受`distributor$`推送的事件。
 ```javascript
 /** testData.js */
