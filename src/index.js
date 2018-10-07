@@ -1,13 +1,18 @@
 import { Subject, BehaviorSubject, from } from "rxjs";
-import { map, pluck, filter } from "rxjs/operators";
+import { map, pluck, filter, last, switchMap } from "rxjs/operators";
 import { pipeFromArray } from "rxjs/internal/util/pipe";
 import { combineAll } from "rxjs/internal/operators/combineAll";
+import { fromPromise } from "rxjs/internal/observable/fromPromise";
 
-/* let _config = {};
+/**
+ * @namespace config
+ * @prop {observable} [preObservable=defaultIfEmpty(null)]
+*/
+let _config = {};
 const _setConfig = function(customConfig) {
   _config = Object.assign({}, _config, customConfig);
 };
-export const setConfig = _setConfig; */
+export const setConfig = _setConfig;
 
 const rxStore = {};
 export const __rxStore__ = rxStore;
@@ -79,7 +84,24 @@ const _distributor$ = new Subject().pipe(
     return map;
   })
 );
-export const distributor$ = _distributor$;
+export const distributor$ = {
+  subscription: {
+    unsubscribe: function () {}
+  },
+  next: function (events) {
+    this.subscription.unsubscribe();
+    const obs$ = _config.preObservable.pipe(last());
+    this.subscription = obs$.subscribe(() => {
+      _distributor$.next(events);
+    });
+  }
+};
+
+export const promiseOf = function (p) {
+  return _config.preObservable.pipe(last(), switchMap(() => {
+    return fromPromise(p);
+  }));
+}
 
 /**
  * @param {string} type - action类型
