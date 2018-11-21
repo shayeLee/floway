@@ -1,31 +1,52 @@
-import { fromPromise } from "rxjs/internal/observable/fromPromise";
-import { switchMap } from "rxjs/operators";
-import { distributor$, attract } from "../src/index";
+import Cookies from "js-cookie";
+import { interval, fromEvent, of } from "rxjs";
+import { switchMap, map, sample, combineLatest, delay, pluck, defaultIfEmpty } from "rxjs/operators";
+import { distributor$, attract, setConfig, permeate, promiseOf } from "../src/index";
 
-// 用 promise 模拟异步请求
-function getData() {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve(123);
-    }, 800)
-  })
+setConfig({
+    preObservable: promiseOf(getPromise())
+})
+
+function getPromise() {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            Cookies.set("test", 666)
+            resolve(666);
+        }, 5000)
+    })
 }
 
-const testData$ = attract("refreshData", 456).pipe(
-  switchMap(() => {
-    return fromPromise(getData());
-  })
-)
+function getPromise1() {
+    console.log(Cookies.get("test"));
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve("test");
+        }, 1000)
+    })
+}
 
-distributor$.next("refreshData");
+const source$ = promiseOf(getPromise1())/* attract("test").pipe(
+    switchMap(() => {
+        return promiseOf(getPromise1());
+    })
+);
+distributor$.next("test"); */
 
-testData$.subscribe(val => {
-  console.log(val);
-});
+const _app = class extends React.Component {
+    render() {
+        return (
+            <div>{this.props.source}</div>
+        );
+    }
+}
 
-setTimeout(() => {
-  testData$.subscribe(val => {
-    console.log("7 + " + val);
-  });
-}, 2000)
+const App = permeate({ source: source$ })(_app)
+
+ReactDOM.render(<App />, document.getElementById("app"));
+
+document.addEventListener("click", function () {
+    distributor$.next("test");
+})
+
+
 
