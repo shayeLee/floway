@@ -1,6 +1,6 @@
 {
   "name": "rx-samsara",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "react-rx",
   "main": "index.js",
   "scripts": {
@@ -60,6 +60,7 @@
     "antd": "^3.8.0",
     "babel-polyfill": "^6.26.0",
     "babel-runtime": "^6.26.0",
+    "lodash": "^4.17.11",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "rxjs": "^6.2.2"

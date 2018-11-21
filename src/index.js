@@ -125,7 +125,8 @@ const _permeate = function (observablesMap, param1, param2) {
   try {
     React.PureComponent
   } catch(err) {
-    throw new ReferenceError("请提供有效的全局对象React，本库不单独引入react.js");
+    // throw new ReferenceError("请提供有效的全局对象React，本库不单独引入react.js");
+    var React = require("react");
   }
 
   const initObservers = param1;
