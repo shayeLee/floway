@@ -17,14 +17,46 @@ var operators = require('rxjs/operators');
 var pipe = require('rxjs/internal/util/pipe');
 var combineAll = require('rxjs/internal/operators/combineAll');
 
-/* let _config = {};
-const _setConfig = function(customConfig) {
+// import update from 'immutability-helper';
+
+/**
+ * @namespace config
+ * @prop {observable} [preObservable=defaultIfEmpty(null)]
+*/
+var _config = {};
+var _setConfig = function _setConfig(customConfig) {
   _config = Object.assign({}, _config, customConfig);
 };
-export const setConfig = _setConfig; */
+var setConfig = _setConfig;
 
-var rxStore = {};
+var rxStore = {
+  dataMap: {},
+  pushHeadersMap: {}
+};
 var __rxStore__ = rxStore;
+
+/**
+ * 创建一个包含指定数据、并且可更新数据的observable
+ * @function hotObservable
+ * @param {*} data
+*/
+function _hotObservable(data) {
+  var state$ = new rxjs.BehaviorSubject(data);
+  state$.__data__ = data;
+  state$.update = function (mData) {
+    var newData = void 0;
+    var _data = typeof mData === "function" ? mData(state$.__data__) : mData;
+    if (_isObject(_data)) {
+      newData = Object.assign({}, state$.__data__, _data);
+    } else {
+      newData = _data;
+    }
+    state$.__data__ = newData;
+    state$.next(newData);
+  };
+  return state$;
+}
+var hotObservable = _hotObservable;
 
 /**
  * 获取持久化数据
@@ -126,30 +158,44 @@ var _persistence = function () {
 }();
 var persistence = _persistence;
 
-var _distributor$ = new rxjs.Subject().pipe(operators.map(function (actions) {
-  if (!Array.isArray(actions)) {
-    actions = [actions];
-  }
-
-  var map = {};
-  actions.forEach(function (action) {
-    if (typeof action === "string") {
-      action = { type: action };
+var _distributor$ = new rxjs.Subject();
+var distributor$ = {
+  next: function next(events) {
+    if (!Array.isArray(events)) {
+      events = [events];
     }
-    map[action.type] = action;
-  });
-  return map;
-}));
-var distributor$ = _distributor$;
+    var map = {};
+    events.forEach(function (event) {
+      if (typeof event === "string") {
+        var type = event;
+        event = { type: type };
+      }
+      map[event.type] = event;
+      rxStore.pushHeadersMap[event.type] = {
+        lastModifyId: new Date().getTime()
+      };
+    });
+    _distributor$.next(map);
+  }
+};
 
 /**
  * @param {string} type - action类型
- * @param {*} defaultValue - 可观察对象推送的默认数据
  */
-var Attract = function Attract(type, defaultValue) {
+var Attract = function Attract(type, options) {
+  if (!isCorrectVal(options)) options = {};
   var event$ = _distributor$.pipe(operators.pluck(type), operators.filter(function (action) {
-    return action;
+    return isCorrectVal(action);
   }));
+
+  function generateObs(obs$) {
+    var obs$$ = new rxjs.Subject().pipe(operators.filter(function (data) {
+      return isCorrectVal(data);
+    }));
+    obs$$.__type__ = type;
+    obs$.subscribe(obs$$);
+    return obs$$;
+  }
   var processEvent$ = generateObs(event$);
 
   processEvent$.pipe = function () {
@@ -162,20 +208,9 @@ var Attract = function Attract(type, defaultValue) {
 
     return generateObs(obs$);
   };
-
-  function generateObs(obs$) {
-    var obs$$ = new rxjs.BehaviorSubject(defaultValue).pipe(operators.filter(function (data) {
-      return isCorrectVal(data);
-    }));
-    obs$.subscribe(obs$$);
-
-    return obs$$;
-  }
-
   return processEvent$;
 };
 var attract = function attract(type, defaultValue) {
-  // return new Attract(type, defaultValue);
   return Attract(type, defaultValue);
 };
 
@@ -183,7 +218,6 @@ var _permeate = function _permeate(observablesMap, param1, param2) {
   try {
     React.PureComponent;
   } catch (err) {
-    // throw new ReferenceError("请提供有效的全局对象React，本库不单独引入react.js");
     var React = require("react");
   }
 
@@ -202,11 +236,11 @@ var _permeate = function _permeate(observablesMap, param1, param2) {
     }
 
     if (!_isObject(observablesMap)) throw new TypeError("\u65B9\u6CD5permeate()\u7684\u53C2\u6570observablesMap\u5FC5\u987B\u662Fobject\u7C7B\u578B");
-    var suspendedObserverKeys = Object.keys(observablesMap);
-    var _suspendedObservers = [];
-    if (suspendedObserverKeys.length > 0) {
-      suspendedObserverKeys.forEach(function (key) {
-        _suspendedObservers.push(observablesMap[key]);
+    var suspendedObservableKeys = Object.keys(observablesMap);
+    var _suspendedObservables = [];
+    if (suspendedObservableKeys.length > 0) {
+      suspendedObservableKeys.forEach(function (key) {
+        _suspendedObservables.push(observablesMap[key]);
       });
     } else {
       throw new TypeError("\u65B9\u6CD5permeate()\u7684\u53C2\u6570observablesMap\u4E0D\u5141\u8BB8\u4F20\u4E00\u4E2A\u7A7A\u7684object");
@@ -226,30 +260,36 @@ var _permeate = function _permeate(observablesMap, param1, param2) {
           args[_key] = arguments[_key];
         }
 
-        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref2 = Permeate.__proto__ || Object.getPrototypeOf(Permeate)).call.apply(_ref2, [this].concat(args))), _this), _this.subscriptionArr = [], _this.state = {}, _temp), _possibleConstructorReturn(_this, _ret);
+        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref2 = Permeate.__proto__ || Object.getPrototypeOf(Permeate)).call.apply(_ref2, [this].concat(args))), _this), _this.subscriptionArr = [], _this.state = isCorrectVal(options.defaultProps) ? options.defaultProps : {}, _temp), _possibleConstructorReturn(_this, _ret);
       }
 
       _createClass(Permeate, [{
-        key: "componentDidMount",
-        value: function componentDidMount() {
+        key: "componentWillMount",
+        value: function componentWillMount() {
           var _this2 = this;
 
-          var obsArr = _suspendedObservers,
+          var obsArr = _suspendedObservables,
               len = obsArr.length;
 
           var _loop = function _loop(i) {
+            if (!isCorrectVal(obsArr[i]["flag"])) obsArr[i]["flag"] = new Date().getTime();
             var subscription = obsArr[i].subscribe(function (data) {
-              if (options.delayeringFields && options.delayeringFields.includes(suspendedObserverKeys[i])) {
+              var type = obsArr[i]["__type__"];
+              // const pushHeaders = rxStore.pushHeadersMap[type];
+
+              if (options.delayeringFields && options.delayeringFields.includes(suspendedObservableKeys[i])) {
                 var _stateObj = {};
                 for (var key in data) {
-                  if (_this2.state[key] !== data[key]) _stateObj[key] = data[key];
+                  if (_this2.state[key] !== data[key]) {
+                    _stateObj[key] = data[key];
+                  }
                 }
                 _this2.setState(_stateObj);
                 return;
               }
 
-              if (_this2.state[suspendedObserverKeys[i]] !== data) {
-                _this2.setState(_defineProperty({}, suspendedObserverKeys[i], data));
+              if (_this2.state[suspendedObservableKeys[i]] !== data) {
+                _this2.setState(_defineProperty({}, suspendedObservableKeys[i], data));
               }
             });
             _this2.subscriptionArr.push(subscription);
@@ -337,7 +377,9 @@ function _isEmptyObject(obj) {
   return true;
 }
 
+exports.setConfig = setConfig;
 exports.__rxStore__ = __rxStore__;
+exports.hotObservable = hotObservable;
 exports.persistence = persistence;
 exports.distributor$ = distributor$;
 exports.attract = attract;

@@ -2,7 +2,7 @@ import { Subject, BehaviorSubject, from } from "rxjs";
 import { map, pluck, filter, last, switchMap } from "rxjs/operators";
 import { pipeFromArray } from "rxjs/internal/util/pipe";
 import { combineAll } from "rxjs/internal/operators/combineAll";
-import { fromPromise } from "rxjs/internal/observable/fromPromise";
+// import update from 'immutability-helper';
 
 /**
  * @namespace config
@@ -14,8 +14,34 @@ const _setConfig = function(customConfig) {
 };
 export const setConfig = _setConfig;
 
-const rxStore = {};
+const rxStore = {
+  dataMap: {},
+  pushHeadersMap: {}
+};
 export const __rxStore__ = rxStore;
+
+/**
+ * 创建一个包含指定数据、并且可更新数据的observable
+ * @function hotObservable
+ * @param {*} data
+*/
+function _hotObservable(data) {
+  const state$ = new BehaviorSubject(data);
+  state$.__data__ = data;
+  state$.update = function (mData) {
+    let newData;
+    const _data = (typeof mData === "function") ? mData(state$.__data__) : mData;
+    if (_isObject(_data)) {
+      newData = Object.assign({}, state$.__data__, _data)
+    } else {
+      newData = _data;
+    }
+    state$.__data__ = newData;
+    state$.next(newData);
+  };
+  return state$;
+}
+export const hotObservable = _hotObservable;
 
 /**
  * 获取持久化数据
@@ -68,50 +94,50 @@ const _persistence = async function(name, defaultValue, origin, options) {
 };
 export const persistence = _persistence;
 
-const _distributor$ = new Subject().pipe(
-  map(actions => {
-    if (!Array.isArray(actions)) {
-      actions = [actions];
-    }
 
-    const map = {};
-    actions.forEach(action => {
-      if (typeof action === "string") {
-        action = { type: action };
-      }
-      map[action.type] = action;
-    });
-    return map;
-  })
-);
+const _distributor$ = new Subject();
 export const distributor$ = {
-  subscription: {
-    unsubscribe: function () {}
-  },
   next: function (events) {
-    this.subscription.unsubscribe();
-    const obs$ = _config.preObservable.pipe(last());
-    this.subscription = obs$.subscribe(() => {
-      _distributor$.next(events);
+    if (!Array.isArray(events)) {
+      events = [events];
+    }
+    const map = {};
+    events.forEach(event => {
+      if (typeof event === "string") {
+        const type = event;
+        event = { type: type };
+      }
+      map[event.type] = event;
+      rxStore.pushHeadersMap[event.type] = {
+        lastModifyId: (new Date()).getTime()
+      };
     });
+    _distributor$.next(map);
   }
 };
 
-export const promiseOf = function (p) {
-  return _config.preObservable.pipe(last(), switchMap(() => {
-    return fromPromise(p);
-  }));
-}
-
 /**
  * @param {string} type - action类型
- * @param {*} defaultValue - 可观察对象推送的默认数据
  */
-const Attract = function(type, defaultValue) {
+const Attract = function(type, options) {
+  if (!isCorrectVal(options)) options = {};
   const event$ = _distributor$.pipe(
     pluck(type),
-    filter(action => action)
+    filter(action => {
+      return isCorrectVal(action);
+    })
   )
+
+  function generateObs(obs$) {
+    const obs$$ = new Subject().pipe(
+      filter((data) => {
+        return isCorrectVal(data);
+      })
+    );
+    obs$$.__type__ = type;
+    obs$.subscribe(obs$$);
+    return obs$$;
+  }
   const processEvent$ = generateObs(event$);
 
   processEvent$.pipe = function () {
@@ -124,22 +150,9 @@ const Attract = function(type, defaultValue) {
     
     return generateObs(obs$);
   }
-
-  function generateObs(obs$) {
-    const obs$$ = new BehaviorSubject(defaultValue).pipe(
-      filter((data) => {
-        return isCorrectVal(data);
-      })
-    );
-    obs$.subscribe(obs$$);
-
-    return obs$$;
-  }
-
   return processEvent$;
 };
 export const attract = function (type, defaultValue) {
-  // return new Attract(type, defaultValue);
   return Attract(type, defaultValue);
 }
 
@@ -147,7 +160,6 @@ const _permeate = function (observablesMap, param1, param2) {
   try {
     React.PureComponent
   } catch(err) {
-    // throw new ReferenceError("请提供有效的全局对象React，本库不单独引入react.js");
     var React = require("react");
   }
 
@@ -169,11 +181,11 @@ const _permeate = function (observablesMap, param1, param2) {
       throw new TypeError(
         `方法permeate()的参数observablesMap必须是object类型`
       );
-    const suspendedObserverKeys = Object.keys(observablesMap);
-    const _suspendedObservers = [];
-    if (suspendedObserverKeys.length > 0) {
-      suspendedObserverKeys.forEach(key => {
-        _suspendedObservers.push(observablesMap[key]);
+    const suspendedObservableKeys = Object.keys(observablesMap);
+    const _suspendedObservables = [];
+    if (suspendedObservableKeys.length > 0) {
+      suspendedObservableKeys.forEach(key => {
+        _suspendedObservables.push(observablesMap[key]);
       });
     } else {
       throw new TypeError(
@@ -183,26 +195,31 @@ const _permeate = function (observablesMap, param1, param2) {
 
     class Permeate extends React.PureComponent {
       subscriptionArr = [];
-      state = {};
+      state = isCorrectVal(options.defaultProps) ? options.defaultProps : {};
 
-      componentDidMount() {
-        const obsArr = _suspendedObservers,
+      componentWillMount() {
+        const obsArr = _suspendedObservables,
           len = obsArr.length;
         for (let i = 0; i < len; i++) {
+          if (!isCorrectVal(obsArr[i]["flag"])) obsArr[i]["flag"] = (new Date()).getTime();
           const subscription = obsArr[i].subscribe(data => {
-            if (options.delayeringFields && options.delayeringFields.includes(suspendedObserverKeys[i])) {
+            const type = obsArr[i]["__type__"];
+            // const pushHeaders = rxStore.pushHeadersMap[type];
+
+            if (options.delayeringFields && options.delayeringFields.includes(suspendedObservableKeys[i])) {
               const _stateObj = {};
               for (const key in data) {
-                if (this.state[key] !== data[key])
+                if (this.state[key] !== data[key]){
                   _stateObj[key] = data[key];
+                }
               }
               this.setState(_stateObj);
               return;
             }
 
-            if (this.state[suspendedObserverKeys[i]] !== data) {
+            if (this.state[suspendedObservableKeys[i]] !== data) {
               this.setState({
-                [suspendedObserverKeys[i]]: data,
+                [suspendedObservableKeys[i]]: data,
               });
             }
           });
