@@ -15,9 +15,10 @@ var _asyncToGenerator = _interopDefault(require('babel-runtime/helpers/asyncToGe
 var rxjs = require('rxjs');
 var operators = require('rxjs/operators');
 var pipe = require('rxjs/internal/util/pipe');
-var combineAll = require('rxjs/internal/operators/combineAll');
-
-// import update from 'immutability-helper';
+require('rxjs/internal/operators/combineAll');
+var md5 = _interopDefault(require('js-md5'));
+var NProgress = _interopDefault(require('nprogress'));
+require('nprogress/nprogress.css');
 
 /**
  * @namespace config
@@ -30,6 +31,7 @@ var _setConfig = function _setConfig(customConfig) {
 var setConfig = _setConfig;
 
 var rxStore = {
+  subscriptionList: [],
   dataMap: {},
   pushHeadersMap: {}
 };
@@ -40,7 +42,7 @@ var __rxStore__ = rxStore;
  * @function hotObservable
  * @param {*} data
 */
-function _hotObservable(data) {
+function _ofHot(data) {
   var state$ = new rxjs.BehaviorSubject(data);
   state$.__data__ = data;
   state$.update = function (mData) {
@@ -56,7 +58,7 @@ function _hotObservable(data) {
   };
   return state$;
 }
-var hotObservable = _hotObservable;
+var ofHot = _ofHot;
 
 /**
  * 获取持久化数据
@@ -170,43 +172,98 @@ var distributor$ = {
         var type = event;
         event = { type: type };
       }
+      if (!isCorrectVal(event.payload)) event.payload = {};
+      if (!isCorrectVal(event.options)) event.options = {};
       map[event.type] = event;
-      rxStore.pushHeadersMap[event.type] = {
-        lastModifyId: new Date().getTime()
-      };
     });
     _distributor$.next(map);
   }
 };
 
+var ofLast = function ofLast(obs$) {
+  return obs$.pipe(operators.combineLatest(), operators.map(function (arr) {
+    return arr[0];
+  }));
+};
+
 /**
  * @param {string} type - action类型
  */
-var Attract = function Attract(type, options) {
-  if (!isCorrectVal(options)) options = {};
-  var event$ = _distributor$.pipe(operators.pluck(type), operators.filter(function (action) {
-    return isCorrectVal(action);
+var Attract = function Attract(type) {
+  var options = null;
+  var _options = {
+    useCache: false
+  };
+  if (isCorrectVal(type) && typeof type === "string") {
+    options = Object.assign({}, _options);
+  } else if (isCorrectVal(type) && _isObject(type)) {
+    options = Object.assign({}, _options, type);
+    type = options.type;
+    delete options.type;
+  }
+
+  if (!isCorrectVal(options)) options = {
+    useCache: false
+  };
+  var event$ = _distributor$.pipe(operators.pluck(type), operators.filter(function (event) {
+    if (isCorrectVal(event)) {
+      if (!isCorrectVal(rxStore.pushHeadersMap[event.type])) {
+        rxStore.pushHeadersMap[event.type] = {
+          event: event,
+          lastModifyId: new Date().getTime()
+        };
+      } else {
+        var pushHeaders = rxStore.pushHeadersMap[event.type];
+        var lastEvent = pushHeaders.event;
+        if (!options.useCache || md5(JSON.stringify(lastEvent.payload)) !== md5(JSON.stringify(event.payload)) || md5(JSON.stringify(lastEvent.options)) !== md5(JSON.stringify(event.options))) {
+          rxStore.pushHeadersMap[event.type]["lastModifyId"] = new Date().getTime();
+        }
+        pushHeaders.event = event;
+      }
+      return true;
+    }
+    return false;
   }));
 
+  var operations = [];
+  var _subscription = {
+    unsubscribe: function unsubscribe() {}
+  };
   function generateObs(obs$) {
-    var obs$$ = new rxjs.Subject().pipe(operators.filter(function (data) {
-      return isCorrectVal(data);
-    }));
+    _subscription.unsubscribe();
+    var obs$$ = new rxjs.Subject();
     obs$$.__type__ = type;
-    obs$.subscribe(obs$$);
+    var _obs$ = obs$.pipe(operators.switchMap(function (event) {
+      var pushHeaders = rxStore.pushHeadersMap[event.type];
+      var hasModified = obs$$.lastModifyId !== pushHeaders.lastModifyId;
+      if (!hasModified && !isCorrectVal(rxStore.dataMap[event.type])) hasModified = true;
+      if (!hasModified) NProgress.start();
+      return hasModified ? operations.length === 0 ? rxjs.of(event) : pipe.pipeFromArray(operations)(rxjs.of(event)) : rxjs.of(rxStore.dataMap[event.type]);
+    }), operators.filter(function (data) {
+      var canPass = !(data === null || typeof data === "undefined");
+      var pushHeaders = rxStore.pushHeadersMap[type];
+      var hasModified = obs$$.lastModifyId !== pushHeaders.lastModifyId;
+      if (canPass) {
+        obs$$.lastModifyId = pushHeaders.lastModifyId;
+        if (hasModified) {
+          rxStore.dataMap[type] = data;
+        }
+      }
+      setTimeout(function () {
+        NProgress.done();
+      }, 20);
+      return canPass;
+    }));
+    _subscription = _obs$.subscribe(obs$$);
     return obs$$;
   }
   var processEvent$ = generateObs(event$);
 
   processEvent$.pipe = function () {
-    var operations = [];
     for (var i = 0; i < arguments.length; i++) {
       operations.push(arguments[i]);
     }
-
-    var obs$ = pipe.pipeFromArray(operations)(event$);
-
-    return generateObs(obs$);
+    return generateObs(event$);
   };
   return processEvent$;
 };
@@ -221,20 +278,9 @@ var _permeate = function _permeate(observablesMap, param1, param2) {
     var React = require("react");
   }
 
-  var initObservers = param1;
-  var options = param2 || {};
-  if (isCorrectVal(param1) && !isCorrectVal(param2) && !isCorrectVal(initObservers.subscribe)) {
-    options = param1;
-  }
+  var options = param1 || {};
 
   var handler = function handler(Comp) {
-    var _initObservers = void 0;
-    if (Array.isArray(initObservers)) {
-      _initObservers = initObservers;
-    } else {
-      _initObservers = initObservers ? [initObservers] : null;
-    }
-
     if (!_isObject(observablesMap)) throw new TypeError("\u65B9\u6CD5permeate()\u7684\u53C2\u6570observablesMap\u5FC5\u987B\u662Fobject\u7C7B\u578B");
     var suspendedObservableKeys = Object.keys(observablesMap);
     var _suspendedObservables = [];
@@ -272,10 +318,9 @@ var _permeate = function _permeate(observablesMap, param1, param2) {
               len = obsArr.length;
 
           var _loop = function _loop(i) {
-            if (!isCorrectVal(obsArr[i]["flag"])) obsArr[i]["flag"] = new Date().getTime();
             var subscription = obsArr[i].subscribe(function (data) {
               var type = obsArr[i]["__type__"];
-              // const pushHeaders = rxStore.pushHeadersMap[type];
+              var pushHeaders = rxStore.pushHeadersMap[type];
 
               if (options.delayeringFields && options.delayeringFields.includes(suspendedObservableKeys[i])) {
                 var _stateObj = {};
@@ -284,11 +329,13 @@ var _permeate = function _permeate(observablesMap, param1, param2) {
                     _stateObj[key] = data[key];
                   }
                 }
+                // if (isCorrectVal(pushHeaders))  console.log(pushHeaders);
                 _this2.setState(_stateObj);
                 return;
               }
 
               if (_this2.state[suspendedObservableKeys[i]] !== data) {
+                // if (isCorrectVal(pushHeaders))  console.log(pushHeaders);
                 _this2.setState(_defineProperty({}, suspendedObservableKeys[i], data));
               }
             });
@@ -298,22 +345,6 @@ var _permeate = function _permeate(observablesMap, param1, param2) {
           for (var i = 0; i < len; i++) {
             _loop(i);
           }
-
-          if (_initObservers === null) return;
-          var init$ = rxjs.from(_initObservers).pipe(combineAll.combineAll());
-          var initSubscription = init$.subscribe(function (dataArr) {
-            var stateObj = {};
-            dataArr.forEach(function (data) {
-              if (!_isObject(data)) throw new TypeError("init observable 推送的数据必须是object类型");
-              Object.keys(data).forEach(function (key) {
-                if (_this2.state[key] !== data[key]) stateObj[key] = data[key];
-              });
-            });
-            if (isCorrectVal(stateObj)) {
-              _this2.setState(stateObj);
-            }
-          });
-          this.subscriptionArr.push(initSubscription);
         }
       }, {
         key: "componentWillUnmount",
@@ -379,8 +410,9 @@ function _isEmptyObject(obj) {
 
 exports.setConfig = setConfig;
 exports.__rxStore__ = __rxStore__;
-exports.hotObservable = hotObservable;
+exports.ofHot = ofHot;
 exports.persistence = persistence;
 exports.distributor$ = distributor$;
+exports.ofLast = ofLast;
 exports.attract = attract;
 exports.permeate = permeate;

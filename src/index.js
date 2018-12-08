@@ -1,8 +1,11 @@
-import { Subject, BehaviorSubject, from } from "rxjs";
-import { map, pluck, filter, last, switchMap } from "rxjs/operators";
+import { Subject, BehaviorSubject, from, of } from "rxjs";
+import { map, pluck, filter, combineLatest, switchMap } from "rxjs/operators";
 import { pipeFromArray } from "rxjs/internal/util/pipe";
 import { combineAll } from "rxjs/internal/operators/combineAll";
 // import update from 'immutability-helper';
+import md5 from "js-md5";
+import NProgress from "nprogress";
+import "nprogress/nprogress.css";
 
 /**
  * @namespace config
@@ -15,6 +18,7 @@ const _setConfig = function(customConfig) {
 export const setConfig = _setConfig;
 
 const rxStore = {
+  subscriptionList: [],
   dataMap: {},
   pushHeadersMap: {}
 };
@@ -25,7 +29,7 @@ export const __rxStore__ = rxStore;
  * @function hotObservable
  * @param {*} data
 */
-function _hotObservable(data) {
+function _ofHot(data) {
   const state$ = new BehaviorSubject(data);
   state$.__data__ = data;
   state$.update = function (mData) {
@@ -41,7 +45,7 @@ function _hotObservable(data) {
   };
   return state$;
 }
-export const hotObservable = _hotObservable;
+export const ofHot = _ofHot;
 
 /**
  * 获取持久化数据
@@ -107,48 +111,106 @@ export const distributor$ = {
         const type = event;
         event = { type: type };
       }
+      if (!isCorrectVal(event.payload)) event.payload = {}; 
+      if (!isCorrectVal(event.options)) event.options = {}; 
       map[event.type] = event;
-      rxStore.pushHeadersMap[event.type] = {
-        lastModifyId: (new Date()).getTime()
-      };
     });
     _distributor$.next(map);
   }
 };
 
+export const ofLast = function (obs$) {
+  return obs$.pipe(combineLatest(), map(arr => arr[0]))
+}
+
 /**
  * @param {string} type - action类型
  */
-const Attract = function(type, options) {
-  if (!isCorrectVal(options)) options = {};
+const Attract = function(type) {
+  let options = null;
+  const _options = {
+    useCache: false
+  }
+  if (isCorrectVal(type) && (typeof type === "string")) {
+    options = Object.assign({}, _options);
+  } else if (isCorrectVal(type) && _isObject(type)) {
+    options = Object.assign({}, _options, type);
+    type = options.type;
+    delete options.type
+  }
+
+  if (!isCorrectVal(options)) options = {
+    useCache: false
+  };
   const event$ = _distributor$.pipe(
     pluck(type),
-    filter(action => {
-      return isCorrectVal(action);
+    filter(event => {
+      if (isCorrectVal(event)) {
+        if (!isCorrectVal(rxStore.pushHeadersMap[event.type])) {
+          rxStore.pushHeadersMap[event.type] = {
+            event,
+            lastModifyId: (new Date()).getTime()
+          };
+        } else {
+          const pushHeaders = rxStore.pushHeadersMap[event.type];
+          const lastEvent = pushHeaders.event;
+          if (
+            !options.useCache ||
+            (
+              (md5(JSON.stringify(lastEvent.payload)) !== md5(JSON.stringify(event.payload))) ||
+              (md5(JSON.stringify(lastEvent.options)) !== md5(JSON.stringify(event.options)))
+            )
+          ) {
+            rxStore.pushHeadersMap[event.type]["lastModifyId"] = (new Date()).getTime();
+          }
+          pushHeaders.event = event;
+        }
+        return true;
+      }
+      return false;
     })
   )
 
+  const operations = [];
+  let _subscription = {
+    unsubscribe: function () {}
+  }
   function generateObs(obs$) {
-    const obs$$ = new Subject().pipe(
+    _subscription.unsubscribe();
+    const obs$$ = new Subject();
+    obs$$.__type__ = type;
+    const _obs$ = obs$.pipe(
+      switchMap(event => {
+        const pushHeaders = rxStore.pushHeadersMap[event.type];
+        let hasModified = obs$$.lastModifyId !== pushHeaders.lastModifyId;
+        if (!hasModified && !isCorrectVal(rxStore.dataMap[event.type])) hasModified = true;
+        if (!hasModified) NProgress.start();
+        return hasModified ? ((operations.length === 0) ? of(event) : pipeFromArray(operations)(of(event))) : of(rxStore.dataMap[event.type]);
+      }),
       filter((data) => {
-        return isCorrectVal(data);
+        const canPass = !((data === null) || (typeof data === "undefined"));
+        const pushHeaders = rxStore.pushHeadersMap[type];
+        const hasModified = obs$$.lastModifyId !== pushHeaders.lastModifyId;
+        if (canPass) {
+          obs$$.lastModifyId = pushHeaders.lastModifyId;
+          if (hasModified) {
+            rxStore.dataMap[type] = data;
+          }
+        }
+        setTimeout(function () { NProgress.done(); }, 20);
+        return canPass;
       })
     );
-    obs$$.__type__ = type;
-    obs$.subscribe(obs$$);
+    _subscription = _obs$.subscribe(obs$$);
     return obs$$;
   }
   const processEvent$ = generateObs(event$);
 
   processEvent$.pipe = function () {
-    var operations = [];
     for (var i = 0; i < arguments.length; i++) {
       operations.push(arguments[i]);
     }
-
-    const obs$ = pipeFromArray(operations)(event$);
-    
-    return generateObs(obs$);
+    return generateObs(event$);
   }
   return processEvent$;
 };
@@ -163,20 +225,9 @@ const _permeate = function (observablesMap, param1, param2) {
     var React = require("react");
   }
 
-  const initObservers = param1;
-  let options = param2 || {};
-  if (isCorrectVal(param1) && !isCorrectVal(param2) && !isCorrectVal(initObservers.subscribe)) {
-    options = param1;
-  }
+  let options = param1 || {};
 
   const handler = function(Comp) {
-    let _initObservers;
-    if (Array.isArray(initObservers)) {
-      _initObservers = initObservers;
-    } else {
-      _initObservers = initObservers ? [initObservers] : null;
-    }
-
     if (!_isObject(observablesMap))
       throw new TypeError(
         `方法permeate()的参数observablesMap必须是object类型`
@@ -201,10 +252,9 @@ const _permeate = function (observablesMap, param1, param2) {
         const obsArr = _suspendedObservables,
           len = obsArr.length;
         for (let i = 0; i < len; i++) {
-          if (!isCorrectVal(obsArr[i]["flag"])) obsArr[i]["flag"] = (new Date()).getTime();
           const subscription = obsArr[i].subscribe(data => {
             const type = obsArr[i]["__type__"];
-            // const pushHeaders = rxStore.pushHeadersMap[type];
+            const pushHeaders = rxStore.pushHeadersMap[type];
 
             if (options.delayeringFields && options.delayeringFields.includes(suspendedObservableKeys[i])) {
               const _stateObj = {};
@@ -213,11 +263,13 @@ const _permeate = function (observablesMap, param1, param2) {
                   _stateObj[key] = data[key];
                 }
               }
+              // if (isCorrectVal(pushHeaders))  console.log(pushHeaders);
               this.setState(_stateObj);
               return;
             }
 
             if (this.state[suspendedObservableKeys[i]] !== data) {
+              // if (isCorrectVal(pushHeaders))  console.log(pushHeaders);
               this.setState({
                 [suspendedObservableKeys[i]]: data,
               });
@@ -225,23 +277,6 @@ const _permeate = function (observablesMap, param1, param2) {
           });
           this.subscriptionArr.push(subscription);
         }
-
-        if (_initObservers === null) return;
-        const init$ = from(_initObservers).pipe(combineAll());
-        const initSubscription = init$.subscribe(dataArr => {
-          const stateObj = {};
-          dataArr.forEach(data => {
-            if (!_isObject(data)) throw new TypeError("init observable 推送的数据必须是object类型");
-            Object.keys(data).forEach(key => {
-              if (this.state[key] !== data[key])
-                stateObj[key] = data[key];
-            });
-          });
-          if (isCorrectVal(stateObj)) {
-            this.setState(stateObj);
-          }
-        });
-        this.subscriptionArr.push(initSubscription);
       }
       componentWillUnmount() {
         this.subscriptionArr.forEach(subscription => {
@@ -304,3 +339,4 @@ function _isEmptyObject(obj) {
   }
   return true;
 }
+
