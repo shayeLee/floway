@@ -17,6 +17,7 @@ var gulp = require("gulp"),
 	rollup = require("rollup"),
 	json = require("rollup-plugin-json"),
 	babel = require("rollup-plugin-babel"),
+	css = require("rollup-plugin-css-only"),
 	nodeResolve = require("rollup-plugin-node-resolve"),
 	commonJs = require("rollup-plugin-commonjs"),
 	replace = require("rollup-plugin-replace");
@@ -32,12 +33,9 @@ var dest = {
 	main: "dist/rx-samsara.js"
 };
 
-var watch = {
-	modules: []
-};
-
 var plugins = [
 	json(),
+	css({ output: "dist/example.css" }),
 	replace({
 		"process.env.NODE_ENV": JSON.stringify("production")
 	}),
@@ -56,7 +54,7 @@ var cjsPlugins = [
 		// non-CommonJS modules will be ignored, but you can also
 		// specifically include/exclude files
 		include: "node_modules/**", // Default: undefined
-		exclude: ["node_modules/foo/**", "node_modules/bar/**"], // Default: undefined
+		exclude: ["node_modules/nprogress/nprogress.css"], // Default: undefined
 		// these values can also be regular expressions
 		// include: /node_modules/
 
@@ -95,7 +93,7 @@ gulp.task("clean", function(cb) {
 gulp.task("rollup-dev", function() {
   rollupConfig.input = "example/index.js";
   rollupConfig.watch = {
-    include: ["src/**/", "example/**/*.js"],
+    include: ["src/**/", "example/**/*.*", "browser-redis/**/*.*"],
     exclude: "example/react.js"
   }
   rollupConfig.plugins = plugins.concat(cjsPlugins);

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest ./__tests__ --config ./jest.config.js --watch --onlyChanged",
     "doc": "jsdoc -c ./jsdoc.config.json",
-    "dev": "gulp dev",
+    "dev": "concurrently --kill-others \"node fileServer.js ./\" \"gulp dev\"",
     "build": "gulp build"
   },
   "author": "lxyPJ",
@@ -29,7 +29,7 @@
     "babel-preset-stage-2": "^6.24.1",
     "babel-register": "^6.26.0",
     "browser-sync": "^2.24.7",
-    "concurrently": "^3.5.0",
+    "concurrently": "^3.6.1",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-cached": "^1.1.1",
@@ -51,6 +51,7 @@
     "rollup": "^0.57.1",
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-commonjs": "^9.1.4",
+    "rollup-plugin-css-only": "^0.4.0",
     "rollup-plugin-json": "^2.3.0",
     "rollup-plugin-jsx": "^1.0.3",
     "rollup-plugin-node-resolve": "^3.3.0",
@@ -58,12 +59,16 @@
   },
   "dependencies": {
     "antd": "^3.8.0",
+    "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
     "babel-runtime": "^6.26.0",
     "js-md5": "^0.7.3",
     "lodash": "^4.17.11",
+    "nprogress": "^0.2.0",
+    "qs": "^6.6.0",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
-    "rxjs": "^6.2.2"
+    "rxjs": "^6.2.2",
+    "shaye-sword": "^1.0.3"
   }
 }

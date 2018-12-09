@@ -1,11 +1,12 @@
 import { Subject, BehaviorSubject, from, of } from "rxjs";
 import { map, pluck, filter, combineLatest, switchMap } from "rxjs/operators";
 import { pipeFromArray } from "rxjs/internal/util/pipe";
-import { combineAll } from "rxjs/internal/operators/combineAll";
 // import update from 'immutability-helper';
 import md5 from "js-md5";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
+import Redis from "../browser-redis/src/index.js";
+const redis = new Redis();
 
 /**
  * @namespace config
@@ -112,7 +113,7 @@ export const distributor$ = {
         event = { type: type };
       }
       if (!isCorrectVal(event.payload)) event.payload = {}; 
-      if (!isCorrectVal(event.options)) event.options = {}; 
+      if (!isCorrectVal(event.options)) event.options = {};
       map[event.type] = event;
     });
     _distributor$.next(map);
@@ -129,8 +130,10 @@ export const ofLast = function (obs$) {
 const Attract = function(type) {
   let options = null;
   const _options = {
-    useCache: false
+    useCache: false,
+    cacheType: "eventCache"  // eventCache pagingCache itemCache
   }
+
   if (isCorrectVal(type) && (typeof type === "string")) {
     options = Object.assign({}, _options);
   } else if (isCorrectVal(type) && _isObject(type)) {
@@ -146,6 +149,15 @@ const Attract = function(type) {
     pluck(type),
     filter(event => {
       if (isCorrectVal(event)) {
+        if (
+          isCorrectVal(event.options.paginationFields) &&
+          isCorrectVal(event.options.paginationFields.pageNum) &&
+          isCorrectVal(event.options.paginationFields.pageSize) 
+        ) {
+          options.useCache = true;
+          options.cacheType = "pagingCache";
+        }
+
         if (!isCorrectVal(rxStore.pushHeadersMap[event.type])) {
           rxStore.pushHeadersMap[event.type] = {
             event,
@@ -154,6 +166,7 @@ const Attract = function(type) {
         } else {
           const pushHeaders = rxStore.pushHeadersMap[event.type];
           const lastEvent = pushHeaders.event;
+          // 判断是否要更新lastModifyId
           if (
             !options.useCache ||
             (
@@ -183,18 +196,46 @@ const Attract = function(type) {
       switchMap(event => {
         const pushHeaders = rxStore.pushHeadersMap[event.type];
         let hasModified = obs$$.lastModifyId !== pushHeaders.lastModifyId;
-        if (!hasModified && !isCorrectVal(rxStore.dataMap[event.type])) hasModified = true;
+        let cacheData;
+        if (options.useCache && !hasModified) {
+          // pagingCache itemCache
+          switch (options.cacheType) {
+            case "eventCache":
+              cacheData = rxStore.dataMap[event.type];
+              if (!isCorrectVal(cacheData)) {
+                hasModified = true;
+                pushHeaders.lastModifyId = (new Date()).getTime();
+              }
+              break;
+            case "pagingCache":
+              // TODO: 判断分页数据是否有缓存数据
+              break;
+          }
+        }
+        event.hasModified = hasModified;
         if (!hasModified) NProgress.start();
-        return hasModified ? ((operations.length === 0) ? of(event) : pipeFromArray(operations)(of(event))) : of(rxStore.dataMap[event.type]);
+        return hasModified ? ((operations.length === 0) ? of(event) : pipeFromArray(operations)(of(event))) : of(cacheData);
       }),
       filter((data) => {
         const canPass = !((data === null) || (typeof data === "undefined"));
         const pushHeaders = rxStore.pushHeadersMap[type];
-        const hasModified = obs$$.lastModifyId !== pushHeaders.lastModifyId;
+        const event = pushHeaders.event;
+        const hasModified = event.hasModified;
         if (canPass) {
           obs$$.lastModifyId = pushHeaders.lastModifyId;
-          if (hasModified) {
-            rxStore.dataMap[type] = data;
+        }
+        if (canPass && hasModified) {
+          switch (options.cacheType) {
+            case "eventCache":
+              rxStore.dataMap[type] = data;
+              break;
+            case "pagingCache":
+              redis.storePagingData({
+                key: `pagingData-${type}`,
+                pageNum: event.payload[event.options.paginationFields.pageNum],
+                pageSize: event.payload[event.options.paginationFields.pageSize]
+              }, data.list);
+              break;
           }
         }
         setTimeout(function () { NProgress.done(); }, 20);

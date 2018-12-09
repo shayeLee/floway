@@ -12,7 +12,10 @@ var server = http.createServer(function (request, response) {
         if (!err) {
             if(stats.isFile()){
                 console.log('200 ' + request.url);
-                response.writeHead(200,{"Content-Type":getFileType(pathname)});
+                response.writeHead(200, {
+                    "Content-Type": getFileType(pathname),
+                    "Cache-Control": (path.extname(pathname) !== ".js") ? "max-age=315360000" : "no-store"
+                });
                 fs.createReadStream(filepath).pipe(response);
             }else if(stats.isDirectory()){
                 var defaults = 'index.html';          
@@ -40,21 +43,27 @@ function getFileType(pathname){
     switch(path.extname(pathname)){
         case ".html":
             return "text/html";
+            break;
         case ".js":
             return "text/javascript";
+            break;
         case ".css":
             return "text/css";
+            break;
         case ".gif":
             return "image/gif";
+            break;
         case ".jpg":
             return "image/jpeg";
+            break;
         case ".png":
             return "image/png";
+            break;
         default:
             return "application/octet-stream";
     }
 }
 
-server.listen(5005);
+server.listen(3005);
 
-console.log('Server is running at http://localhost:5005/');
+console.log('Server is running at http://localhost:3005/');
