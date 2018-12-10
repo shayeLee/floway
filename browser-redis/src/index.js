@@ -56,21 +56,58 @@ class Redis {
       cacheData[key]["startCursor"] = startCursor;
       cacheData[key]["endCursor"] = endCursor;
     } else {
+      const sourceArr = cacheData[key]["data"];
       if (
         (startCursor < cacheData[key]["startCursor"]) &&
         (endCursor >= cacheData[key]["startCursor"]) &&
         (endCursor <= cacheData[key]["endCursor"])
       ) {
-        const sourceArr = cacheData[key]["data"];
-        const newtArr = data.slice(0, cacheData[key]["startCursor"] - startCursor);
-        for (let i = (newtArr.length - 1); i > -1; i--) {
-          sourceArr.unshift(newtArr[i]);
+        const newArr = data.slice(0, cacheData[key]["startCursor"] - startCursor);
+        for (let i = (newArr.length - 1); i > -1; i--) {
+          sourceArr.unshift(newArr[i]);
         }
         cacheData[key]["startCursor"] = startCursor;
+      } else if (
+        (startCursor < cacheData[key]["startCursor"]) &&
+        (endCursor === (cacheData[key]["startCursor"] - 1))
+      ) {
+        const newArr = data;
+        for (let i = (newArr.length - 1); i > -1; i--) {
+          sourceArr.unshift(newArr[i]);
+        }
+        cacheData[key]["startCursor"] = startCursor;
+      } else if (
+        (startCursor < cacheData[key]["startCursor"]) &&
+        (endCursor > cacheData[key]["endCursor"])
+      ) {
+        const leftArr = data.slice(0, cacheData[key]["startCursor"] - startCursor);
+        for (let i = (leftArr.length - 1); i > -1; i--) {
+          sourceArr.unshift(leftArr[i]);
+        }
+        cacheData[key]["startCursor"] = startCursor;
+        const rightArr = data.slice(cacheData[key]["endCursor"] - endCursor);
+        rightArr.forEach(item => {
+          sourceArr.push(item);
+        })
+        cacheData[key]["endCursor"] = endCursor;
+      } else if (
+        (startCursor >= cacheData[key]["startCursor"]) &&
+        (startCursor <= cacheData[key]["endCursor"]) &&
+        (endCursor > cacheData[key]["endCursor"])
+      ) {
+        const newArr = data.slice(cacheData[key]["endCursor"] - endCursor);
+        newArr.forEach(item => {
+          sourceArr.push(item);
+        });
+        cacheData[key]["endCursor"] = endCursor;
+      } else if (startCursor === (cacheData[key]["endCursor"] + 1)) {
+        const newArr = data;
+        for (let i = (newArr.length - 1); i > -1; i--) {
+          sourceArr.push(newArr[i]);
+        }
+        cacheData[key]["endCursor"] = endCursor;
       }
     }
-
-    console.log(cacheData[key]);
   }
 }
 

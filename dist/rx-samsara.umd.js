@@ -24,7 +24,7 @@
 	});
 
 	var _core = createCommonjsModule(function (module) {
-	var core = module.exports = { version: '2.5.7' };
+	var core = module.exports = { version: '2.5.5' };
 	if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
 	});
 	var _core_1 = _core.version;
@@ -269,20 +269,11 @@
 	  };
 	};
 
-	var _library = true;
-
-	var _shared = createCommonjsModule(function (module) {
 	var SHARED = '__core-js_shared__';
 	var store = _global[SHARED] || (_global[SHARED] = {});
-
-	(module.exports = function (key, value) {
-	  return store[key] || (store[key] = value !== undefined ? value : {});
-	})('versions', []).push({
-	  version: _core.version,
-	  mode: _library ? 'pure' : 'global',
-	  copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
-	});
-	});
+	var _shared = function (key) {
+	  return store[key] || (store[key] = {});
+	};
 
 	var id = 0;
 	var px = Math.random();
@@ -518,6 +509,8 @@
 	      : TO_STRING ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
 	  };
 	};
+
+	var _library = true;
 
 	var _redefine = _hide;
 
@@ -2279,8 +2272,7 @@
 	    };
 	  // environments with maybe non-completely correct, but existent Promise
 	  } else if (Promise$1 && Promise$1.resolve) {
-	    // Promise.resolve without an argument throws an error in LG WebOS 2
-	    var promise = Promise$1.resolve(undefined);
+	    var promise = Promise$1.resolve();
 	    notify = function () {
 	      promise.then(flush);
 	    };
@@ -2337,10 +2329,6 @@
 	  }
 	};
 
-	var navigator = _global.navigator;
-
-	var _userAgent = navigator && navigator.userAgent || '';
-
 	var _promiseResolve = function (C, x) {
 	  _anObject(C);
 	  if (_isObject(x) && x.constructor === C) return x;
@@ -2393,12 +2381,9 @@
 
 
 
-
 	var PROMISE = 'Promise';
 	var TypeError$1 = _global.TypeError;
 	var process$3 = _global.process;
-	var versions = process$3 && process$3.versions;
-	var v8 = versions && versions.v8 || '';
 	var $Promise = _global[PROMISE];
 	var isNode$1 = _classof(process$3) == 'process';
 	var empty = function () { /* empty */ };
@@ -2413,13 +2398,7 @@
 	      exec(empty, empty);
 	    };
 	    // unhandled rejections tracking support, NodeJS Promise without it fails @@species test
-	    return (isNode$1 || typeof PromiseRejectionEvent == 'function')
-	      && promise.then(empty) instanceof FakePromise
-	      // v8 6.6 (Node 10 and Chrome 66) have a bug with resolving custom thenables
-	      // https://bugs.chromium.org/p/chromium/issues/detail?id=830565
-	      // we can't detect it synchronously, so just check versions
-	      && v8.indexOf('6.6') !== 0
-	      && _userAgent.indexOf('Chrome/66') === -1;
+	    return (isNode$1 || typeof PromiseRejectionEvent == 'function') && promise.then(empty) instanceof FakePromise;
 	  } catch (e) { /* empty */ }
 	}();
 
@@ -2847,17 +2826,19 @@
 	}
 	//# sourceMappingURL=tryCatch.js.map
 
-	/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-	function UnsubscriptionErrorImpl(errors) {
-	    Error.call(this);
-	    this.message = errors ?
-	        errors.length + " errors occurred during unsubscription:\n" + errors.map(function (err, i) { return i + 1 + ") " + err.toString(); }).join('\n  ') : '';
-	    this.name = 'UnsubscriptionError';
-	    this.errors = errors;
-	    return this;
-	}
-	UnsubscriptionErrorImpl.prototype = /*@__PURE__*/ Object.create(Error.prototype);
-	var UnsubscriptionError = UnsubscriptionErrorImpl;
+	/** PURE_IMPORTS_START tslib PURE_IMPORTS_END */
+	var UnsubscriptionError = /*@__PURE__*/ (function (_super) {
+	    __extends(UnsubscriptionError, _super);
+	    function UnsubscriptionError(errors) {
+	        var _this = _super.call(this, errors ?
+	            errors.length + " errors occurred during unsubscription:\n  " + errors.map(function (err, i) { return i + 1 + ") " + err.toString(); }).join('\n  ') : '') || this;
+	        _this.errors = errors;
+	        _this.name = 'UnsubscriptionError';
+	        Object.setPrototypeOf(_this, UnsubscriptionError.prototype);
+	        return _this;
+	    }
+	    return UnsubscriptionError;
+	}(Error));
 	//# sourceMappingURL=UnsubscriptionError.js.map
 
 	/** PURE_IMPORTS_START _util_isArray,_util_isObject,_util_isFunction,_util_tryCatch,_util_errorObject,_util_UnsubscriptionError PURE_IMPORTS_END */
@@ -3001,7 +2982,6 @@
 	        _this.syncErrorThrown = false;
 	        _this.syncErrorThrowable = false;
 	        _this.isStopped = false;
-	        _this._parentSubscription = null;
 	        switch (arguments.length) {
 	            case 0:
 	                _this.destination = empty$1;
@@ -3016,7 +2996,7 @@
 	                        var trustedSubscriber = destinationOrNext[rxSubscriber]();
 	                        _this.syncErrorThrowable = trustedSubscriber.syncErrorThrowable;
 	                        _this.destination = trustedSubscriber;
-	                        trustedSubscriber._addParentTeardownLogic(_this);
+	                        trustedSubscriber.add(_this);
 	                    }
 	                    else {
 	                        _this.syncErrorThrowable = true;
@@ -3046,14 +3026,12 @@
 	        if (!this.isStopped) {
 	            this.isStopped = true;
 	            this._error(err);
-	            this._unsubscribeParentSubscription();
 	        }
 	    };
 	    Subscriber.prototype.complete = function () {
 	        if (!this.isStopped) {
 	            this.isStopped = true;
 	            this._complete();
-	            this._unsubscribeParentSubscription();
 	        }
 	    };
 	    Subscriber.prototype.unsubscribe = function () {
@@ -3074,16 +3052,6 @@
 	        this.destination.complete();
 	        this.unsubscribe();
 	    };
-	    Subscriber.prototype._addParentTeardownLogic = function (parentTeardownLogic) {
-	        if (parentTeardownLogic !== this) {
-	            this._parentSubscription = this.add(parentTeardownLogic);
-	        }
-	    };
-	    Subscriber.prototype._unsubscribeParentSubscription = function () {
-	        if (this._parentSubscription !== null) {
-	            this._parentSubscription.unsubscribe();
-	        }
-	    };
 	    Subscriber.prototype._unsubscribeAndRecycle = function () {
 	        var _a = this, _parent = _a._parent, _parents = _a._parents;
 	        this._parent = null;
@@ -3093,7 +3061,6 @@
 	        this.isStopped = false;
 	        this._parent = _parent;
 	        this._parents = _parents;
-	        this._parentSubscription = null;
 	        return this;
 	    };
 	    return Subscriber;
@@ -3233,7 +3200,7 @@
 	    return SafeSubscriber;
 	}(Subscriber));
 	function isTrustedSubscriber(obj) {
-	    return obj instanceof Subscriber || ('_addParentTeardownLogic' in obj && obj[rxSubscriber]);
+	    return obj instanceof Subscriber || ('syncErrorThrowable' in obj && obj[rxSubscriber]);
 	}
 	//# sourceMappingURL=Subscriber.js.map
 
@@ -3297,7 +3264,7 @@
 	            operator.call(sink, this.source);
 	        }
 	        else {
-	            sink._addParentTeardownLogic(this.source || (config.useDeprecatedSynchronousErrorHandling && !sink.syncErrorThrowable) ?
+	            sink.add(this.source || (config.useDeprecatedSynchronousErrorHandling && !sink.syncErrorThrowable) ?
 	                this._subscribe(sink) :
 	                this._trySubscribe(sink));
 	        }
@@ -3382,15 +3349,17 @@
 	}
 	//# sourceMappingURL=Observable.js.map
 
-	/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-	function ObjectUnsubscribedErrorImpl() {
-	    Error.call(this);
-	    this.message = 'object unsubscribed';
-	    this.name = 'ObjectUnsubscribedError';
-	    return this;
-	}
-	ObjectUnsubscribedErrorImpl.prototype = /*@__PURE__*/ Object.create(Error.prototype);
-	var ObjectUnsubscribedError = ObjectUnsubscribedErrorImpl;
+	/** PURE_IMPORTS_START tslib PURE_IMPORTS_END */
+	var ObjectUnsubscribedError = /*@__PURE__*/ (function (_super) {
+	    __extends(ObjectUnsubscribedError, _super);
+	    function ObjectUnsubscribedError() {
+	        var _this = _super.call(this, 'object unsubscribed') || this;
+	        _this.name = 'ObjectUnsubscribedError';
+	        Object.setPrototypeOf(_this, ObjectUnsubscribedError.prototype);
+	        return _this;
+	    }
+	    return ObjectUnsubscribedError;
+	}(Error));
 	//# sourceMappingURL=ObjectUnsubscribedError.js.map
 
 	/** PURE_IMPORTS_START tslib,_Subscription PURE_IMPORTS_END */
@@ -3995,7 +3964,7 @@
 	        if (delay !== null && this.delay === delay && this.pending === false) {
 	            return id;
 	        }
-	        clearInterval(id);
+	        return clearInterval(id) && undefined || undefined;
 	    };
 	    AsyncAction.prototype.execute = function (state, delay) {
 	        if (this.closed) {
@@ -4818,21 +4787,43 @@
 	/** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
 	//# sourceMappingURL=isObservable.js.map
 
-	/** PURE_IMPORTS_START  PURE_IMPORTS_END */
+	/** PURE_IMPORTS_START tslib PURE_IMPORTS_END */
+	var ArgumentOutOfRangeError = /*@__PURE__*/ (function (_super) {
+	    __extends(ArgumentOutOfRangeError, _super);
+	    function ArgumentOutOfRangeError() {
+	        var _this = _super.call(this, 'argument out of range') || this;
+	        _this.name = 'ArgumentOutOfRangeError';
+	        Object.setPrototypeOf(_this, ArgumentOutOfRangeError.prototype);
+	        return _this;
+	    }
+	    return ArgumentOutOfRangeError;
+	}(Error));
 	//# sourceMappingURL=ArgumentOutOfRangeError.js.map
 
-	/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-	function EmptyErrorImpl() {
-	    Error.call(this);
-	    this.message = 'no elements in sequence';
-	    this.name = 'EmptyError';
-	    return this;
-	}
-	EmptyErrorImpl.prototype = /*@__PURE__*/ Object.create(Error.prototype);
-	var EmptyError = EmptyErrorImpl;
+	/** PURE_IMPORTS_START tslib PURE_IMPORTS_END */
+	var EmptyError = /*@__PURE__*/ (function (_super) {
+	    __extends(EmptyError, _super);
+	    function EmptyError() {
+	        var _this = _super.call(this, 'no elements in sequence') || this;
+	        _this.name = 'EmptyError';
+	        Object.setPrototypeOf(_this, EmptyError.prototype);
+	        return _this;
+	    }
+	    return EmptyError;
+	}(Error));
 	//# sourceMappingURL=EmptyError.js.map
 
-	/** PURE_IMPORTS_START  PURE_IMPORTS_END */
+	/** PURE_IMPORTS_START tslib PURE_IMPORTS_END */
+	var TimeoutError = /*@__PURE__*/ (function (_super) {
+	    __extends(TimeoutError, _super);
+	    function TimeoutError() {
+	        var _this = _super.call(this, 'Timeout has occurred') || this;
+	        _this.name = 'TimeoutError';
+	        Object.setPrototypeOf(_this, TimeoutError.prototype);
+	        return _this;
+	    }
+	    return TimeoutError;
+	}(Error));
 	//# sourceMappingURL=TimeoutError.js.map
 
 	/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
@@ -5041,13 +5032,8 @@
 	//# sourceMappingURL=subscribeTo.js.map
 
 	/** PURE_IMPORTS_START _InnerSubscriber,_subscribeTo PURE_IMPORTS_END */
-	function subscribeToResult(outerSubscriber, result, outerValue, outerIndex, destination) {
-	    if (destination === void 0) {
-	        destination = new InnerSubscriber(outerSubscriber, outerValue, outerIndex);
-	    }
-	    if (destination.closed) {
-	        return;
-	    }
+	function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
+	    var destination = new InnerSubscriber(outerSubscriber, outerValue, outerIndex);
 	    return subscribeTo(result)(destination);
 	}
 	//# sourceMappingURL=subscribeToResult.js.map
@@ -5252,7 +5238,7 @@
 	}
 	//# sourceMappingURL=from.js.map
 
-	/** PURE_IMPORTS_START tslib,_util_subscribeToResult,_OuterSubscriber,_InnerSubscriber,_map,_observable_from PURE_IMPORTS_END */
+	/** PURE_IMPORTS_START tslib,_util_subscribeToResult,_OuterSubscriber,_map,_observable_from PURE_IMPORTS_END */
 	var MergeMapSubscriber = /*@__PURE__*/ (function (_super) {
 	    __extends(MergeMapSubscriber, _super);
 	    function MergeMapSubscriber(destination, project, concurrent) {
@@ -5290,9 +5276,7 @@
 	        this._innerSub(result, value, index);
 	    };
 	    MergeMapSubscriber.prototype._innerSub = function (ish, value, index) {
-	        var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
-	        this.add(innerSubscriber);
-	        subscribeToResult(this, ish, value, index, innerSubscriber);
+	        this.add(subscribeToResult(this, ish, value, index));
 	    };
 	    MergeMapSubscriber.prototype._complete = function () {
 	        this.hasCompleted = true;
@@ -6064,7 +6048,7 @@
 	}(OuterSubscriber));
 	//# sourceMappingURL=bufferWhen.js.map
 
-	/** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+	/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
 	var CatchSubscriber = /*@__PURE__*/ (function (_super) {
 	    __extends(CatchSubscriber, _super);
 	    function CatchSubscriber(destination, selector, caught) {
@@ -6084,9 +6068,7 @@
 	                return;
 	            }
 	            this._unsubscribeAndRecycle();
-	            var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
-	            this.add(innerSubscriber);
-	            subscribeToResult(this, result, undefined, undefined, innerSubscriber);
+	            this.add(subscribeToResult(this, result));
 	        }
 	    };
 	    return CatchSubscriber;
@@ -6358,7 +6340,6 @@
 	        _this.delayDurationSelector = delayDurationSelector;
 	        _this.completed = false;
 	        _this.delayNotifierSubscriptions = [];
-	        _this.index = 0;
 	        return _this;
 	    }
 	    DelayWhenSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
@@ -6377,9 +6358,8 @@
 	        this.tryComplete();
 	    };
 	    DelayWhenSubscriber.prototype._next = function (value) {
-	        var index = this.index++;
 	        try {
-	            var delayNotifier = this.delayDurationSelector(value, index);
+	            var delayNotifier = this.delayDurationSelector(value);
 	            if (delayNotifier) {
 	                this.tryDelay(delayNotifier, value);
 	            }
@@ -6764,7 +6744,7 @@
 	}(OuterSubscriber));
 	//# sourceMappingURL=exhaust.js.map
 
-	/** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
+	/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
 	var ExhaustMapSubscriber = /*@__PURE__*/ (function (_super) {
 	    __extends(ExhaustMapSubscriber, _super);
 	    function ExhaustMapSubscriber(destination, project) {
@@ -6781,22 +6761,16 @@
 	        }
 	    };
 	    ExhaustMapSubscriber.prototype.tryNext = function (value) {
-	        var result;
 	        var index = this.index++;
+	        var destination = this.destination;
 	        try {
-	            result = this.project(value, index);
+	            var result = this.project(value, index);
+	            this.hasSubscription = true;
+	            this.add(subscribeToResult(this, result, value, index));
 	        }
 	        catch (err) {
-	            this.destination.error(err);
-	            return;
+	            destination.error(err);
 	        }
-	        this.hasSubscription = true;
-	        this._innerSub(result, value, index);
-	    };
-	    ExhaustMapSubscriber.prototype._innerSub = function (result, value, index) {
-	        var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
-	        this.add(innerSubscriber);
-	        subscribeToResult(this, result, value, index, innerSubscriber);
 	    };
 	    ExhaustMapSubscriber.prototype._complete = function () {
 	        this.hasCompleted = true;
@@ -6922,7 +6896,6 @@
 	        var destination = this.destination;
 	        destination.next(value);
 	        destination.complete();
-	        this.unsubscribe();
 	    };
 	    FindValueSubscriber.prototype._next = function (value) {
 	        var _a = this, predicate = _a.predicate, thisArg = _a.thisArg;
@@ -7122,7 +7095,7 @@
 	/** PURE_IMPORTS_START _mergeMap PURE_IMPORTS_END */
 	//# sourceMappingURL=mergeMapTo.js.map
 
-	/** PURE_IMPORTS_START tslib,_util_tryCatch,_util_errorObject,_util_subscribeToResult,_OuterSubscriber,_InnerSubscriber PURE_IMPORTS_END */
+	/** PURE_IMPORTS_START tslib,_util_tryCatch,_util_errorObject,_util_subscribeToResult,_OuterSubscriber PURE_IMPORTS_END */
 	var MergeScanSubscriber = /*@__PURE__*/ (function (_super) {
 	    __extends(MergeScanSubscriber, _super);
 	    function MergeScanSubscriber(destination, accumulator, acc, concurrent) {
@@ -7155,9 +7128,7 @@
 	        }
 	    };
 	    MergeScanSubscriber.prototype._innerSub = function (ish, value, index) {
-	        var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
-	        this.add(innerSubscriber);
-	        subscribeToResult(this, ish, value, index, innerSubscriber);
+	        this.add(subscribeToResult(this, ish, value, index));
 	    };
 	    MergeScanSubscriber.prototype._complete = function () {
 	        this.hasCompleted = true;
@@ -7198,7 +7169,7 @@
 	/** PURE_IMPORTS_START _observable_ConnectableObservable PURE_IMPORTS_END */
 	//# sourceMappingURL=multicast.js.map
 
-	/** PURE_IMPORTS_START tslib,_observable_from,_util_isArray,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+	/** PURE_IMPORTS_START tslib,_observable_from,_util_isArray,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
 	var OnErrorResumeNextSubscriber = /*@__PURE__*/ (function (_super) {
 	    __extends(OnErrorResumeNextSubscriber, _super);
 	    function OnErrorResumeNextSubscriber(destination, nextSources) {
@@ -7222,9 +7193,7 @@
 	    OnErrorResumeNextSubscriber.prototype.subscribeToNextSource = function () {
 	        var next = this.nextSources.shift();
 	        if (next) {
-	            var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
-	            this.add(innerSubscriber);
-	            subscribeToResult(this, next, undefined, undefined, innerSubscriber);
+	            this.add(subscribeToResult(this, next));
 	        }
 	        else {
 	            this.destination.complete();
@@ -7725,16 +7694,13 @@
 	}(Subscriber));
 	//# sourceMappingURL=skipLast.js.map
 
-	/** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+	/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
 	var SkipUntilSubscriber = /*@__PURE__*/ (function (_super) {
 	    __extends(SkipUntilSubscriber, _super);
 	    function SkipUntilSubscriber(destination, notifier) {
 	        var _this = _super.call(this, destination) || this;
 	        _this.hasValue = false;
-	        var innerSubscriber = new InnerSubscriber(_this, undefined, undefined);
-	        _this.add(innerSubscriber);
-	        _this.innerSubscription = innerSubscriber;
-	        subscribeToResult(_this, notifier, undefined, undefined, innerSubscriber);
+	        _this.add(_this.innerSubscription = subscribeToResult(_this, notifier));
 	        return _this;
 	    }
 	    SkipUntilSubscriber.prototype._next = function (value) {
@@ -7839,7 +7805,7 @@
 	/** PURE_IMPORTS_START _observable_SubscribeOnObservable PURE_IMPORTS_END */
 	//# sourceMappingURL=subscribeOn.js.map
 
-	/** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
+	/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
 	function switchMap(project, resultSelector) {
 	    if (typeof resultSelector === 'function') {
 	        return function (source) { return source.pipe(switchMap(function (a, i) { return from(project(a, i)).pipe(map(function (b, ii) { return resultSelector(a, b, i, ii); })); })); };
@@ -7880,9 +7846,7 @@
 	        if (innerSubscription) {
 	            innerSubscription.unsubscribe();
 	        }
-	        var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
-	        this.add(innerSubscriber);
-	        this.innerSubscription = subscribeToResult(this, result, value, index, innerSubscriber);
+	        this.add(this.innerSubscription = subscribeToResult(this, result, value, index));
 	    };
 	    SwitchMapSubscriber.prototype._complete = function () {
 	        var innerSubscription = this.innerSubscription;
@@ -7917,12 +7881,9 @@
 	var TakeUntilSubscriber = /*@__PURE__*/ (function (_super) {
 	    __extends(TakeUntilSubscriber, _super);
 	    function TakeUntilSubscriber(destination) {
-	        var _this = _super.call(this, destination) || this;
-	        _this.seenValue = false;
-	        return _this;
+	        return _super.call(this, destination) || this;
 	    }
 	    TakeUntilSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
-	        this.seenValue = true;
 	        this.complete();
 	    };
 	    TakeUntilSubscriber.prototype.notifyComplete = function () {
@@ -11425,17 +11386,44 @@
 	      cacheData[key]["startCursor"] = startCursor;
 	      cacheData[key]["endCursor"] = endCursor;
 	    } else {
+	      var sourceArr = cacheData[key]["data"];
 	      if (startCursor < cacheData[key]["startCursor"] && endCursor >= cacheData[key]["startCursor"] && endCursor <= cacheData[key]["endCursor"]) {
-	        var sourceArr = cacheData[key]["data"];
-	        var newtArr = data.slice(0, cacheData[key]["startCursor"] - startCursor);
-	        for (var i = newtArr.length - 1; i > -1; i--) {
-	          sourceArr.unshift(newtArr[i]);
+	        var newArr = data.slice(0, cacheData[key]["startCursor"] - startCursor);
+	        for (var i = newArr.length - 1; i > -1; i--) {
+	          sourceArr.unshift(newArr[i]);
 	        }
 	        cacheData[key]["startCursor"] = startCursor;
+	      } else if (startCursor < cacheData[key]["startCursor"] && endCursor === cacheData[key]["startCursor"] - 1) {
+	        var _newArr = data;
+	        for (var _i = _newArr.length - 1; _i > -1; _i--) {
+	          sourceArr.unshift(_newArr[_i]);
+	        }
+	        cacheData[key]["startCursor"] = startCursor;
+	      } else if (startCursor < cacheData[key]["startCursor"] && endCursor > cacheData[key]["endCursor"]) {
+	        var leftArr = data.slice(0, cacheData[key]["startCursor"] - startCursor);
+	        for (var _i2 = leftArr.length - 1; _i2 > -1; _i2--) {
+	          sourceArr.unshift(leftArr[_i2]);
+	        }
+	        cacheData[key]["startCursor"] = startCursor;
+	        var rightArr = data.slice(cacheData[key]["endCursor"] - endCursor);
+	        rightArr.forEach(function (item) {
+	          sourceArr.push(item);
+	        });
+	        cacheData[key]["endCursor"] = endCursor;
+	      } else if (startCursor >= cacheData[key]["startCursor"] && startCursor <= cacheData[key]["endCursor"] && endCursor > cacheData[key]["endCursor"]) {
+	        var _newArr2 = data.slice(cacheData[key]["endCursor"] - endCursor);
+	        _newArr2.forEach(function (item) {
+	          sourceArr.push(item);
+	        });
+	        cacheData[key]["endCursor"] = endCursor;
+	      } else if (startCursor === cacheData[key]["endCursor"] + 1) {
+	        var _newArr3 = data;
+	        for (var _i3 = _newArr3.length - 1; _i3 > -1; _i3--) {
+	          sourceArr.push(_newArr3[_i3]);
+	        }
+	        cacheData[key]["endCursor"] = endCursor;
 	      }
 	    }
-
-	    console.log(cacheData[key]);
 	  };
 
 	  if (variables$1.isCorrect(initialData)) cacheData = initialData;
@@ -11863,23 +11851,36 @@
 	unwrapExports(tryCatch_1);
 	var tryCatch_2 = tryCatch_1.tryCatch;
 
-	var UnsubscriptionError$1 = createCommonjsModule(function (module, exports) {
+	var UnsubscriptionError_1 = createCommonjsModule(function (module, exports) {
+	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+	    return function (d, b) {
+	        extendStatics(d, b);
+	        function __() { this.constructor = d; }
+	        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	    };
+	})();
 	Object.defineProperty(exports, "__esModule", { value: true });
-	function UnsubscriptionErrorImpl(errors) {
-	    Error.call(this);
-	    this.message = errors ?
-	        errors.length + " errors occurred during unsubscription:\n" + errors.map(function (err, i) { return i + 1 + ") " + err.toString(); }).join('\n  ') : '';
-	    this.name = 'UnsubscriptionError';
-	    this.errors = errors;
-	    return this;
-	}
-	UnsubscriptionErrorImpl.prototype = Object.create(Error.prototype);
-	exports.UnsubscriptionError = UnsubscriptionErrorImpl;
+	var UnsubscriptionError = (function (_super) {
+	    __extends(UnsubscriptionError, _super);
+	    function UnsubscriptionError(errors) {
+	        var _this = _super.call(this, errors ?
+	            errors.length + " errors occurred during unsubscription:\n  " + errors.map(function (err, i) { return i + 1 + ") " + err.toString(); }).join('\n  ') : '') || this;
+	        _this.errors = errors;
+	        _this.name = 'UnsubscriptionError';
+	        Object.setPrototypeOf(_this, UnsubscriptionError.prototype);
+	        return _this;
+	    }
+	    return UnsubscriptionError;
+	}(Error));
+	exports.UnsubscriptionError = UnsubscriptionError;
 	//# sourceMappingURL=UnsubscriptionError.js.map
 	});
 
-	unwrapExports(UnsubscriptionError$1);
-	var UnsubscriptionError_1 = UnsubscriptionError$1.UnsubscriptionError;
+	unwrapExports(UnsubscriptionError_1);
+	var UnsubscriptionError_2 = UnsubscriptionError_1.UnsubscriptionError;
 
 	var Subscription_1 = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
@@ -11920,7 +11921,7 @@
 	            var trial = tryCatch_1.tryCatch(_unsubscribe).call(this);
 	            if (trial === errorObject$1.errorObject) {
 	                hasErrors = true;
-	                errors = errors || (errorObject$1.errorObject.e instanceof UnsubscriptionError$1.UnsubscriptionError ?
+	                errors = errors || (errorObject$1.errorObject.e instanceof UnsubscriptionError_1.UnsubscriptionError ?
 	                    flattenUnsubscriptionErrors(errorObject$1.errorObject.e.errors) : [errorObject$1.errorObject.e]);
 	            }
 	        }
@@ -11935,7 +11936,7 @@
 	                        hasErrors = true;
 	                        errors = errors || [];
 	                        var err = errorObject$1.errorObject.e;
-	                        if (err instanceof UnsubscriptionError$1.UnsubscriptionError) {
+	                        if (err instanceof UnsubscriptionError_1.UnsubscriptionError) {
 	                            errors = errors.concat(flattenUnsubscriptionErrors(err.errors));
 	                        }
 	                        else {
@@ -11946,7 +11947,7 @@
 	            }
 	        }
 	        if (hasErrors) {
-	            throw new UnsubscriptionError$1.UnsubscriptionError(errors);
+	            throw new UnsubscriptionError_1.UnsubscriptionError(errors);
 	        }
 	    };
 	    Subscription.prototype.add = function (teardown) {
@@ -12011,7 +12012,7 @@
 	}());
 	exports.Subscription = Subscription;
 	function flattenUnsubscriptionErrors(errors) {
-	    return errors.reduce(function (errs, err) { return errs.concat((err instanceof UnsubscriptionError$1.UnsubscriptionError) ? err.errors : err); }, []);
+	    return errors.reduce(function (errs, err) { return errs.concat((err instanceof UnsubscriptionError_1.UnsubscriptionError) ? err.errors : err); }, []);
 	}
 	//# sourceMappingURL=Subscription.js.map
 	});
@@ -12034,12 +12035,9 @@
 
 	var Subscriber_1 = createCommonjsModule(function (module, exports) {
 	var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-	    var extendStatics = function (d, b) {
-	        extendStatics = Object.setPrototypeOf ||
-	            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-	        return extendStatics(d, b);
-	    };
+	    var extendStatics = Object.setPrototypeOf ||
+	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+	        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
 	    return function (d, b) {
 	        extendStatics(d, b);
 	        function __() { this.constructor = d; }
@@ -12061,7 +12059,6 @@
 	        _this.syncErrorThrown = false;
 	        _this.syncErrorThrowable = false;
 	        _this.isStopped = false;
-	        _this._parentSubscription = null;
 	        switch (arguments.length) {
 	            case 0:
 	                _this.destination = Observer$1.empty;
@@ -12076,7 +12073,7 @@
 	                        var trustedSubscriber = destinationOrNext[rxSubscriber$1.rxSubscriber]();
 	                        _this.syncErrorThrowable = trustedSubscriber.syncErrorThrowable;
 	                        _this.destination = trustedSubscriber;
-	                        trustedSubscriber._addParentTeardownLogic(_this);
+	                        trustedSubscriber.add(_this);
 	                    }
 	                    else {
 	                        _this.syncErrorThrowable = true;
@@ -12106,14 +12103,12 @@
 	        if (!this.isStopped) {
 	            this.isStopped = true;
 	            this._error(err);
-	            this._unsubscribeParentSubscription();
 	        }
 	    };
 	    Subscriber.prototype.complete = function () {
 	        if (!this.isStopped) {
 	            this.isStopped = true;
 	            this._complete();
-	            this._unsubscribeParentSubscription();
 	        }
 	    };
 	    Subscriber.prototype.unsubscribe = function () {
@@ -12134,16 +12129,6 @@
 	        this.destination.complete();
 	        this.unsubscribe();
 	    };
-	    Subscriber.prototype._addParentTeardownLogic = function (parentTeardownLogic) {
-	        if (parentTeardownLogic !== this) {
-	            this._parentSubscription = this.add(parentTeardownLogic);
-	        }
-	    };
-	    Subscriber.prototype._unsubscribeParentSubscription = function () {
-	        if (this._parentSubscription !== null) {
-	            this._parentSubscription.unsubscribe();
-	        }
-	    };
 	    Subscriber.prototype._unsubscribeAndRecycle = function () {
 	        var _a = this, _parent = _a._parent, _parents = _a._parents;
 	        this._parent = null;
@@ -12153,7 +12138,6 @@
 	        this.isStopped = false;
 	        this._parent = _parent;
 	        this._parents = _parents;
-	        this._parentSubscription = null;
 	        return this;
 	    };
 	    return Subscriber;
@@ -12293,16 +12277,14 @@
 	    };
 	    return SafeSubscriber;
 	}(Subscriber));
-	exports.SafeSubscriber = SafeSubscriber;
 	function isTrustedSubscriber(obj) {
-	    return obj instanceof Subscriber || ('_addParentTeardownLogic' in obj && obj[rxSubscriber$1.rxSubscriber]);
+	    return obj instanceof Subscriber || ('syncErrorThrowable' in obj && obj[rxSubscriber$1.rxSubscriber]);
 	}
 	//# sourceMappingURL=Subscriber.js.map
 	});
 
 	unwrapExports(Subscriber_1);
 	var Subscriber_2 = Subscriber_1.Subscriber;
-	var Subscriber_3 = Subscriber_1.SafeSubscriber;
 
 	var toSubscriber_1 = createCommonjsModule(function (module, exports) {
 	Object.defineProperty(exports, "__esModule", { value: true });
@@ -12365,7 +12347,7 @@
 	            operator.call(sink, this.source);
 	        }
 	        else {
-	            sink._addParentTeardownLogic(this.source || (config$1.config.useDeprecatedSynchronousErrorHandling && !sink.syncErrorThrowable) ?
+	            sink.add(this.source || (config$1.config.useDeprecatedSynchronousErrorHandling && !sink.syncErrorThrowable) ?
 	                this._subscribe(sink) :
 	                this._trySubscribe(sink));
 	        }
@@ -12527,11 +12509,11 @@
 
 	window.addEventListener("load", function () {
 	    var clickNum = 0;
-	    var pageNum = 2;
-	    var pageSize = 5;
+	    var pageNum = 1;
+	    var pageSize = 10;
 	    document.getElementById("btn").addEventListener("click", function () {
 	        if (clickNum === 1) {
-	            pageNum = 1;
+	            pageNum = 2;
 	            pageSize = 10;
 	        }
 	        distributor$.next({
@@ -12539,12 +12521,12 @@
 	            payload: {
 	                orderBy: "ClassTime asc",
 	                fiterAll: 0,
-	                pageNum: pageNum,
+	                pageIndex: pageNum,
 	                pageSize: pageSize
 	            },
 	            options: {
 	                paginationFields: {
-	                    pageNum: "pageNum",
+	                    pageNum: "pageIndex",
 	                    pageSize: "pageSize"
 	                }
 	            }

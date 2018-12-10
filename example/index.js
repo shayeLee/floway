@@ -26,11 +26,11 @@ attract({
 
 window.addEventListener("load", function () {
     let clickNum = 0;
-    let pageNum = 2;
-    let pageSize = 5;
+    let pageNum = 1;
+    let pageSize = 10;  
     document.getElementById("btn").addEventListener("click", function () {
         if (clickNum === 1) {
-            pageNum = 1;
+            pageNum = 2;
             pageSize = 10;
         }
         distributor$.next({
@@ -38,12 +38,12 @@ window.addEventListener("load", function () {
             payload: {
                 orderBy: "ClassTime asc",
                 fiterAll: 0,
-                pageNum: pageNum,
+                pageIndex: pageNum,
                 pageSize: pageSize
             },
             options: {
                 paginationFields: {
-                    pageNum: "pageNum",
+                    pageNum: "pageIndex",
                     pageSize: "pageSize"
                 }
             }
