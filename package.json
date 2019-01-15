@@ -1,6 +1,6 @@
 {
   "name": "rx-samsara",
-  "version": "1.0.25",
+  "version": "1.0.33",
   "description": "react-rx",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,11 @@
   },
   "author": "lxyPJ",
   "license": "ISC",
+  "browserslist": [
+    "> 1%",
+    "Chrome 45",
+    "IE 11"
+  ],
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-jest": "^23.4.2",
@@ -55,7 +60,8 @@
     "rollup-plugin-json": "^2.3.0",
     "rollup-plugin-jsx": "^1.0.3",
     "rollup-plugin-node-resolve": "^3.3.0",
-    "rollup-plugin-replace": "^2.0.0"
+    "rollup-plugin-replace": "^2.0.0",
+    "rollup-plugin-uglify": "^6.0.0"
   },
   "dependencies": {
     "antd": "^3.8.0",

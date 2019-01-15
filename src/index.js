@@ -2,6 +2,7 @@ import { Subject, BehaviorSubject, from, of } from "rxjs";
 import { map, pluck, filter, combineLatest, switchMap } from "rxjs/operators";
 import { pipeFromArray } from "rxjs/internal/util/pipe";
 // import update from 'immutability-helper';
+import React from "react";
 import md5 from "js-md5";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
@@ -11,7 +12,7 @@ const redis = new Redis();
 /**
  * @namespace config
  * @prop {observable} [preObservable=defaultIfEmpty(null)]
-*/
+ */
 let _config = {};
 const _setConfig = function(customConfig) {
   _config = Object.assign({}, _config, customConfig);
@@ -29,15 +30,15 @@ export const __rxStore__ = rxStore;
  * 创建一个包含指定数据、并且可更新数据的observable
  * @function hotObservable
  * @param {*} data
-*/
+ */
 function _ofHot(data) {
   const state$ = new BehaviorSubject(data);
   state$.__data__ = data;
-  state$.update = function (mData) {
+  state$.update = function(mData) {
     let newData;
-    const _data = (typeof mData === "function") ? mData(state$.__data__) : mData;
+    const _data = typeof mData === "function" ? mData(state$.__data__) : mData;
     if (_isObject(_data)) {
-      newData = Object.assign({}, state$.__data__, _data)
+      newData = Object.assign({}, state$.__data__, _data);
     } else {
       newData = _data;
     }
@@ -60,7 +61,7 @@ export const ofHot = _ofHot;
 const _persistence = async function(name, defaultValue, origin, options) {
   const _options = Object.assign(
     {
-      refresh: false,
+      refresh: false
     },
     options
   );
@@ -86,7 +87,7 @@ const _persistence = async function(name, defaultValue, origin, options) {
   } else {
     data = await _getNewData();
   }
-  
+
   cacheData = data;
   storageData = JSON.stringify(data);
 
@@ -99,10 +100,9 @@ const _persistence = async function(name, defaultValue, origin, options) {
 };
 export const persistence = _persistence;
 
-
 const _distributor$ = new Subject();
 export const distributor$ = {
-  next: function (events) {
+  next: function(events) {
     if (!Array.isArray(events)) {
       events = [events];
     }
@@ -112,7 +112,7 @@ export const distributor$ = {
         const type = event;
         event = { type: type };
       }
-      if (!isCorrectVal(event.payload)) event.payload = {}; 
+      if (!isCorrectVal(event.payload)) event.payload = {};
       if (!isCorrectVal(event.options)) event.options = {};
       map[event.type] = event;
     });
@@ -120,9 +120,12 @@ export const distributor$ = {
   }
 };
 
-export const ofLast = function (obs$) {
-  return obs$.pipe(combineLatest(), map(arr => arr[0]))
-}
+export const ofLast = function(obs$) {
+  return obs$.pipe(
+    combineLatest(),
+    map(arr => arr[0])
+  );
+};
 
 /**
  * @param {string} type - action类型
@@ -131,20 +134,21 @@ const Attract = function(type) {
   let options = null;
   const _options = {
     useCache: false,
-    cacheType: "eventCache"  // eventCache pagingCache itemCache
-  }
+    cacheType: "eventCache" // eventCache pagingCache itemCache
+  };
 
-  if (isCorrectVal(type) && (typeof type === "string")) {
+  if (isCorrectVal(type) && typeof type === "string") {
     options = Object.assign({}, _options);
   } else if (isCorrectVal(type) && _isObject(type)) {
     options = Object.assign({}, _options, type);
     type = options.type;
-    delete options.type
+    delete options.type;
   }
 
-  if (!isCorrectVal(options)) options = {
-    useCache: false
-  };
+  if (!isCorrectVal(options))
+    options = {
+      useCache: false
+    };
   const event$ = _distributor$.pipe(
     pluck(type),
     filter(event => {
@@ -152,7 +156,7 @@ const Attract = function(type) {
         if (
           isCorrectVal(event.options.paginationFields) &&
           isCorrectVal(event.options.paginationFields.pageNum) &&
-          isCorrectVal(event.options.paginationFields.pageSize) 
+          isCorrectVal(event.options.paginationFields.pageSize)
         ) {
           options.useCache = true;
           options.cacheType = "pagingCache";
@@ -161,7 +165,7 @@ const Attract = function(type) {
         if (!isCorrectVal(rxStore.pushHeadersMap[event.type])) {
           rxStore.pushHeadersMap[event.type] = {
             event,
-            lastModifyId: (new Date()).getTime()
+            lastModifyId: new Date().getTime()
           };
         } else {
           const pushHeaders = rxStore.pushHeadersMap[event.type];
@@ -169,12 +173,14 @@ const Attract = function(type) {
           // 判断是否要更新lastModifyId
           if (
             !options.useCache ||
-            (
-              (md5(JSON.stringify(lastEvent.payload)) !== md5(JSON.stringify(event.payload))) ||
-              (md5(JSON.stringify(lastEvent.options)) !== md5(JSON.stringify(event.options)))
-            )
+            (md5(JSON.stringify(lastEvent.payload)) !==
+              md5(JSON.stringify(event.payload)) ||
+              md5(JSON.stringify(lastEvent.options)) !==
+                md5(JSON.stringify(event.options)))
           ) {
-            rxStore.pushHeadersMap[event.type]["lastModifyId"] = (new Date()).getTime();
+            rxStore.pushHeadersMap[event.type][
+              "lastModifyId"
+            ] = new Date().getTime();
           }
           pushHeaders.event = event;
         }
@@ -182,12 +188,12 @@ const Attract = function(type) {
       }
       return false;
     })
-  )
+  );
 
   const operations = [];
   let _subscription = {
-    unsubscribe: function () {}
-  }
+    unsubscribe: function() {}
+  };
   function generateObs(obs$) {
     _subscription.unsubscribe();
     const obs$$ = new Subject();
@@ -204,7 +210,7 @@ const Attract = function(type) {
               cacheData = rxStore.dataMap[event.type];
               if (!isCorrectVal(cacheData)) {
                 hasModified = true;
-                pushHeaders.lastModifyId = (new Date()).getTime();
+                pushHeaders.lastModifyId = new Date().getTime();
               }
               break;
             case "pagingCache":
@@ -214,10 +220,14 @@ const Attract = function(type) {
         }
         event.hasModified = hasModified;
         if (!hasModified) NProgress.start();
-        return hasModified ? ((operations.length === 0) ? of(event) : pipeFromArray(operations)(of(event))) : of(cacheData);
+        return hasModified
+          ? operations.length === 0
+            ? of(event)
+            : pipeFromArray(operations)(of(event))
+          : of(cacheData);
       }),
-      filter((data) => {
-        const canPass = !((data === null) || (typeof data === "undefined"));
+      filter(data => {
+        const canPass = !(data === null || typeof data === "undefined");
         const pushHeaders = rxStore.pushHeadersMap[type];
         const event = pushHeaders.event;
         const hasModified = event.hasModified;
@@ -230,15 +240,22 @@ const Attract = function(type) {
               rxStore.dataMap[type] = data;
               break;
             case "pagingCache":
-              redis.storePagingData({
-                key: `pagingData-${type}`,
-                pageNum: event.payload[event.options.paginationFields.pageNum],
-                pageSize: event.payload[event.options.paginationFields.pageSize]
-              }, data.list);
+              redis.storePagingData(
+                {
+                  key: `pagingData-${type}`,
+                  pageNum:
+                    event.payload[event.options.paginationFields.pageNum],
+                  pageSize:
+                    event.payload[event.options.paginationFields.pageSize]
+                },
+                data.list
+              );
               break;
           }
         }
-        setTimeout(function () { NProgress.done(); }, 20);
+        setTimeout(function() {
+          NProgress.done();
+        }, 20);
         return canPass;
       })
     );
@@ -247,60 +264,74 @@ const Attract = function(type) {
   }
   const processEvent$ = generateObs(event$);
 
-  processEvent$.pipe = function () {
+  processEvent$.pipe = function() {
     for (var i = 0; i < arguments.length; i++) {
       operations.push(arguments[i]);
     }
     return generateObs(event$);
-  }
+  };
   return processEvent$;
 };
-export const attract = function (type, defaultValue) {
+export const attract = function(type, defaultValue) {
   return Attract(type, defaultValue);
-}
+};
 
-const _permeate = function (observablesMap, param1, param2) {
-  try {
-    React.PureComponent
-  } catch(err) {
-    var React = require("react");
-  }
-
+const _permeate = function(observablesMap, param1, param2) {
   let options = param1 || {};
 
   const handler = function(Comp) {
     if (!_isObject(observablesMap))
-      throw new TypeError(
-        `方法permeate()的参数observablesMap必须是object类型`
-      );
-    const suspendedObservableKeys = Object.keys(observablesMap);
-    const _suspendedObservables = [];
-    if (suspendedObservableKeys.length > 0) {
-      suspendedObservableKeys.forEach(key => {
-        _suspendedObservables.push(observablesMap[key]);
-      });
-    } else {
-      throw new TypeError(
-        `方法permeate()的参数observablesMap不允许传一个空的object`
-      );
-    }
+      throw new TypeError(`方法permeate()的参数observablesMap必须是object类型`);
 
     class Permeate extends React.PureComponent {
-      subscriptionArr = [];
-      state = isCorrectVal(options.defaultProps) ? options.defaultProps : {};
+      constructor() {
+        super();
+
+        this.state = {};
+        this.subscriptionArr = [];
+        this.suspendedObservableKeys = Object.keys(observablesMap);
+        this._suspendedObservables = [];
+        this._innerObservableMaps = {};
+        if (this.suspendedObservableKeys.length > 0) {
+          this.suspendedObservableKeys.forEach(key => {
+            let _observable;
+            if (typeof observablesMap[key]["subscribe"] !== "function") {
+              _observable = _ofHot(observablesMap[key]);
+              this._innerObservableMaps[`${key}$`] = _observable;
+              this.state[key] = observablesMap[key];
+            } else {
+              _observable = observablesMap[key];
+            }
+            this._suspendedObservables.push(_observable);
+          });
+        } else {
+          throw new TypeError(
+            `方法permeate()的参数observablesMap不允许传一个空的object`
+          );
+        }
+
+        this.state = Object.assign(
+          {},
+          this._innerObservableMaps,
+          isCorrectVal(options.defaultProps) ? options.defaultProps : {}
+        );
+      }
 
       componentWillMount() {
-        const obsArr = _suspendedObservables,
+        const obsArr = this._suspendedObservables,
           len = obsArr.length;
         for (let i = 0; i < len; i++) {
           const subscription = obsArr[i].subscribe(data => {
             const type = obsArr[i]["__type__"];
             const pushHeaders = rxStore.pushHeadersMap[type];
 
-            if (options.delayeringFields && options.delayeringFields.includes(suspendedObservableKeys[i])) {
+            if (
+              options.delayeringFields &&
+              options.delayeringFields.includes(this.suspendedObservableKeys[i])
+            ) {
               const _stateObj = {};
               for (const key in data) {
-                if (this.state[key] !== data[key]){
+                if (this.state[key] !== data[key]) {
                   _stateObj[key] = data[key];
                 }
               }
@@ -309,10 +340,10 @@ const _permeate = function (observablesMap, param1, param2) {
               return;
             }
 
-            if (this.state[suspendedObservableKeys[i]] !== data) {
+            if (this.state[this.suspendedObservableKeys[i]] !== data) {
               // if (isCorrectVal(pushHeaders))  console.log(pushHeaders);
               this.setState({
-                [suspendedObservableKeys[i]]: data,
+                [this.suspendedObservableKeys[i]]: data
               });
             }
           });
@@ -380,4 +411,3 @@ function _isEmptyObject(obj) {
   }
   return true;
 }
-

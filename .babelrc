@@ -3,10 +3,7 @@
 		[
 			"env",
 			{
-				"modules": false,
-				"targets": {
-					"browsers": ["last 3 versions", "not ie <= 8"]
-				}
+				"modules": false
 			}
 		],
 		"react"
@@ -30,13 +27,7 @@
         [
           "env",
           {
-            "modules": false,
-            "targets": {
-              "browsers": [
-                "last 5 versions",
-                "IE 9"
-              ]
-            }
+            "modules": false
           }
         ],
         "react"
