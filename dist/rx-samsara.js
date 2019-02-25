@@ -1,4 +1,4 @@
-import { variables } from 'shaye-sword';
+import { isCorrect } from 'shaye-sword';
 import { Subject, BehaviorSubject, of } from 'rxjs';
 import { map, pluck, filter, combineLatest, switchMap } from 'rxjs/operators';
 import { pipeFromArray } from 'rxjs/internal/util/pipe';
@@ -2829,7 +2829,7 @@ function Redis(initialData) {
     }
   };
 
-  if (variables.isCorrect(initialData)) cacheData = initialData;
+  if (isCorrect(initialData)) cacheData = initialData;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { variables } from "shaye-sword";
+import { isCorrect } from "shaye-sword";
 
 let cacheData = {};
 
@@ -9,7 +9,7 @@ class Redis {
    * @param {object} initialData - 初始缓存数据
   */
   constructor(initialData) {
-    if (variables.isCorrect(initialData)) cacheData = initialData;
+    if (isCorrect(initialData)) cacheData = initialData;
   }
 
   /**
