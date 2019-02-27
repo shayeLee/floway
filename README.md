@@ -5,6 +5,7 @@
 在`rx-samsara`的世界里，`observable`是基本单元(数据类型)，就像 `function`之于`javascript`。<br>
 
 [源码地址: https://github.com/shayeLee/rx-samsara](https://github.com/shayeLee/rx-samsara)
+[文档地址: https://shayelee.github.io/rx-samsara/](https://shayelee.github.io/rx-samsara/)
 
 ## 安装
 
