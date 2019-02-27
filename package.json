@@ -28,6 +28,7 @@
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
@@ -53,6 +54,8 @@
     "node-sass": "^4.9.3",
     "path": "^0.12.7",
     "promise-polyfill": "^7.1.2",
+    "react": "^16.8.3",
+    "react-dom": "^16.8.3",
     "rollup": "^0.57.1",
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-commonjs": "^9.1.4",
@@ -64,16 +67,10 @@
     "rollup-plugin-uglify": "^6.0.0"
   },
   "dependencies": {
-    "antd": "^3.8.0",
-    "axios": "^0.18.0",
-    "babel-polyfill": "^6.26.0",
+    "async-validator": "^1.10.1",
     "babel-runtime": "^6.26.0",
     "js-md5": "^0.7.3",
-    "lodash": "^4.17.11",
     "nprogress": "^0.2.0",
-    "qs": "^6.6.0",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
     "rxjs": "^6.2.2",
     "shaye-sword": "^1.0.4"
   }
