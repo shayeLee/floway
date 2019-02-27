@@ -2,9 +2,8 @@ import { BehaviorSubject } from "rxjs";
 import { isObject } from "./utils";
 
 /**
- * 创建一个包含指定数据、并且可更新数据的observable
- * @function hotObservable
- * @param {*} data
+ * 创建一个包含指定数据、并且可更新的observable
+ * @param {*} data - 指定数据
  */
 function ofHot(data) {
   const state$ = new BehaviorSubject(data);

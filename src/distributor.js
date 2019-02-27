@@ -1,7 +1,33 @@
+/**
+ * 全局事件触发器
+ * @namespace distributor$
+*/
+
 import eventBus$ from "./eventBus";
 import { isCorrectVal } from "./utils";
 
 const distributor$ = {
+  /**
+   * 推送事件
+   * @memberof distributor$
+   * @method next
+   * @param {string|object|objectArray} events - 事件集合
+   * @example
+   * import { distributor$ } from "rx-samsara";
+   * distributor$.next("eventName");
+   * @example
+   * import { distributor$ } from "rx-samsara";
+   * distributor$.next({
+   *   type: "eventName"
+   * });
+   * @example
+   * import { distributor$ } from "rx-samsara";
+   * distributor$.next([
+   *   {
+   *     type: "eventName"
+   *   }
+   * ]);
+  */
   next: function(events) {
     if (!Array.isArray(events)) {
       events = [events];
