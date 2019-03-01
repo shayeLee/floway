@@ -3,8 +3,6 @@ import { map, combineLatest, pluck, filter, switchMap } from 'rxjs/operators';
 import { isCorrect } from 'shaye-sword';
 import { pipeFromArray } from 'rxjs/internal/util/pipe';
 import md5 from 'js-md5';
-import NProgress from 'nprogress';
-import 'nprogress/nprogress.css';
 import React from 'react';
 
 var config = {};
@@ -50,9 +48,8 @@ function _isEmptyObject(obj) {
 }
 
 /**
- * 创建一个包含指定数据、并且可更新数据的observable
- * @function hotObservable
- * @param {*} data
+ * 创建一个包含指定数据、并且可更新的observable
+ * @param {*} data - 指定数据
  */
 function ofHot(data) {
   var state$ = new BehaviorSubject(data);
@@ -73,7 +70,30 @@ function ofHot(data) {
 
 var eventBus$ = new Subject();
 
+/**
+ * 全局事件触发器
+*/
+
 var distributor$ = {
+  /**
+   * 推送事件
+   * @param {string|object|objectArray} events - 事件集合
+   * @example
+   * import { distributor$ } from "rx-samsara";
+   * distributor$.next("eventName");
+   * @example
+   * import { distributor$ } from "rx-samsara";
+   * distributor$.next({
+   *   type: "eventName"
+   * });
+   * @example
+   * import { distributor$ } from "rx-samsara";
+   * distributor$.next([
+   *   {
+   *     type: "eventName"
+   *   }
+   * ]);
+  */
   next: function next(events) {
     if (!Array.isArray(events)) {
       events = [events];
@@ -92,11 +112,15 @@ var distributor$ = {
   }
 };
 
-var ofLast = function ofLast(obs$) {
+/**
+ * 创建一个得到指定observable最新推送数据的可观察对象 
+ * @param {observable} obs$ - 指定的observable
+*/
+function ofLast(obs$) {
   return obs$.pipe(combineLatest(), map(function (arr) {
     return arr[0];
   }));
-};
+}
 
 var rxStore$1 = {
   dataMap: {},
@@ -2366,7 +2390,8 @@ function Redis(initialData) {
 var redis = new Redis();
 
 /**
- * @param {string|object} type - action类型
+ * 捕捉事件触发器(distributor$)推送的指定类型的事件，并返回一个observable
+ * @param {string|object} type - 事件类型 或 事件对象
  */
 var attract = function attract(_type) {
   var validator = new Schema({
@@ -2387,7 +2412,7 @@ var attract = function attract(_type) {
   var options = null;
   var _options = {
     useCache: false,
-    cacheType: "eventCache" // eventCache pagingCache itemCache
+    cacheType: "eventCache" // eventCache itemCache
   };
 
   if (isCorrectVal(_type) && typeof _type === "string") {
@@ -2399,29 +2424,25 @@ var attract = function attract(_type) {
   }
 
   var event$ = eventBus$.pipe(pluck(_type), filter(function (event) {
-    if (isCorrectVal(event)) {
-      if (isCorrectVal(event.options.paginationFields) && isCorrectVal(event.options.paginationFields.pageNum) && isCorrectVal(event.options.paginationFields.pageSize)) {
-        options.useCache = true;
-        options.cacheType = "pagingCache";
-      }
+    if (!isCorrectVal(event)) return false;
 
-      if (!isCorrectVal(rxStore$1.pushHeadersMap[event.type])) {
-        rxStore$1.pushHeadersMap[event.type] = {
-          event: event,
-          lastModifyId: new Date().getTime()
-        };
-      } else {
-        var pushHeaders = rxStore$1.pushHeadersMap[event.type];
-        var lastEvent = pushHeaders.event;
-        // 判断是否要更新lastModifyId
-        if (!options.useCache || md5(JSON.stringify(lastEvent.payload)) !== md5(JSON.stringify(event.payload)) || md5(JSON.stringify(lastEvent.options)) !== md5(JSON.stringify(event.options))) {
-          rxStore$1.pushHeadersMap[event.type]["lastModifyId"] = new Date().getTime();
-        }
-        pushHeaders.event = event;
-      }
+    if (!isCorrectVal(rxStore$1.pushHeadersMap[event.type])) {
+      rxStore$1.pushHeadersMap[event.type] = {
+        event: event,
+        lastModifyId: new Date().getTime()
+      };
       return true;
     }
-    return false;
+
+    var pushHeaders = rxStore$1.pushHeadersMap[event.type];
+    var lastEvent = pushHeaders.event;
+
+    // 判断是否要更新lastModifyId
+    if (!options.useCache || md5(JSON.stringify(lastEvent.payload)) !== md5(JSON.stringify(event.payload)) || md5(JSON.stringify(lastEvent.options)) !== md5(JSON.stringify(event.options))) {
+      rxStore$1.pushHeadersMap[event.type]["lastModifyId"] = new Date().getTime();
+    }
+    pushHeaders.event = event;
+    return true;
   }));
 
   var operations = [];
@@ -2435,9 +2456,10 @@ var attract = function attract(_type) {
     var _obs$ = obs$.pipe(switchMap(function (event) {
       var pushHeaders = rxStore$1.pushHeadersMap[event.type];
       var hasModified = obs$$.lastModifyId !== pushHeaders.lastModifyId;
+
+      // 判断是否有缓存数据
       var cacheData = void 0;
       if (options.useCache && !hasModified) {
-        // pagingCache itemCache
         switch (options.cacheType) {
           case "eventCache":
             cacheData = rxStore$1.dataMap[event.type];
@@ -2446,13 +2468,9 @@ var attract = function attract(_type) {
               pushHeaders.lastModifyId = new Date().getTime();
             }
             break;
-          case "pagingCache":
-            // TODO: 判断分页数据是否有缓存数据
-            break;
         }
       }
       event.hasModified = hasModified;
-      if (!hasModified) NProgress.start();
       return hasModified ? operations.length === 0 ? of(event) : pipeFromArray(operations)(of(event)) : of(cacheData);
     }), filter(function (data) {
       var canPass = !(data === null || typeof data === "undefined");
@@ -2462,23 +2480,16 @@ var attract = function attract(_type) {
       if (canPass) {
         obs$$.lastModifyId = pushHeaders.lastModifyId;
       }
+
+      // 缓存数据
       if (canPass && hasModified) {
         switch (options.cacheType) {
           case "eventCache":
             rxStore$1.dataMap[_type] = data;
             break;
-          case "pagingCache":
-            redis.storePagingData({
-              key: "pagingData-" + _type,
-              pageNum: event.payload[event.options.paginationFields.pageNum],
-              pageSize: event.payload[event.options.paginationFields.pageSize]
-            }, data.list);
-            break;
         }
       }
-      setTimeout(function () {
-        NProgress.done();
-      }, 20);
+
       return canPass;
     }));
     _subscription = _obs$.subscribe(obs$$);
@@ -2678,8 +2689,35 @@ exports.default = function (subClass, superClass) {
 
 var _inherits = unwrapExports(inherits);
 
-var permeate = function permeate(observablesMap, param1, param2) {
-  var options = param1 || {};
+/**
+ * observable与react组件的集成(将observable转换为组件属性)
+ * @param {object} observablesMap - 可观察对象集合
+ * @param {object} inputOptions - 选项
+ * @param {object} inputOptions.defaultProps - 组件的默认属性
+ * @param {array} inputOptions.delayeringFields - 推送数据需要扁平化的可观察对象的key
+ * @example
+ * import { permeate } from "rx-samsara";
+ * import { from } from "rxjs";
+ * 
+ * const testData$ = from(
+ *   new Promise(resolve => {
+ *     setTimeout(() => {
+ *       resolve(123);
+ *     }, 800);
+ *   })
+ * };
+ * 
+ * class CompA extends React.Component {
+ *   render() {
+ *     // this.props.testData === 123
+ *     return <div>{this.props.testData}</div>;
+ *   }
+ * }
+ * 
+ * export default permeate({ testData: testData$ })(CompA);
+*/
+var permeate = function permeate(observablesMap, inputOptions) {
+  var options = inputOptions || {};
 
   var handler = function handler(Comp) {
     if (!isObject(observablesMap)) throw new TypeError("\u65B9\u6CD5permeate()\u7684\u53C2\u6570observablesMap\u5FC5\u987B\u662Fobject\u7C7B\u578B");
