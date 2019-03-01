@@ -70,7 +70,6 @@
     "async-validator": "^1.10.1",
     "babel-runtime": "^6.26.0",
     "js-md5": "^0.7.3",
-    "nprogress": "^0.2.0",
     "rxjs": "^6.2.2",
     "shaye-sword": "^1.0.4"
   }

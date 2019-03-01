@@ -58,7 +58,6 @@
     - `{boolean} [useCache=false]` 是否使用缓存
     - `{string} [cacheType="eventCache"]` 缓存类型
       - "eventCache": 事件缓存
-      - "pagingCache": 分页缓存
       - "itemCache": 单项缓存
 - 用法:<br>
 
