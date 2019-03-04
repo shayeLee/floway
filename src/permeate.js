@@ -1,5 +1,6 @@
 import React from "react";
 import ofHot from "./ofHot";
+import rxStore from "./store";
 import { isObject, isCorrectVal } from "./utils";
 
 /**
@@ -109,7 +110,7 @@ const permeate = function(observablesMap, inputOptions) {
         });
       }
       render() {
-        return <Comp {...this.state} {...this.props} />;
+        return <Comp {...this.props} {...this.state} />;
       }
     }
     Permeate.displayName = `Permeate(${Comp.displayName ||

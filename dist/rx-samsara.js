@@ -122,7 +122,7 @@ function ofLast(obs$) {
   }));
 }
 
-var rxStore$1 = {
+var rxStore = {
   dataMap: {},
   pushHeadersMap: {}
 };
@@ -2426,20 +2426,20 @@ var attract = function attract(_type) {
   var event$ = eventBus$.pipe(pluck(_type), filter(function (event) {
     if (!isCorrectVal(event)) return false;
 
-    if (!isCorrectVal(rxStore$1.pushHeadersMap[event.type])) {
-      rxStore$1.pushHeadersMap[event.type] = {
+    if (!isCorrectVal(rxStore.pushHeadersMap[event.type])) {
+      rxStore.pushHeadersMap[event.type] = {
         event: event,
         lastModifyId: new Date().getTime()
       };
       return true;
     }
 
-    var pushHeaders = rxStore$1.pushHeadersMap[event.type];
+    var pushHeaders = rxStore.pushHeadersMap[event.type];
     var lastEvent = pushHeaders.event;
 
     // 判断是否要更新lastModifyId
     if (!options.useCache || md5(JSON.stringify(lastEvent.payload)) !== md5(JSON.stringify(event.payload)) || md5(JSON.stringify(lastEvent.options)) !== md5(JSON.stringify(event.options))) {
-      rxStore$1.pushHeadersMap[event.type]["lastModifyId"] = new Date().getTime();
+      rxStore.pushHeadersMap[event.type]["lastModifyId"] = new Date().getTime();
     }
     pushHeaders.event = event;
     return true;
@@ -2454,7 +2454,7 @@ var attract = function attract(_type) {
     var obs$$ = new Subject();
     obs$$.__type__ = _type;
     var _obs$ = obs$.pipe(switchMap(function (event) {
-      var pushHeaders = rxStore$1.pushHeadersMap[event.type];
+      var pushHeaders = rxStore.pushHeadersMap[event.type];
       var hasModified = obs$$.lastModifyId !== pushHeaders.lastModifyId;
 
       // 判断是否有缓存数据
@@ -2462,7 +2462,7 @@ var attract = function attract(_type) {
       if (options.useCache && !hasModified) {
         switch (options.cacheType) {
           case "eventCache":
-            cacheData = rxStore$1.dataMap[event.type];
+            cacheData = rxStore.dataMap[event.type];
             if (!isCorrectVal(cacheData)) {
               hasModified = true;
               pushHeaders.lastModifyId = new Date().getTime();
@@ -2474,7 +2474,7 @@ var attract = function attract(_type) {
       return hasModified ? operations.length === 0 ? of(event) : pipeFromArray(operations)(of(event)) : of(cacheData);
     }), filter(function (data) {
       var canPass = !(data === null || typeof data === "undefined");
-      var pushHeaders = rxStore$1.pushHeadersMap[_type];
+      var pushHeaders = rxStore.pushHeadersMap[_type];
       var event = pushHeaders.event;
       var hasModified = event.hasModified;
       if (canPass) {
@@ -2485,7 +2485,7 @@ var attract = function attract(_type) {
       if (canPass && hasModified) {
         switch (options.cacheType) {
           case "eventCache":
-            rxStore$1.dataMap[_type] = data;
+            rxStore.dataMap[_type] = data;
             break;
         }
       }
@@ -2766,7 +2766,6 @@ var permeate = function permeate(observablesMap, inputOptions) {
           var _loop = function _loop(i) {
             var subscription = obsArr[i].subscribe(function (data) {
               var type = obsArr[i]["__type__"];
-              var pushHeaders = rxStore.pushHeadersMap[type];
 
               if (options.delayeringFields && options.delayeringFields.includes(_this2.suspendedObservableKeys[i])) {
                 var _stateObj = {};
@@ -2802,7 +2801,7 @@ var permeate = function permeate(observablesMap, inputOptions) {
       }, {
         key: "render",
         value: function render() {
-          return React.createElement(Comp, _extends$1({}, this.state, this.props));
+          return React.createElement(Comp, _extends$1({}, this.props, this.state));
         }
       }]);
 
