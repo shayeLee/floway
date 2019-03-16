@@ -14,5 +14,5 @@ $ npm install rx-samsara --save
 
 ## 文档
 
-[https://shayelee.github.io/rx-samsara/](https://shayelee.github.io/rx-samsara/)
+[https://shayelee.github.io/moisten/](https://shayelee.github.io/rx-samsara/)
 
