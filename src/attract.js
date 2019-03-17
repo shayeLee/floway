@@ -1,13 +1,12 @@
 import { isCorrectVal, isObject } from "./utils";
-import rxStore from "./store";
+import store from "./store";
+const eventLog = store.eventLog;
 import { Subject, of } from "rxjs";
 import { pluck, filter, switchMap } from "rxjs/operators";
 import { pipeFromArray } from "rxjs/internal/util/pipe";
 import md5 from "js-md5";
 import eventBus$ from "./eventBus";
 import schema from "async-validator";
-import Redis from "../browser-redis/src/index.js";
-const redis = new Redis();
 
 /**
  * 捕捉事件触发器(distributor$)推送的指定类型的事件，并返回一个observable
@@ -48,15 +47,15 @@ const attract = function(type) {
     filter(event => {
       if (!isCorrectVal(event)) return false;
 
-      if (!isCorrectVal(rxStore.pushHeadersMap[event.type])) {
-        rxStore.pushHeadersMap[event.type] = {
+      if (!isCorrectVal(eventLog.pushHeadersMap[event.type])) {
+        eventLog.pushHeadersMap[event.type] = {
           event,
           lastModifyId: new Date().getTime()
         };
         return true;
       }
 
-      const pushHeaders = rxStore.pushHeadersMap[event.type];
+      const pushHeaders = eventLog.pushHeadersMap[event.type];
       const lastEvent = pushHeaders.event;
 
       // 判断是否要更新lastModifyId
@@ -67,7 +66,7 @@ const attract = function(type) {
           md5(JSON.stringify(lastEvent.options)) !== md5(JSON.stringify(event.options))
         )
       ) {
-        rxStore.pushHeadersMap[event.type][
+        eventLog.pushHeadersMap[event.type][
           "lastModifyId"
         ] = new Date().getTime();
       }
@@ -86,7 +85,7 @@ const attract = function(type) {
     obs$$.__type__ = type;
     const _obs$ = obs$.pipe(
       switchMap(event => {
-        const pushHeaders = rxStore.pushHeadersMap[event.type];
+        const pushHeaders = eventLog.pushHeadersMap[event.type];
         let hasModified = obs$$.lastModifyId !== pushHeaders.lastModifyId;
 
         // 判断是否有缓存数据
@@ -94,7 +93,7 @@ const attract = function(type) {
         if (options.useCache && !hasModified) {
           switch (options.cacheType) {
             case "eventCache":
-              cacheData = rxStore.dataMap[event.type];
+              cacheData = eventLog.dataMap[event.type];
               if (!isCorrectVal(cacheData)) {
                 hasModified = true;
                 pushHeaders.lastModifyId = new Date().getTime();
@@ -111,7 +110,7 @@ const attract = function(type) {
       }),
       filter(data => {
         const canPass = !(data === null || typeof data === "undefined");
-        const pushHeaders = rxStore.pushHeadersMap[type];
+        const pushHeaders = eventLog.pushHeadersMap[type];
         const event = pushHeaders.event;
         const hasModified = event.hasModified;
         if (canPass) {
@@ -122,7 +121,7 @@ const attract = function(type) {
         if (canPass && hasModified) {
           switch (options.cacheType) {
             case "eventCache":
-              rxStore.dataMap[type] = data;
+              eventLog.dataMap[type] = data;
               break;
           }
         }

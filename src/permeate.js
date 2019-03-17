@@ -1,6 +1,7 @@
 import React from "react";
 import ofHot from "./ofHot";
-import rxStore from "./store";
+import store from "./store";
+const eventLog = store.eventLog;
 import { isObject, isCorrectVal } from "./utils";
 
 /**
@@ -77,7 +78,7 @@ const permeate = function(observablesMap, inputOptions) {
         for (let i = 0; i < len; i++) {
           const subscription = obsArr[i].subscribe(data => {
             const type = obsArr[i]["__type__"];
-            const pushHeaders = rxStore.pushHeadersMap[type];
+            const pushHeaders = eventLog.pushHeadersMap[type];
 
             if (
               options.delayeringFields &&

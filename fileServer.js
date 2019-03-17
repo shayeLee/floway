@@ -11,7 +11,6 @@ var server = http.createServer(function (request, response) {
     fs.stat(filepath, function (err, stats) {
         if (!err) {
             if(stats.isFile()){
-                console.log('200 ' + request.url);
                 response.writeHead(200, {
                     "Content-Type": getFileType(pathname),
                     "Cache-Control": (path.extname(pathname) !== ".js") ? "max-age=315360000" : "no-store"
@@ -21,7 +20,6 @@ var server = http.createServer(function (request, response) {
                 var defaults = 'index.html';          
                 if (fs.existsSync(path.join(filepath,defaults))) {
                     filepath = path.join(filepath,defaults);
-                    console.log('200' + request.url);
                     response.writeHead(200);
                     fs.createReadStream(filepath).pipe(response);
                     return;
