@@ -1,0 +1,77 @@
+.todolist {
+  box-sizing: border-box;
+  padding: 20px;
+  width: 600px;
+  background-color: #fafafa;
+  margin: auto;
+}
+.header {
+  font-size: 26px;
+  text-align: center;
+}
+.hints {
+  font-size: 13px;
+  color: #c06c84;
+  text-align: right;
+  line-height: 1.625;
+  padding-right: 8px;
+}
+.todo {
+  display: flex;
+  justify-content: space-between;
+  height: 36px;
+  background-color: #fce38a;
+  margin-bottom: 8px;
+  cursor: default;
+  &.checked {
+    background-color: #95e1d3;
+    .desc {
+      text-decoration: line-through;
+    }
+  }
+  &:hover .delbtn {
+    display: block;
+  }
+}
+.todo__content {
+  display: flex;
+  align-items: center;
+  height: 36px;
+}
+.todo__checkbox {
+  width: 14px;
+  margin-left: 14px;
+}
+.desc {
+  font-size: 14px;
+  margin-left: 8px;
+}
+.delbtn {
+  display: none;
+  font-size: 12px;
+  color: #999;
+  line-height: 36px;
+  padding-right: 10px;
+  cursor: pointer;
+  &:hover {
+    color: red;
+  }
+}
+
+.todolist__adder {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  margin-top: 24px;
+}
+.todolist__input {
+  flex-grow: 1;
+  font-size: 14px;
+  line-height: 32px;
+  padding: 0 10px;
+  margin-right: 10px;
+}
+.todolist__btn {
+  font-size: 14px;
+  line-height: 29px;
+}

@@ -1,5 +1,4 @@
 __mocks__/
-example/
 __tests__/
 browser-redis/
 src/

@@ -1,8 +1,15 @@
 import replace from "rollup-plugin-replace";
-
+import sass from 'rollup-plugin-sass';
 import baseConfig from "./rollup.base";
 
-const plugins = baseConfig.plugins.slice();
+/**
+ * todoList
+*/
+const exampleName = "todoList";
+
+const plugins = baseConfig.plugins.slice().concat([sass({
+  insert: true
+})]);
 plugins.splice(
   0,
   1,
@@ -12,13 +19,13 @@ plugins.splice(
 );
 
 export default {
-  input: "example/index.js",
+  input: `docs/example/${exampleName}/src/index.js`,
   watch: {
-    include: ["src/**", "example/**"],
+    include: ["src/**", "docs/example/**"],
     exclude: "node_modules/**"
   },
   output: {
-    file: "dist/example.js",
+    file: `docs/example/${exampleName}/bundle.js`,
     name: "moisten",
     sourcemap: true,
     format: "iife"

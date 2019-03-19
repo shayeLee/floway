@@ -7,9 +7,7 @@ const _setConfig = function(customConfig) {
 };
 export const setConfig = _setConfig;
 
-export { default as store } from "./store";
-
-export { default as registerState } from "./registerState";
+export { default as State } from "./state";
 
 export { default as ofHot } from "./ofHot";
 
