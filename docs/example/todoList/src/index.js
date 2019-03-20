@@ -2,10 +2,10 @@ import React from "react";
 import "./styles.scss";
 import ReactDOM from "react-dom";
 import TodoItem from "./todoItem";
-import { permeate } from "../../../../src/index";
+import { subscription } from "../../../../src/index";
 import { todos$, undoneCount$ } from "./todoList";
 
-@permeate({
+@subscription({
   todos: todos$,
   undoneCount: undoneCount$
 })

@@ -17,4 +17,4 @@ export { default as ofLast } from "./ofLast";
 
 export { default as attract } from "./attract";
 
-export { default as permeate } from "./permeate";
+export * from "./permeate";

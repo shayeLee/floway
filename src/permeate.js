@@ -121,4 +121,7 @@ const permeate = function(observablesMap, inputOptions) {
   };
   return handler;
 };
-export default permeate;
+
+const subscription = permeate;
+
+export { permeate, subscription };
