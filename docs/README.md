@@ -77,7 +77,3 @@ class TestComponent extends React.Component {
 }
 ```
 
-## 文档
-
-[https://shayelee.github.io/floway/](https://shayelee.github.io/floway/)
-
