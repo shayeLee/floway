@@ -1,10 +1,10 @@
 {
   "name": "floway",
-  "version": "1.1.0",
-  "description": "RxJS v6 integration for React",
+  "version": "1.1.1",
+  "description": "RxJS v6 Extensions for React's state management solution",
   "module": "es/index.js",
   "main": "lib/index.js",
-  "browser": "dist/moisten.js",
+  "browser": "dist/floway.js",
   "scripts": {
     "start": "node fileServer.js ./",
     "test": "jest ./__tests__ --config ./jest.config.js --watch --onlyChanged",
