@@ -119,7 +119,7 @@ import { fromAction } from "floway";
 
 fromAction("todos#checkItem").pipe(
   switchMap(action => {
-    return defer(() => checkItem(action, value));
+    return defer(() => of(checkItem(action, value)));
   })
 )
 ```
