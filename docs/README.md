@@ -112,7 +112,7 @@ const todos$ = state({
 export { todos$ }
 ```
 
-以上代码的`fromAction.checkItem`可以认为等同于以下代码: 
+以上代码的`fromAction.checkItem`的返回值可以是：基本数据类型、引用数据类型或者Observable；它可以认为等同于以下代码: 
 
 ```javascript
 import { fromAction } from "floway";
