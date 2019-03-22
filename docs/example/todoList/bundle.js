@@ -23657,7 +23657,7 @@
   }(react.Component);
 
   var _core = createCommonjsModule(function (module) {
-  var core = module.exports = { version: '2.5.7' };
+  var core = module.exports = { version: '2.6.5' };
   if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
   });
   var _core_1 = _core.version;
@@ -23681,8 +23681,8 @@
     return store[key] || (store[key] = value !== undefined ? value : {});
   })('versions', []).push({
     version: _core.version,
-    mode: 'global',
-    copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
+    mode: _library ? 'pure' : 'global',
+    copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
   });
   });
 
@@ -23831,14 +23831,16 @@
     return hasOwnProperty$1.call(it, key);
   };
 
+  var _functionToString = _shared('native-function-to-string', Function.toString);
+
   var _redefine = createCommonjsModule(function (module) {
   var SRC = _uid('src');
+
   var TO_STRING = 'toString';
-  var $toString = Function[TO_STRING];
-  var TPL = ('' + $toString).split(TO_STRING);
+  var TPL = ('' + _functionToString).split(TO_STRING);
 
   _core.inspectSource = function (it) {
-    return $toString.call(it);
+    return _functionToString.call(it);
   };
 
   (module.exports = function (O, key, val, safe) {
@@ -23858,7 +23860,7 @@
     }
   // add fake Function#toString for correct work wrapped methods / constructors with methods like LoDash isNative
   })(Function.prototype, TO_STRING, function toString() {
-    return typeof this == 'function' && this[SRC] || $toString.call(this);
+    return typeof this == 'function' && this[SRC] || _functionToString.call(this);
   });
   });
 
@@ -24263,23 +24265,6 @@
     }
   }
 
-  var dP$1 = _objectDp.f;
-  var FProto = Function.prototype;
-  var nameRE = /^\s*function ([^ (]*)/;
-  var NAME$1 = 'name';
-
-  // 19.2.4.2 name
-  NAME$1 in FProto || _descriptors && dP$1(FProto, NAME$1, {
-    configurable: true,
-    get: function () {
-      try {
-        return ('' + this).match(nameRE)[1];
-      } catch (e) {
-        return '';
-      }
-    }
-  });
-
   /*! *****************************************************************************
   Copyright (c) Microsoft Corporation. All rights reserved.
   Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -24313,6 +24298,7 @@
   function isFunction(x) {
       return typeof x === 'function';
   }
+  //# sourceMappingURL=isFunction.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   var _enable_super_gross_mode_that_will_cause_bad_things = false;
@@ -24329,11 +24315,13 @@
           return _enable_super_gross_mode_that_will_cause_bad_things;
       },
   };
+  //# sourceMappingURL=config.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function hostReportError(err) {
       setTimeout(function () { throw err; });
   }
+  //# sourceMappingURL=hostReportError.js.map
 
   /** PURE_IMPORTS_START _config,_util_hostReportError PURE_IMPORTS_END */
   var empty = {
@@ -24349,14 +24337,17 @@
       },
       complete: function () { }
   };
+  //# sourceMappingURL=Observer.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   var isArray = Array.isArray || (function (x) { return x && typeof x.length === 'number'; });
+  //# sourceMappingURL=isArray.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function isObject(x) {
       return x !== null && typeof x === 'object';
   }
+  //# sourceMappingURL=isObject.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function UnsubscriptionErrorImpl(errors) {
@@ -24369,6 +24360,7 @@
   }
   UnsubscriptionErrorImpl.prototype = /*@__PURE__*/ Object.create(Error.prototype);
   var UnsubscriptionError = UnsubscriptionErrorImpl;
+  //# sourceMappingURL=UnsubscriptionError.js.map
 
   /** PURE_IMPORTS_START _util_isArray,_util_isObject,_util_isFunction,_util_UnsubscriptionError PURE_IMPORTS_END */
   var Subscription = /*@__PURE__*/ (function () {
@@ -24507,11 +24499,13 @@
   function flattenUnsubscriptionErrors(errors) {
       return errors.reduce(function (errs, err) { return errs.concat((err instanceof UnsubscriptionError) ? err.errors : err); }, []);
   }
+  //# sourceMappingURL=Subscription.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   var rxSubscriber = typeof Symbol === 'function'
       ? /*@__PURE__*/ Symbol('rxSubscriber')
       : '@@rxSubscriber_' + /*@__PURE__*/ Math.random();
+  //# sourceMappingURL=rxSubscriber.js.map
 
   /** PURE_IMPORTS_START tslib,_util_isFunction,_Observer,_Subscription,_internal_symbol_rxSubscriber,_config,_util_hostReportError PURE_IMPORTS_END */
   var Subscriber = /*@__PURE__*/ (function (_super) {
@@ -24738,6 +24732,7 @@
       };
       return SafeSubscriber;
   }(Subscriber));
+  //# sourceMappingURL=Subscriber.js.map
 
   /** PURE_IMPORTS_START _Subscriber PURE_IMPORTS_END */
   function canReportError(observer) {
@@ -24755,6 +24750,7 @@
       }
       return true;
   }
+  //# sourceMappingURL=canReportError.js.map
 
   /** PURE_IMPORTS_START _Subscriber,_symbol_rxSubscriber,_Observer PURE_IMPORTS_END */
   function toSubscriber(nextOrObserver, error, complete) {
@@ -24771,14 +24767,24 @@
       }
       return new Subscriber(nextOrObserver, error, complete);
   }
+  //# sourceMappingURL=toSubscriber.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   var observable = typeof Symbol === 'function' && Symbol.observable || '@@observable';
+  //# sourceMappingURL=observable.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function noop() { }
+  //# sourceMappingURL=noop.js.map
 
   /** PURE_IMPORTS_START _noop PURE_IMPORTS_END */
+  function pipe() {
+      var fns = [];
+      for (var _i = 0; _i < arguments.length; _i++) {
+          fns[_i] = arguments[_i];
+      }
+      return pipeFromArray(fns);
+  }
   function pipeFromArray(fns) {
       if (!fns) {
           return noop;
@@ -24790,6 +24796,7 @@
           return fns.reduce(function (prev, fn) { return fn(prev); }, input);
       };
   }
+  //# sourceMappingURL=pipe.js.map
 
   /** PURE_IMPORTS_START _util_canReportError,_util_toSubscriber,_internal_symbol_observable,_util_pipe,_config PURE_IMPORTS_END */
   var Observable = /*@__PURE__*/ (function () {
@@ -24900,6 +24907,7 @@
       }
       return promiseCtor;
   }
+  //# sourceMappingURL=Observable.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function ObjectUnsubscribedErrorImpl() {
@@ -24910,6 +24918,7 @@
   }
   ObjectUnsubscribedErrorImpl.prototype = /*@__PURE__*/ Object.create(Error.prototype);
   var ObjectUnsubscribedError = ObjectUnsubscribedErrorImpl;
+  //# sourceMappingURL=ObjectUnsubscribedError.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscription PURE_IMPORTS_END */
   var SubjectSubscription = /*@__PURE__*/ (function (_super) {
@@ -24939,6 +24948,7 @@
       };
       return SubjectSubscription;
   }(Subscription));
+  //# sourceMappingURL=SubjectSubscription.js.map
 
   /** PURE_IMPORTS_START tslib,_Observable,_Subscriber,_Subscription,_util_ObjectUnsubscribedError,_SubjectSubscription,_internal_symbol_rxSubscriber PURE_IMPORTS_END */
   var SubjectSubscriber = /*@__PURE__*/ (function (_super) {
@@ -25087,6 +25097,7 @@
       };
       return AnonymousSubject;
   }(Subject));
+  //# sourceMappingURL=Subject.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
   function refCount() {
@@ -25143,6 +25154,7 @@
       };
       return RefCountSubscriber;
   }(Subscriber));
+  //# sourceMappingURL=refCount.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_Observable,_Subscriber,_Subscription,_operators_refCount PURE_IMPORTS_END */
   var ConnectableObservable = /*@__PURE__*/ (function (_super) {
@@ -25230,8 +25242,10 @@
       };
       return ConnectableSubscriber;
   }(SubjectSubscriber));
+  //# sourceMappingURL=ConnectableObservable.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_Subscription,_Observable,_Subject PURE_IMPORTS_END */
+  //# sourceMappingURL=groupBy.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_util_ObjectUnsubscribedError PURE_IMPORTS_END */
   var BehaviorSubject = /*@__PURE__*/ (function (_super) {
@@ -25271,140 +25285,102 @@
       };
       return BehaviorSubject;
   }(Subject));
+  //# sourceMappingURL=BehaviorSubject.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscription PURE_IMPORTS_END */
+  //# sourceMappingURL=Action.js.map
 
   /** PURE_IMPORTS_START tslib,_Action PURE_IMPORTS_END */
+  //# sourceMappingURL=AsyncAction.js.map
 
   /** PURE_IMPORTS_START tslib,_AsyncAction PURE_IMPORTS_END */
+  //# sourceMappingURL=QueueAction.js.map
+
+  //# sourceMappingURL=Scheduler.js.map
 
   /** PURE_IMPORTS_START tslib,_Scheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=AsyncScheduler.js.map
 
   /** PURE_IMPORTS_START tslib,_AsyncScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=QueueScheduler.js.map
 
   /** PURE_IMPORTS_START _QueueAction,_QueueScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=queue.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
-  var EMPTY = /*@__PURE__*/ new Observable(function (subscriber) { return subscriber.complete(); });
-  function empty$1(scheduler) {
-      return scheduler ? emptyScheduled(scheduler) : EMPTY;
-  }
-  function emptyScheduled(scheduler) {
-      return new Observable(function (subscriber) { return scheduler.schedule(function () { return subscriber.complete(); }); });
-  }
+  //# sourceMappingURL=empty.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
-  function isScheduler(value) {
-      return value && typeof value.schedule === 'function';
-  }
+  //# sourceMappingURL=isScheduler.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
-  var subscribeToArray = function (array) {
-      return function (subscriber) {
-          for (var i = 0, len = array.length; i < len && !subscriber.closed; i++) {
-              subscriber.next(array[i]);
-          }
-          if (!subscriber.closed) {
-              subscriber.complete();
-          }
-      };
-  };
+  //# sourceMappingURL=subscribeToArray.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription,_util_subscribeToArray PURE_IMPORTS_END */
-  function fromArray(input, scheduler) {
-      if (!scheduler) {
-          return new Observable(subscribeToArray(input));
-      }
-      else {
-          return new Observable(function (subscriber) {
-              var sub = new Subscription();
-              var i = 0;
-              sub.add(scheduler.schedule(function () {
-                  if (i === input.length) {
-                      subscriber.complete();
-                      return;
-                  }
-                  subscriber.next(input[i++]);
-                  if (!subscriber.closed) {
-                      sub.add(this.schedule());
-                  }
-              }));
-              return sub;
-          });
-      }
-  }
+  //# sourceMappingURL=fromArray.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
-  function scalar(value) {
-      var result = new Observable(function (subscriber) {
-          subscriber.next(value);
-          subscriber.complete();
-      });
-      result._isScalar = true;
-      result.value = value;
-      return result;
-  }
+  //# sourceMappingURL=scalar.js.map
 
   /** PURE_IMPORTS_START _util_isScheduler,_fromArray,_empty,_scalar PURE_IMPORTS_END */
-  function of() {
-      var args = [];
-      for (var _i = 0; _i < arguments.length; _i++) {
-          args[_i] = arguments[_i];
-      }
-      var scheduler = args[args.length - 1];
-      if (isScheduler(scheduler)) {
-          args.pop();
-      }
-      else {
-          scheduler = undefined;
-      }
-      switch (args.length) {
-          case 0:
-              return empty$1(scheduler);
-          case 1:
-              return scheduler ? fromArray(args, scheduler) : scalar(args[0]);
-          default:
-              return fromArray(args, scheduler);
-      }
-  }
+  //# sourceMappingURL=of.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
+  //# sourceMappingURL=throwError.js.map
 
   /** PURE_IMPORTS_START _observable_empty,_observable_of,_observable_throwError PURE_IMPORTS_END */
+  //# sourceMappingURL=Notification.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_Notification PURE_IMPORTS_END */
+  //# sourceMappingURL=observeOn.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_scheduler_queue,_Subscription,_operators_observeOn,_util_ObjectUnsubscribedError,_SubjectSubscription PURE_IMPORTS_END */
+  //# sourceMappingURL=ReplaySubject.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_Subscription PURE_IMPORTS_END */
+  //# sourceMappingURL=AsyncSubject.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=Immediate.js.map
 
   /** PURE_IMPORTS_START tslib,_util_Immediate,_AsyncAction PURE_IMPORTS_END */
+  //# sourceMappingURL=AsapAction.js.map
 
   /** PURE_IMPORTS_START tslib,_AsyncScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=AsapScheduler.js.map
 
   /** PURE_IMPORTS_START _AsapAction,_AsapScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=asap.js.map
 
   /** PURE_IMPORTS_START _AsyncAction,_AsyncScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=async.js.map
 
   /** PURE_IMPORTS_START tslib,_AsyncAction PURE_IMPORTS_END */
+  //# sourceMappingURL=AnimationFrameAction.js.map
 
   /** PURE_IMPORTS_START tslib,_AsyncScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=AnimationFrameScheduler.js.map
 
   /** PURE_IMPORTS_START _AnimationFrameAction,_AnimationFrameScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=animationFrame.js.map
 
   /** PURE_IMPORTS_START tslib,_AsyncAction,_AsyncScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=VirtualTimeScheduler.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=identity.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
+  //# sourceMappingURL=isObservable.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=ArgumentOutOfRangeError.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=EmptyError.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=TimeoutError.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
   function map(project, thisArg) {
@@ -25447,123 +25423,140 @@
       };
       return MapSubscriber;
   }(Subscriber));
+  //# sourceMappingURL=map.js.map
 
   /** PURE_IMPORTS_START _Observable,_AsyncSubject,_operators_map,_util_canReportError,_util_isArray,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=bindCallback.js.map
 
   /** PURE_IMPORTS_START _Observable,_AsyncSubject,_operators_map,_util_canReportError,_util_isScheduler,_util_isArray PURE_IMPORTS_END */
+  //# sourceMappingURL=bindNodeCallback.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=OuterSubscriber.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=InnerSubscriber.js.map
 
   /** PURE_IMPORTS_START _hostReportError PURE_IMPORTS_END */
+  //# sourceMappingURL=subscribeToPromise.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=iterator.js.map
 
   /** PURE_IMPORTS_START _symbol_iterator PURE_IMPORTS_END */
+  //# sourceMappingURL=subscribeToIterable.js.map
 
   /** PURE_IMPORTS_START _symbol_observable PURE_IMPORTS_END */
+  //# sourceMappingURL=subscribeToObservable.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=isArrayLike.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=isPromise.js.map
 
   /** PURE_IMPORTS_START _Observable,_subscribeToArray,_subscribeToPromise,_subscribeToIterable,_subscribeToObservable,_isArrayLike,_isPromise,_isObject,_symbol_iterator,_symbol_observable PURE_IMPORTS_END */
+  //# sourceMappingURL=subscribeTo.js.map
 
   /** PURE_IMPORTS_START _InnerSubscriber,_subscribeTo PURE_IMPORTS_END */
+  //# sourceMappingURL=subscribeToResult.js.map
 
   /** PURE_IMPORTS_START tslib,_util_isScheduler,_util_isArray,_OuterSubscriber,_util_subscribeToResult,_fromArray PURE_IMPORTS_END */
+  //# sourceMappingURL=combineLatest.js.map
 
   /** PURE_IMPORTS_START _symbol_observable PURE_IMPORTS_END */
+  //# sourceMappingURL=isInteropObservable.js.map
 
   /** PURE_IMPORTS_START _symbol_iterator PURE_IMPORTS_END */
+  //# sourceMappingURL=isIterable.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription,_util_subscribeToPromise PURE_IMPORTS_END */
+  //# sourceMappingURL=fromPromise.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription,_symbol_iterator,_util_subscribeToIterable PURE_IMPORTS_END */
+  //# sourceMappingURL=fromIterable.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription,_symbol_observable,_util_subscribeToObservable PURE_IMPORTS_END */
+  //# sourceMappingURL=fromObservable.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_isPromise,_util_isArrayLike,_util_isInteropObservable,_util_isIterable,_fromArray,_fromPromise,_fromIterable,_fromObservable,_util_subscribeTo PURE_IMPORTS_END */
+  //# sourceMappingURL=from.js.map
 
   /** PURE_IMPORTS_START tslib,_util_subscribeToResult,_OuterSubscriber,_InnerSubscriber,_map,_observable_from PURE_IMPORTS_END */
+  //# sourceMappingURL=mergeMap.js.map
 
   /** PURE_IMPORTS_START _mergeMap,_util_identity PURE_IMPORTS_END */
+  //# sourceMappingURL=mergeAll.js.map
 
   /** PURE_IMPORTS_START _mergeAll PURE_IMPORTS_END */
+  //# sourceMappingURL=concatAll.js.map
 
   /** PURE_IMPORTS_START _of,_operators_concatAll PURE_IMPORTS_END */
+  //# sourceMappingURL=concat.js.map
 
   /** PURE_IMPORTS_START _Observable,_from,_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=defer.js.map
 
   /** PURE_IMPORTS_START tslib,_Observable,_util_isArray,_empty,_util_subscribeToResult,_OuterSubscriber,_operators_map PURE_IMPORTS_END */
+  //# sourceMappingURL=forkJoin.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_isArray,_util_isFunction,_operators_map PURE_IMPORTS_END */
+  //# sourceMappingURL=fromEvent.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_isArray,_util_isFunction,_operators_map PURE_IMPORTS_END */
+  //# sourceMappingURL=fromEventPattern.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_identity,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=generate.js.map
 
   /** PURE_IMPORTS_START _defer,_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=iif.js.map
 
   /** PURE_IMPORTS_START _isArray PURE_IMPORTS_END */
+  //# sourceMappingURL=isNumeric.js.map
 
   /** PURE_IMPORTS_START _Observable,_scheduler_async,_util_isNumeric PURE_IMPORTS_END */
+  //# sourceMappingURL=interval.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_isScheduler,_operators_mergeAll,_fromArray PURE_IMPORTS_END */
+  //# sourceMappingURL=merge.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_noop PURE_IMPORTS_END */
+  //# sourceMappingURL=never.js.map
 
   /** PURE_IMPORTS_START _Observable,_from,_util_isArray,_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=onErrorResumeNext.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription PURE_IMPORTS_END */
+  //# sourceMappingURL=pairs.js.map
 
   /** PURE_IMPORTS_START tslib,_util_isArray,_fromArray,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=race.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
+  //# sourceMappingURL=range.js.map
 
   /** PURE_IMPORTS_START _Observable,_scheduler_async,_util_isNumeric,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=timer.js.map
 
   /** PURE_IMPORTS_START _Observable,_from,_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=using.js.map
 
   /** PURE_IMPORTS_START tslib,_fromArray,_util_isArray,_Subscriber,_OuterSubscriber,_util_subscribeToResult,_.._internal_symbol_iterator PURE_IMPORTS_END */
+  //# sourceMappingURL=zip.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=index.js.map
 
-  /**
-   * @param {observable} observable - 只能是observable，不能是subject
-  */
+  function state(options) {
+    var value = options.value;
+    var stateSubject = new BehaviorSubject(value);
+    /* Object.keys(options.actions).forEach(key => {
+      console.log(key);
+    }); */
 
-  function State(observable) {
-    var _this = this;
-
-    this.actionMap = {};
-
-    this.registerAction = function (name, func) {
-      _this.actionMap[name] = func;
-    };
-
-    this.dispatch = function (name, payload) {
-      var newValue = _this.actionMap[name](_this.value, payload);
-
-      _this.next(newValue);
-    };
-
-    this.init = this.regain = function () {
-      observable.subscribe({
-        next: function next(val) {
-          return _this.next(val);
-        },
-        error: function error(err) {
-          return _this.error(err);
-        }
-      });
-    };
-
-    this.init();
+    return stateSubject;
   }
-
-  State.prototype = Object.create(new BehaviorSubject());
 
   var f$1 = Object.getOwnPropertySymbols;
 
@@ -25732,204 +25725,304 @@
   new Subject();
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=audit.js.map
 
   /** PURE_IMPORTS_START _scheduler_async,_audit,_observable_timer PURE_IMPORTS_END */
+  //# sourceMappingURL=auditTime.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=buffer.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=bufferCount.js.map
 
   /** PURE_IMPORTS_START tslib,_scheduler_async,_Subscriber,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=bufferTime.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscription,_util_subscribeToResult,_OuterSubscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=bufferToggle.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscription,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=bufferWhen.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=catchError.js.map
 
   /** PURE_IMPORTS_START _observable_combineLatest PURE_IMPORTS_END */
+  //# sourceMappingURL=combineAll.js.map
 
   /** PURE_IMPORTS_START _util_isArray,_observable_combineLatest,_observable_from PURE_IMPORTS_END */
+  //# sourceMappingURL=combineLatest.js.map
 
   /** PURE_IMPORTS_START _observable_concat PURE_IMPORTS_END */
+  //# sourceMappingURL=concat.js.map
 
   /** PURE_IMPORTS_START _mergeMap PURE_IMPORTS_END */
+  //# sourceMappingURL=concatMap.js.map
 
   /** PURE_IMPORTS_START _concatMap PURE_IMPORTS_END */
+  //# sourceMappingURL=concatMapTo.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=count.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=debounce.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async PURE_IMPORTS_END */
+  //# sourceMappingURL=debounceTime.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=defaultIfEmpty.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=isDate.js.map
 
   /** PURE_IMPORTS_START tslib,_scheduler_async,_util_isDate,_Subscriber,_Notification PURE_IMPORTS_END */
+  //# sourceMappingURL=delay.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_Observable,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=delayWhen.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=dematerialize.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=distinct.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=distinctUntilChanged.js.map
 
   /** PURE_IMPORTS_START _distinctUntilChanged PURE_IMPORTS_END */
+  //# sourceMappingURL=distinctUntilKeyChanged.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=filter.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_util_noop,_util_isFunction PURE_IMPORTS_END */
+  //# sourceMappingURL=tap.js.map
 
   /** PURE_IMPORTS_START _tap,_util_EmptyError PURE_IMPORTS_END */
+  //# sourceMappingURL=throwIfEmpty.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError,_observable_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=take.js.map
 
   /** PURE_IMPORTS_START _util_ArgumentOutOfRangeError,_filter,_throwIfEmpty,_defaultIfEmpty,_take PURE_IMPORTS_END */
+  //# sourceMappingURL=elementAt.js.map
 
   /** PURE_IMPORTS_START _observable_fromArray,_observable_scalar,_observable_empty,_observable_concat,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=endWith.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=every.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=exhaust.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
+  //# sourceMappingURL=exhaustMap.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=expand.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_Subscription PURE_IMPORTS_END */
+  //# sourceMappingURL=finalize.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=find.js.map
 
   /** PURE_IMPORTS_START _operators_find PURE_IMPORTS_END */
+  //# sourceMappingURL=findIndex.js.map
 
   /** PURE_IMPORTS_START _util_EmptyError,_filter,_take,_defaultIfEmpty,_throwIfEmpty,_util_identity PURE_IMPORTS_END */
+  //# sourceMappingURL=first.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=ignoreElements.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=isEmpty.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError,_observable_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=takeLast.js.map
 
   /** PURE_IMPORTS_START _util_EmptyError,_filter,_takeLast,_throwIfEmpty,_defaultIfEmpty,_util_identity PURE_IMPORTS_END */
+  //# sourceMappingURL=last.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=mapTo.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_Notification PURE_IMPORTS_END */
+  //# sourceMappingURL=materialize.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=scan.js.map
 
   /** PURE_IMPORTS_START _scan,_takeLast,_defaultIfEmpty,_util_pipe PURE_IMPORTS_END */
+  //# sourceMappingURL=reduce.js.map
 
   /** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
+  //# sourceMappingURL=max.js.map
 
   /** PURE_IMPORTS_START _observable_merge PURE_IMPORTS_END */
+  //# sourceMappingURL=merge.js.map
 
   /** PURE_IMPORTS_START _mergeMap PURE_IMPORTS_END */
+  //# sourceMappingURL=mergeMapTo.js.map
 
   /** PURE_IMPORTS_START tslib,_util_subscribeToResult,_OuterSubscriber,_InnerSubscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=mergeScan.js.map
 
   /** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
+  //# sourceMappingURL=min.js.map
 
   /** PURE_IMPORTS_START _observable_ConnectableObservable PURE_IMPORTS_END */
+  //# sourceMappingURL=multicast.js.map
 
   /** PURE_IMPORTS_START tslib,_observable_from,_util_isArray,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=onErrorResumeNext.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=pairwise.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=not.js.map
 
   /** PURE_IMPORTS_START _util_not,_filter PURE_IMPORTS_END */
+  //# sourceMappingURL=partition.js.map
 
   /** PURE_IMPORTS_START _map PURE_IMPORTS_END */
+  //# sourceMappingURL=pluck.js.map
 
   /** PURE_IMPORTS_START _Subject,_multicast PURE_IMPORTS_END */
+  //# sourceMappingURL=publish.js.map
 
   /** PURE_IMPORTS_START _BehaviorSubject,_multicast PURE_IMPORTS_END */
+  //# sourceMappingURL=publishBehavior.js.map
 
   /** PURE_IMPORTS_START _AsyncSubject,_multicast PURE_IMPORTS_END */
+  //# sourceMappingURL=publishLast.js.map
 
   /** PURE_IMPORTS_START _ReplaySubject,_multicast PURE_IMPORTS_END */
+  //# sourceMappingURL=publishReplay.js.map
 
   /** PURE_IMPORTS_START _util_isArray,_observable_race PURE_IMPORTS_END */
+  //# sourceMappingURL=race.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_observable_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=repeat.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=repeatWhen.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=retry.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=retryWhen.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=sample.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async PURE_IMPORTS_END */
+  //# sourceMappingURL=sampleTime.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=sequenceEqual.js.map
 
   /** PURE_IMPORTS_START _multicast,_refCount,_Subject PURE_IMPORTS_END */
+  //# sourceMappingURL=share.js.map
 
   /** PURE_IMPORTS_START _ReplaySubject PURE_IMPORTS_END */
+  //# sourceMappingURL=shareReplay.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_util_EmptyError PURE_IMPORTS_END */
+  //# sourceMappingURL=single.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=skip.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError PURE_IMPORTS_END */
+  //# sourceMappingURL=skipLast.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=skipUntil.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=skipWhile.js.map
 
   /** PURE_IMPORTS_START _observable_fromArray,_observable_scalar,_observable_empty,_observable_concat,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=startWith.js.map
 
   /** PURE_IMPORTS_START tslib,_Observable,_scheduler_asap,_util_isNumeric PURE_IMPORTS_END */
+  //# sourceMappingURL=SubscribeOnObservable.js.map
 
   /** PURE_IMPORTS_START _observable_SubscribeOnObservable PURE_IMPORTS_END */
+  //# sourceMappingURL=subscribeOn.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
+  //# sourceMappingURL=switchMap.js.map
 
   /** PURE_IMPORTS_START _switchMap,_util_identity PURE_IMPORTS_END */
+  //# sourceMappingURL=switchAll.js.map
 
   /** PURE_IMPORTS_START _switchMap PURE_IMPORTS_END */
+  //# sourceMappingURL=switchMapTo.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=takeUntil.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=takeWhile.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=throttle.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async,_throttle PURE_IMPORTS_END */
+  //# sourceMappingURL=throttleTime.js.map
 
   /** PURE_IMPORTS_START _scheduler_async,_scan,_observable_defer,_map PURE_IMPORTS_END */
+  //# sourceMappingURL=timeInterval.js.map
 
   /** PURE_IMPORTS_START tslib,_scheduler_async,_util_isDate,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=timeoutWith.js.map
 
   /** PURE_IMPORTS_START _scheduler_async,_util_TimeoutError,_timeoutWith,_observable_throwError PURE_IMPORTS_END */
+  //# sourceMappingURL=timeout.js.map
 
   /** PURE_IMPORTS_START _scheduler_async,_map PURE_IMPORTS_END */
+  //# sourceMappingURL=timestamp.js.map
 
   /** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
+  //# sourceMappingURL=toArray.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=window.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_Subject PURE_IMPORTS_END */
+  //# sourceMappingURL=windowCount.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_scheduler_async,_Subscriber,_util_isNumeric,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=windowTime.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_Subscription,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=windowToggle.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=windowWhen.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=withLatestFrom.js.map
 
   /** PURE_IMPORTS_START _observable_zip PURE_IMPORTS_END */
+  //# sourceMappingURL=zip.js.map
 
   /** PURE_IMPORTS_START _observable_zip PURE_IMPORTS_END */
+  //# sourceMappingURL=zipAll.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=index.js.map
 
   var Store = function Store() {
     _classCallCheck(this, Store);
@@ -25950,7 +26043,7 @@
   Object.defineProperty(exports, "__esModule", { value: true });
   function noop() { }
   exports.noop = noop;
-
+  //# sourceMappingURL=noop.js.map
   });
 
   unwrapExports(noop_1);
@@ -25979,7 +26072,7 @@
       };
   }
   exports.pipeFromArray = pipeFromArray;
-
+  //# sourceMappingURL=pipe.js.map
   });
 
   unwrapExports(pipe_1);
@@ -26675,7 +26768,7 @@
   });
 
   var _core$1 = createCommonjsModule(function (module) {
-  var core = module.exports = { version: '2.5.7' };
+  var core = module.exports = { version: '2.6.5' };
   if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
   });
   var _core_1$1 = _core$1.version;
@@ -26752,14 +26845,14 @@
     throw TypeError("Can't convert object to primitive value");
   };
 
-  var dP$2 = Object.defineProperty;
+  var dP$1 = Object.defineProperty;
 
   var f$3 = _descriptors$1 ? Object.defineProperty : function defineProperty(O, P, Attributes) {
     _anObject$1(O);
     P = _toPrimitive$1(P, true);
     _anObject$1(Attributes);
     if (_ie8DomDefine$1) try {
-      return dP$2(O, P, Attributes);
+      return dP$1(O, P, Attributes);
     } catch (e) { /* empty */ }
     if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
     if ('value' in Attributes) O[P] = Attributes.value;
@@ -26930,8 +27023,8 @@
     return store[key] || (store[key] = value !== undefined ? value : {});
   })('versions', []).push({
     version: _core$1.version,
-    mode: _library$1 ? 'pure' : 'global',
-    copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
+    mode: 'pure',
+    copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
   });
   });
 
@@ -27193,8 +27286,6 @@
   var KEYS$1 = 'keys';
   var VALUES$1 = 'values';
 
-  var returnThis$1 = function () { return this; };
-
   var _iterDefine$1 = function (Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCED) {
     _iterCreate$1(Constructor, NAME, next);
     var getMethod = function (kind) {
@@ -27219,8 +27310,6 @@
       if (IteratorPrototype !== Object.prototype && IteratorPrototype.next) {
         // Set @@toStringTag to native iterators
         _setToStringTag$1(IteratorPrototype, TAG, true);
-        // fix for some old engines
-        if (!_library$1 && typeof IteratorPrototype[ITERATOR$2] != 'function') _hide$1(IteratorPrototype, ITERATOR$2, returnThis$1);
       }
     }
     // fix Array#{values, @@iterator}.name in V8 / FF
@@ -27229,7 +27318,7 @@
       $default = function values() { return $native.call(this); };
     }
     // Define iterator
-    if ((!_library$1 || FORCED) && (BUGGY$1 || VALUES_BUG || !proto[ITERATOR$2])) {
+    if ((FORCED) && (BUGGY$1 || VALUES_BUG || !proto[ITERATOR$2])) {
       _hide$1(proto, ITERATOR$2, $default);
     }
     if (DEFAULT) {
@@ -27297,10 +27386,10 @@
     'TextTrackList,TouchList').split(',');
 
   for (var i$1 = 0; i$1 < DOMIterables$1.length; i$1++) {
-    var NAME$2 = DOMIterables$1[i$1];
-    var Collection$1 = _global$1[NAME$2];
+    var NAME$1 = DOMIterables$1[i$1];
+    var Collection$1 = _global$1[NAME$1];
     var proto$1 = Collection$1 && Collection$1.prototype;
-    if (proto$1 && !proto$1[TO_STRING_TAG$1]) _hide$1(proto$1, TO_STRING_TAG$1, NAME$2);
+    if (proto$1 && !proto$1[TO_STRING_TAG$1]) _hide$1(proto$1, TO_STRING_TAG$1, NAME$1);
   }
 
   var f$6 = _wks$1;
@@ -27380,7 +27469,7 @@
 
   var defineProperty = _objectDp$1.f;
   var _wksDefine = function (name) {
-    var $Symbol = _core$1.Symbol || (_core$1.Symbol = _library$1 ? {} : _global$1.Symbol || {});
+    var $Symbol = _core$1.Symbol || (_core$1.Symbol = {});
     if (name.charAt(0) != '_' && !(name in $Symbol)) defineProperty($Symbol, name, { value: _wksExt.f(name) });
   };
 
@@ -27484,7 +27573,7 @@
 
 
   var gOPD$1 = _objectGopd.f;
-  var dP$3 = _objectDp$1.f;
+  var dP$2 = _objectDp$1.f;
   var gOPN$1 = _objectGopnExt.f;
   var $Symbol = _global$1.Symbol;
   var $JSON = _global$1.JSON;
@@ -27504,15 +27593,15 @@
 
   // fallback for old Android, https://code.google.com/p/v8/issues/detail?id=687
   var setSymbolDesc = _descriptors$1 && _fails$1(function () {
-    return _objectCreate$1(dP$3({}, 'a', {
-      get: function () { return dP$3(this, 'a', { value: 7 }).a; }
+    return _objectCreate$1(dP$2({}, 'a', {
+      get: function () { return dP$2(this, 'a', { value: 7 }).a; }
     })).a != 7;
   }) ? function (it, key, D) {
     var protoDesc = gOPD$1(ObjectProto$2, key);
     if (protoDesc) delete ObjectProto$2[key];
-    dP$3(it, key, D);
-    if (protoDesc && it !== ObjectProto$2) dP$3(ObjectProto$2, key, protoDesc);
-  } : dP$3;
+    dP$2(it, key, D);
+    if (protoDesc && it !== ObjectProto$2) dP$2(ObjectProto$2, key, protoDesc);
+  } : dP$2;
 
   var wrap = function (tag) {
     var sym = AllSymbols[tag] = _objectCreate$1($Symbol[PROTOTYPE$4]);
@@ -27533,13 +27622,13 @@
     _anObject$1(D);
     if (_has$1(AllSymbols, key)) {
       if (!D.enumerable) {
-        if (!_has$1(it, HIDDEN)) dP$3(it, HIDDEN, _propertyDesc$1(1, {}));
+        if (!_has$1(it, HIDDEN)) dP$2(it, HIDDEN, _propertyDesc$1(1, {}));
         it[HIDDEN][key] = true;
       } else {
         if (_has$1(it, HIDDEN) && it[HIDDEN][key]) it[HIDDEN][key] = false;
         D = _objectCreate$1(D, { enumerable: _propertyDesc$1(0, false) });
       } return setSymbolDesc(it, key, D);
-    } return dP$3(it, key, D);
+    } return dP$2(it, key, D);
   };
   var $defineProperties = function defineProperties(it, P) {
     _anObject$1(it);
@@ -27727,6 +27816,23 @@
   });
 
   unwrapExports(_typeof_1);
+
+  var dP$3 = _objectDp.f;
+  var FProto = Function.prototype;
+  var nameRE = /^\s*function ([^ (]*)/;
+  var NAME$2 = 'name';
+
+  // 19.2.4.2 name
+  NAME$2 in FProto || _descriptors && dP$3(FProto, NAME$2, {
+    configurable: true,
+    get: function () {
+      try {
+        return ('' + this).match(nameRE)[1];
+      } catch (e) {
+        return '';
+      }
+    }
+  });
 
   // https://github.com/tc39/Array.prototype.includes
 
@@ -27921,37 +28027,50 @@
 
   var subscription = permeate;
 
-  var todos$ = new State(of([{
-    desc: "起床迎接新的一天",
-    check: true
-  }, {
-    desc: "到达公司开始新一天的工作",
-    check: true
-  }, {
-    desc: "去公司附近的学校食堂吃午饭",
-    check: false
-  }, {
-    desc: "下班骑电动车回家",
-    check: false
-  }, {
-    desc: "吃晚饭，出去吃或者自己做饭吃",
-    check: false
-  }]));
-  todos$.registerAction("checkItem", function (todos, n) {
-    return todos.map(function (item, i) {
-      if (i === n) {
-        item.check = !item.check;
-      }
+  var _this = undefined;
+  var todos$ = state({
+    name: "todos",
+    value: [{
+      desc: "起床迎接新的一天",
+      check: true
+    }, {
+      desc: "到达公司开始新一天的工作",
+      check: true
+    }, {
+      desc: "去公司附近的学校食堂吃午饭",
+      check: false
+    }, {
+      desc: "下班骑电动车回家",
+      check: false
+    }, {
+      desc: "吃晚饭，出去吃或者自己做饭吃",
+      check: false
+    }],
+    actions: {
+      checkItem: pipe(map(function (action) {
+        var n = action.payload;
+        var todos = _this.value;
+        return todos.map(function (item, i) {
+          if (i === n) {
+            item.check = !item.check;
+          }
 
-      return item;
-    });
-  });
-  todos$.registerAction("delItem", function (todos, n) {
-    todos.splice(n, 1);
-    return todos.slice();
-  });
-  todos$.registerAction("addItem", function (todos, item) {
-    return todos.concat(item);
+          return item;
+        });
+      }))
+      /* delItem: function(payload, value) {
+        const n = payload;
+        const todos = value;
+        todos.splice(n, 1);
+        return todos.slice();
+      },
+      addItem: function(payload, value) {
+        const todos = value;
+        const item = payload;
+        return todos.concat(item);
+      } */
+
+    }
   });
   var undoneCount$ = todos$.pipe(map(function (todos) {
     var _conut = 0;
@@ -27987,12 +28106,10 @@
         newTodoContent: ""
       });
 
-      _defineProperty(_assertThisInitialized(_this), "checkItem", function (n) {
-        todos$.dispatch("checkItem", n);
+      _defineProperty(_assertThisInitialized(_this), "checkItem", function (n) {// todos$.dispatch("checkItem", n);
       });
 
-      _defineProperty(_assertThisInitialized(_this), "handleDel", function (n) {
-        todos$.dispatch("delItem", n);
+      _defineProperty(_assertThisInitialized(_this), "handleDel", function (n) {// todos$.dispatch("delItem", n);
       });
 
       _defineProperty(_assertThisInitialized(_this), "setNewTodoContent", function (e) {
@@ -28004,10 +28121,10 @@
       });
 
       _defineProperty(_assertThisInitialized(_this), "addTodo", function () {
-        todos$.dispatch("addItem", {
-          desc: _this.state.newTodoContent,
+        /* todos$.dispatch("addItem", {
+          desc: this.state.newTodoContent,
           check: false
-        });
+        }); */
       });
 
       return _this;

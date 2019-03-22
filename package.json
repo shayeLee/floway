@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node fileServer.js ./",
     "test": "jest ./__tests__ --config ./jest.config.js --watch --onlyChanged",
-    "dev": "rollup -c ./build/rollup.dev.js -w",
+    "dev": "concurrently \"npm start\" \"rollup -c ./build/rollup.dev.js -w\"",
     "build": "rollup -c ./build/rollup.pro.js"
   },
   "author": "shayeLee",

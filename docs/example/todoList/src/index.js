@@ -46,11 +46,11 @@ class TodoList extends React.Component {
   }
 
   checkItem = n => {
-    todos$.dispatch("checkItem", n);
+    // todos$.dispatch("checkItem", n);
   };
 
   handleDel = n => {
-    todos$.dispatch("delItem", n);
+    // todos$.dispatch("delItem", n);
   };
 
   setNewTodoContent = e => {
@@ -61,10 +61,10 @@ class TodoList extends React.Component {
   };
 
   addTodo = () => {
-    todos$.dispatch("addItem", {
+    /* todos$.dispatch("addItem", {
       desc: this.state.newTodoContent,
       check: false
-    });
+    }); */
   };
 }
 

@@ -142,4 +142,7 @@ const attract = function(type) {
   };
   return processEvent$;
 };
-export default attract;
+
+const fromAction = attract;
+
+export default { fromAction, attract };

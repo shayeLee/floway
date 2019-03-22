@@ -7,7 +7,7 @@ const _setConfig = function(customConfig) {
 };
 export const setConfig = _setConfig;
 
-export { default as State } from "./state";
+export { default as state } from "./state";
 
 export { default as ofHot } from "./ofHot";
 
@@ -15,6 +15,6 @@ export { default as distributor$ } from "./distributor";
 
 export { default as ofLast } from "./ofLast";
 
-export { default as attract } from "./attract";
+export * from "./attract";
 
 export * from "./permeate";
