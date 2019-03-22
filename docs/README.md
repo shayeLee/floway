@@ -93,6 +93,8 @@ import { of } from 'rxjs';
 const todos$ = state({
   name: 'todos',
 
+  // 省略其它代码……
+
   fromAction: {
     checkItem: function(action, value) {
       const n = action.index;
