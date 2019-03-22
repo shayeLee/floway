@@ -42,4 +42,9 @@ const distributor$ = {
     eventBus$.next(map);
   }
 };
-export default distributor$;
+
+const dispatch = function(action) {
+  distributor$.next(action);
+}
+
+export { distributor$, dispatch };

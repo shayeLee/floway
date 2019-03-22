@@ -145,4 +145,4 @@ const attract = function(type) {
 
 const fromAction = attract;
 
-export default { fromAction, attract };
+export { fromAction, attract };

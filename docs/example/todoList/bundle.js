@@ -2174,7 +2174,7 @@
   }
   });
 
-  ___$insertStyle(".todolist {\n  box-sizing: border-box;\n  padding: 20px;\n  width: 600px;\n  background-color: #fafafa;\n  margin: auto;\n}\n\n.header {\n  font-size: 26px;\n  text-align: center;\n}\n\n.hints {\n  font-size: 13px;\n  color: #c06c84;\n  text-align: right;\n  line-height: 1.625;\n  padding-right: 8px;\n}\n\n.todo {\n  display: flex;\n  justify-content: space-between;\n  height: 36px;\n  background-color: #fce38a;\n  margin-bottom: 8px;\n  cursor: default;\n}\n.todo.checked {\n  background-color: #95e1d3;\n}\n.todo.checked .desc {\n  text-decoration: line-through;\n}\n.todo:hover .delbtn {\n  display: block;\n}\n\n.todo__content {\n  display: flex;\n  align-items: center;\n  height: 36px;\n}\n\n.todo__checkbox {\n  width: 14px;\n  margin-left: 14px;\n}\n\n.desc {\n  font-size: 14px;\n  margin-left: 8px;\n}\n\n.delbtn {\n  display: none;\n  font-size: 12px;\n  color: #999;\n  line-height: 36px;\n  padding-right: 10px;\n  cursor: pointer;\n}\n.delbtn:hover {\n  color: red;\n}\n\n.todolist__adder {\n  display: flex;\n  align-items: center;\n  height: 36px;\n  margin-top: 24px;\n}\n\n.todolist__input {\n  flex-grow: 1;\n  font-size: 14px;\n  line-height: 32px;\n  padding: 0 10px;\n  margin-right: 10px;\n}\n\n.todolist__btn {\n  font-size: 14px;\n  line-height: 29px;\n}");
+  ___$insertStyle(".todolist {\n  box-sizing: border-box;\n  padding: 20px;\n  width: 600px;\n  background-color: #fafafa;\n  margin: auto;\n}\n\n.header {\n  font-size: 26px;\n  text-align: center;\n}\n\n.hints {\n  font-size: 13px;\n  color: #c06c84;\n  text-align: right;\n  line-height: 1.625;\n  padding-right: 8px;\n}\n\n.todo {\n  display: flex;\n  justify-content: space-between;\n  height: 36px;\n  background-color: #fce38a;\n  margin-bottom: 8px;\n  cursor: default;\n}\n.todo.checked {\n  background-color: #95e1d3;\n}\n.todo.checked .desc {\n  text-decoration: line-through;\n}\n.todo:hover .delbtn {\n  display: block;\n}\n\n.todo__content {\n  display: flex;\n  align-items: center;\n  height: 36px;\n}\n\n.todo__checkbox {\n  width: 14px;\n  margin-left: 14px;\n}\n\n.desc {\n  font-size: 14px;\n  margin-left: 8px;\n}\n\n.delbtn {\n  display: none;\n  font-size: 12px;\n  color: #999;\n  line-height: 36px;\n  padding-right: 10px;\n  cursor: pointer;\n}\n.delbtn:hover {\n  color: red;\n}\n\n.todolist__adder {\n  display: flex;\n  align-items: center;\n  height: 36px;\n  margin-top: 24px;\n  margin-bottom: 14px;\n}\n\n.todolist__input {\n  flex-grow: 1;\n  font-size: 14px;\n  line-height: 32px;\n  padding: 0 10px;\n  margin-right: 10px;\n}\n\n.todolist__btn {\n  font-size: 14px;\n  line-height: 29px;\n}");
 
   var scheduler_development = createCommonjsModule(function (module, exports) {
 
@@ -23657,7 +23657,7 @@
   }(react.Component);
 
   var _core = createCommonjsModule(function (module) {
-  var core = module.exports = { version: '2.6.5' };
+  var core = module.exports = { version: '2.5.7' };
   if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
   });
   var _core_1 = _core.version;
@@ -23681,8 +23681,8 @@
     return store[key] || (store[key] = value !== undefined ? value : {});
   })('versions', []).push({
     version: _core.version,
-    mode: _library ? 'pure' : 'global',
-    copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
+    mode: 'global',
+    copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
   });
   });
 
@@ -23831,16 +23831,14 @@
     return hasOwnProperty$1.call(it, key);
   };
 
-  var _functionToString = _shared('native-function-to-string', Function.toString);
-
   var _redefine = createCommonjsModule(function (module) {
   var SRC = _uid('src');
-
   var TO_STRING = 'toString';
-  var TPL = ('' + _functionToString).split(TO_STRING);
+  var $toString = Function[TO_STRING];
+  var TPL = ('' + $toString).split(TO_STRING);
 
   _core.inspectSource = function (it) {
-    return _functionToString.call(it);
+    return $toString.call(it);
   };
 
   (module.exports = function (O, key, val, safe) {
@@ -23860,7 +23858,7 @@
     }
   // add fake Function#toString for correct work wrapped methods / constructors with methods like LoDash isNative
   })(Function.prototype, TO_STRING, function toString() {
-    return typeof this == 'function' && this[SRC] || _functionToString.call(this);
+    return typeof this == 'function' && this[SRC] || $toString.call(this);
   });
   });
 
@@ -24264,6 +24262,23 @@
       if (explicit) for (key in es6_array_iterator) if (!proto[key]) _redefine(proto, key, es6_array_iterator[key], true);
     }
   }
+
+  var dP$1 = _objectDp.f;
+  var FProto = Function.prototype;
+  var nameRE = /^\s*function ([^ (]*)/;
+  var NAME$1 = 'name';
+
+  // 19.2.4.2 name
+  NAME$1 in FProto || _descriptors && dP$1(FProto, NAME$1, {
+    configurable: true,
+    get: function () {
+      try {
+        return ('' + this).match(nameRE)[1];
+      } catch (e) {
+        return '';
+      }
+    }
+  });
 
   /*! *****************************************************************************
   Copyright (c) Microsoft Corporation. All rights reserved.
@@ -24778,13 +24793,6 @@
   //# sourceMappingURL=noop.js.map
 
   /** PURE_IMPORTS_START _noop PURE_IMPORTS_END */
-  function pipe() {
-      var fns = [];
-      for (var _i = 0; _i < arguments.length; _i++) {
-          fns[_i] = arguments[_i];
-      }
-      return pipeFromArray(fns);
-  }
   function pipeFromArray(fns) {
       if (!fns) {
           return noop;
@@ -25308,21 +25316,93 @@
   //# sourceMappingURL=queue.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
+  var EMPTY = /*@__PURE__*/ new Observable(function (subscriber) { return subscriber.complete(); });
+  function empty$1(scheduler) {
+      return scheduler ? emptyScheduled(scheduler) : EMPTY;
+  }
+  function emptyScheduled(scheduler) {
+      return new Observable(function (subscriber) { return scheduler.schedule(function () { return subscriber.complete(); }); });
+  }
   //# sourceMappingURL=empty.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  function isScheduler(value) {
+      return value && typeof value.schedule === 'function';
+  }
   //# sourceMappingURL=isScheduler.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  var subscribeToArray = function (array) {
+      return function (subscriber) {
+          for (var i = 0, len = array.length; i < len && !subscriber.closed; i++) {
+              subscriber.next(array[i]);
+          }
+          if (!subscriber.closed) {
+              subscriber.complete();
+          }
+      };
+  };
   //# sourceMappingURL=subscribeToArray.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription,_util_subscribeToArray PURE_IMPORTS_END */
+  function fromArray(input, scheduler) {
+      if (!scheduler) {
+          return new Observable(subscribeToArray(input));
+      }
+      else {
+          return new Observable(function (subscriber) {
+              var sub = new Subscription();
+              var i = 0;
+              sub.add(scheduler.schedule(function () {
+                  if (i === input.length) {
+                      subscriber.complete();
+                      return;
+                  }
+                  subscriber.next(input[i++]);
+                  if (!subscriber.closed) {
+                      sub.add(this.schedule());
+                  }
+              }));
+              return sub;
+          });
+      }
+  }
   //# sourceMappingURL=fromArray.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
+  function scalar(value) {
+      var result = new Observable(function (subscriber) {
+          subscriber.next(value);
+          subscriber.complete();
+      });
+      result._isScalar = true;
+      result.value = value;
+      return result;
+  }
   //# sourceMappingURL=scalar.js.map
 
   /** PURE_IMPORTS_START _util_isScheduler,_fromArray,_empty,_scalar PURE_IMPORTS_END */
+  function of() {
+      var args = [];
+      for (var _i = 0; _i < arguments.length; _i++) {
+          args[_i] = arguments[_i];
+      }
+      var scheduler = args[args.length - 1];
+      if (isScheduler(scheduler)) {
+          args.pop();
+      }
+      else {
+          scheduler = undefined;
+      }
+      switch (args.length) {
+          case 0:
+              return empty$1(scheduler);
+          case 1:
+              return scheduler ? fromArray(args, scheduler) : scalar(args[0]);
+          default:
+              return fromArray(args, scheduler);
+      }
+  }
   //# sourceMappingURL=of.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
@@ -25368,9 +25448,15 @@
   //# sourceMappingURL=VirtualTimeScheduler.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  function identity(x) {
+      return x;
+  }
   //# sourceMappingURL=identity.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
+  function isObservable(obj) {
+      return !!obj && (obj instanceof Observable || (typeof obj.lift === 'function' && typeof obj.subscribe === 'function'));
+  }
   //# sourceMappingURL=isObservable.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
@@ -25432,60 +25518,409 @@
   //# sourceMappingURL=bindNodeCallback.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  var OuterSubscriber = /*@__PURE__*/ (function (_super) {
+      __extends(OuterSubscriber, _super);
+      function OuterSubscriber() {
+          return _super !== null && _super.apply(this, arguments) || this;
+      }
+      OuterSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
+          this.destination.next(innerValue);
+      };
+      OuterSubscriber.prototype.notifyError = function (error, innerSub) {
+          this.destination.error(error);
+      };
+      OuterSubscriber.prototype.notifyComplete = function (innerSub) {
+          this.destination.complete();
+      };
+      return OuterSubscriber;
+  }(Subscriber));
   //# sourceMappingURL=OuterSubscriber.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  var InnerSubscriber = /*@__PURE__*/ (function (_super) {
+      __extends(InnerSubscriber, _super);
+      function InnerSubscriber(parent, outerValue, outerIndex) {
+          var _this = _super.call(this) || this;
+          _this.parent = parent;
+          _this.outerValue = outerValue;
+          _this.outerIndex = outerIndex;
+          _this.index = 0;
+          return _this;
+      }
+      InnerSubscriber.prototype._next = function (value) {
+          this.parent.notifyNext(this.outerValue, value, this.outerIndex, this.index++, this);
+      };
+      InnerSubscriber.prototype._error = function (error) {
+          this.parent.notifyError(error, this);
+          this.unsubscribe();
+      };
+      InnerSubscriber.prototype._complete = function () {
+          this.parent.notifyComplete(this);
+          this.unsubscribe();
+      };
+      return InnerSubscriber;
+  }(Subscriber));
   //# sourceMappingURL=InnerSubscriber.js.map
 
   /** PURE_IMPORTS_START _hostReportError PURE_IMPORTS_END */
+  var subscribeToPromise = function (promise) {
+      return function (subscriber) {
+          promise.then(function (value) {
+              if (!subscriber.closed) {
+                  subscriber.next(value);
+                  subscriber.complete();
+              }
+          }, function (err) { return subscriber.error(err); })
+              .then(null, hostReportError);
+          return subscriber;
+      };
+  };
   //# sourceMappingURL=subscribeToPromise.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  function getSymbolIterator() {
+      if (typeof Symbol !== 'function' || !Symbol.iterator) {
+          return '@@iterator';
+      }
+      return Symbol.iterator;
+  }
+  var iterator = /*@__PURE__*/ getSymbolIterator();
   //# sourceMappingURL=iterator.js.map
 
   /** PURE_IMPORTS_START _symbol_iterator PURE_IMPORTS_END */
+  var subscribeToIterable = function (iterable) {
+      return function (subscriber) {
+          var iterator$1 = iterable[iterator]();
+          do {
+              var item = iterator$1.next();
+              if (item.done) {
+                  subscriber.complete();
+                  break;
+              }
+              subscriber.next(item.value);
+              if (subscriber.closed) {
+                  break;
+              }
+          } while (true);
+          if (typeof iterator$1.return === 'function') {
+              subscriber.add(function () {
+                  if (iterator$1.return) {
+                      iterator$1.return();
+                  }
+              });
+          }
+          return subscriber;
+      };
+  };
   //# sourceMappingURL=subscribeToIterable.js.map
 
   /** PURE_IMPORTS_START _symbol_observable PURE_IMPORTS_END */
+  var subscribeToObservable = function (obj) {
+      return function (subscriber) {
+          var obs = obj[observable]();
+          if (typeof obs.subscribe !== 'function') {
+              throw new TypeError('Provided object does not correctly implement Symbol.observable');
+          }
+          else {
+              return obs.subscribe(subscriber);
+          }
+      };
+  };
   //# sourceMappingURL=subscribeToObservable.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  var isArrayLike = (function (x) { return x && typeof x.length === 'number' && typeof x !== 'function'; });
   //# sourceMappingURL=isArrayLike.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  function isPromise(value) {
+      return !!value && typeof value.subscribe !== 'function' && typeof value.then === 'function';
+  }
   //# sourceMappingURL=isPromise.js.map
 
   /** PURE_IMPORTS_START _Observable,_subscribeToArray,_subscribeToPromise,_subscribeToIterable,_subscribeToObservable,_isArrayLike,_isPromise,_isObject,_symbol_iterator,_symbol_observable PURE_IMPORTS_END */
+  var subscribeTo = function (result) {
+      if (result instanceof Observable) {
+          return function (subscriber) {
+              if (result._isScalar) {
+                  subscriber.next(result.value);
+                  subscriber.complete();
+                  return undefined;
+              }
+              else {
+                  return result.subscribe(subscriber);
+              }
+          };
+      }
+      else if (!!result && typeof result[observable] === 'function') {
+          return subscribeToObservable(result);
+      }
+      else if (isArrayLike(result)) {
+          return subscribeToArray(result);
+      }
+      else if (isPromise(result)) {
+          return subscribeToPromise(result);
+      }
+      else if (!!result && typeof result[iterator] === 'function') {
+          return subscribeToIterable(result);
+      }
+      else {
+          var value = isObject(result) ? 'an invalid object' : "'" + result + "'";
+          var msg = "You provided " + value + " where a stream was expected."
+              + ' You can provide an Observable, Promise, Array, or Iterable.';
+          throw new TypeError(msg);
+      }
+  };
   //# sourceMappingURL=subscribeTo.js.map
 
   /** PURE_IMPORTS_START _InnerSubscriber,_subscribeTo PURE_IMPORTS_END */
+  function subscribeToResult(outerSubscriber, result, outerValue, outerIndex, destination) {
+      if (destination === void 0) {
+          destination = new InnerSubscriber(outerSubscriber, outerValue, outerIndex);
+      }
+      if (destination.closed) {
+          return;
+      }
+      return subscribeTo(result)(destination);
+  }
   //# sourceMappingURL=subscribeToResult.js.map
 
   /** PURE_IMPORTS_START tslib,_util_isScheduler,_util_isArray,_OuterSubscriber,_util_subscribeToResult,_fromArray PURE_IMPORTS_END */
   //# sourceMappingURL=combineLatest.js.map
 
   /** PURE_IMPORTS_START _symbol_observable PURE_IMPORTS_END */
+  function isInteropObservable(input) {
+      return input && typeof input[observable] === 'function';
+  }
   //# sourceMappingURL=isInteropObservable.js.map
 
   /** PURE_IMPORTS_START _symbol_iterator PURE_IMPORTS_END */
+  function isIterable(input) {
+      return input && typeof input[iterator] === 'function';
+  }
   //# sourceMappingURL=isIterable.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription,_util_subscribeToPromise PURE_IMPORTS_END */
+  function fromPromise(input, scheduler) {
+      if (!scheduler) {
+          return new Observable(subscribeToPromise(input));
+      }
+      else {
+          return new Observable(function (subscriber) {
+              var sub = new Subscription();
+              sub.add(scheduler.schedule(function () {
+                  return input.then(function (value) {
+                      sub.add(scheduler.schedule(function () {
+                          subscriber.next(value);
+                          sub.add(scheduler.schedule(function () { return subscriber.complete(); }));
+                      }));
+                  }, function (err) {
+                      sub.add(scheduler.schedule(function () { return subscriber.error(err); }));
+                  });
+              }));
+              return sub;
+          });
+      }
+  }
   //# sourceMappingURL=fromPromise.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription,_symbol_iterator,_util_subscribeToIterable PURE_IMPORTS_END */
+  function fromIterable(input, scheduler) {
+      if (!input) {
+          throw new Error('Iterable cannot be null');
+      }
+      if (!scheduler) {
+          return new Observable(subscribeToIterable(input));
+      }
+      else {
+          return new Observable(function (subscriber) {
+              var sub = new Subscription();
+              var iterator$1;
+              sub.add(function () {
+                  if (iterator$1 && typeof iterator$1.return === 'function') {
+                      iterator$1.return();
+                  }
+              });
+              sub.add(scheduler.schedule(function () {
+                  iterator$1 = input[iterator]();
+                  sub.add(scheduler.schedule(function () {
+                      if (subscriber.closed) {
+                          return;
+                      }
+                      var value;
+                      var done;
+                      try {
+                          var result = iterator$1.next();
+                          value = result.value;
+                          done = result.done;
+                      }
+                      catch (err) {
+                          subscriber.error(err);
+                          return;
+                      }
+                      if (done) {
+                          subscriber.complete();
+                      }
+                      else {
+                          subscriber.next(value);
+                          this.schedule();
+                      }
+                  }));
+              }));
+              return sub;
+          });
+      }
+  }
   //# sourceMappingURL=fromIterable.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription,_symbol_observable,_util_subscribeToObservable PURE_IMPORTS_END */
+  function fromObservable(input, scheduler) {
+      if (!scheduler) {
+          return new Observable(subscribeToObservable(input));
+      }
+      else {
+          return new Observable(function (subscriber) {
+              var sub = new Subscription();
+              sub.add(scheduler.schedule(function () {
+                  var observable$1 = input[observable]();
+                  sub.add(observable$1.subscribe({
+                      next: function (value) { sub.add(scheduler.schedule(function () { return subscriber.next(value); })); },
+                      error: function (err) { sub.add(scheduler.schedule(function () { return subscriber.error(err); })); },
+                      complete: function () { sub.add(scheduler.schedule(function () { return subscriber.complete(); })); },
+                  }));
+              }));
+              return sub;
+          });
+      }
+  }
   //# sourceMappingURL=fromObservable.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_isPromise,_util_isArrayLike,_util_isInteropObservable,_util_isIterable,_fromArray,_fromPromise,_fromIterable,_fromObservable,_util_subscribeTo PURE_IMPORTS_END */
+  function from(input, scheduler) {
+      if (!scheduler) {
+          if (input instanceof Observable) {
+              return input;
+          }
+          return new Observable(subscribeTo(input));
+      }
+      if (input != null) {
+          if (isInteropObservable(input)) {
+              return fromObservable(input, scheduler);
+          }
+          else if (isPromise(input)) {
+              return fromPromise(input, scheduler);
+          }
+          else if (isArrayLike(input)) {
+              return fromArray(input, scheduler);
+          }
+          else if (isIterable(input) || typeof input === 'string') {
+              return fromIterable(input, scheduler);
+          }
+      }
+      throw new TypeError((input !== null && typeof input || input) + ' is not observable');
+  }
   //# sourceMappingURL=from.js.map
 
   /** PURE_IMPORTS_START tslib,_util_subscribeToResult,_OuterSubscriber,_InnerSubscriber,_map,_observable_from PURE_IMPORTS_END */
+  function mergeMap(project, resultSelector, concurrent) {
+      if (concurrent === void 0) {
+          concurrent = Number.POSITIVE_INFINITY;
+      }
+      if (typeof resultSelector === 'function') {
+          return function (source) { return source.pipe(mergeMap(function (a, i) { return from(project(a, i)).pipe(map(function (b, ii) { return resultSelector(a, b, i, ii); })); }, concurrent)); };
+      }
+      else if (typeof resultSelector === 'number') {
+          concurrent = resultSelector;
+      }
+      return function (source) { return source.lift(new MergeMapOperator(project, concurrent)); };
+  }
+  var MergeMapOperator = /*@__PURE__*/ (function () {
+      function MergeMapOperator(project, concurrent) {
+          if (concurrent === void 0) {
+              concurrent = Number.POSITIVE_INFINITY;
+          }
+          this.project = project;
+          this.concurrent = concurrent;
+      }
+      MergeMapOperator.prototype.call = function (observer, source) {
+          return source.subscribe(new MergeMapSubscriber(observer, this.project, this.concurrent));
+      };
+      return MergeMapOperator;
+  }());
+  var MergeMapSubscriber = /*@__PURE__*/ (function (_super) {
+      __extends(MergeMapSubscriber, _super);
+      function MergeMapSubscriber(destination, project, concurrent) {
+          if (concurrent === void 0) {
+              concurrent = Number.POSITIVE_INFINITY;
+          }
+          var _this = _super.call(this, destination) || this;
+          _this.project = project;
+          _this.concurrent = concurrent;
+          _this.hasCompleted = false;
+          _this.buffer = [];
+          _this.active = 0;
+          _this.index = 0;
+          return _this;
+      }
+      MergeMapSubscriber.prototype._next = function (value) {
+          if (this.active < this.concurrent) {
+              this._tryNext(value);
+          }
+          else {
+              this.buffer.push(value);
+          }
+      };
+      MergeMapSubscriber.prototype._tryNext = function (value) {
+          var result;
+          var index = this.index++;
+          try {
+              result = this.project(value, index);
+          }
+          catch (err) {
+              this.destination.error(err);
+              return;
+          }
+          this.active++;
+          this._innerSub(result, value, index);
+      };
+      MergeMapSubscriber.prototype._innerSub = function (ish, value, index) {
+          var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
+          var destination = this.destination;
+          destination.add(innerSubscriber);
+          subscribeToResult(this, ish, value, index, innerSubscriber);
+      };
+      MergeMapSubscriber.prototype._complete = function () {
+          this.hasCompleted = true;
+          if (this.active === 0 && this.buffer.length === 0) {
+              this.destination.complete();
+          }
+          this.unsubscribe();
+      };
+      MergeMapSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
+          this.destination.next(innerValue);
+      };
+      MergeMapSubscriber.prototype.notifyComplete = function (innerSub) {
+          var buffer = this.buffer;
+          this.remove(innerSub);
+          this.active--;
+          if (buffer.length > 0) {
+              this._next(buffer.shift());
+          }
+          else if (this.active === 0 && this.hasCompleted) {
+              this.destination.complete();
+          }
+      };
+      return MergeMapSubscriber;
+  }(OuterSubscriber));
   //# sourceMappingURL=mergeMap.js.map
 
   /** PURE_IMPORTS_START _mergeMap,_util_identity PURE_IMPORTS_END */
+  function mergeAll(concurrent) {
+      if (concurrent === void 0) {
+          concurrent = Number.POSITIVE_INFINITY;
+      }
+      return mergeMap(identity, concurrent);
+  }
   //# sourceMappingURL=mergeAll.js.map
 
   /** PURE_IMPORTS_START _mergeAll PURE_IMPORTS_END */
@@ -25495,6 +25930,20 @@
   //# sourceMappingURL=concat.js.map
 
   /** PURE_IMPORTS_START _Observable,_from,_empty PURE_IMPORTS_END */
+  function defer(observableFactory) {
+      return new Observable(function (subscriber) {
+          var input;
+          try {
+              input = observableFactory();
+          }
+          catch (err) {
+              subscriber.error(err);
+              return undefined;
+          }
+          var source = input ? from(input) : empty$1();
+          return source.subscribe(subscriber);
+      });
+  }
   //# sourceMappingURL=defer.js.map
 
   /** PURE_IMPORTS_START tslib,_Observable,_util_isArray,_empty,_util_subscribeToResult,_OuterSubscriber,_operators_map PURE_IMPORTS_END */
@@ -25519,6 +25968,28 @@
   //# sourceMappingURL=interval.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_isScheduler,_operators_mergeAll,_fromArray PURE_IMPORTS_END */
+  function merge() {
+      var observables = [];
+      for (var _i = 0; _i < arguments.length; _i++) {
+          observables[_i] = arguments[_i];
+      }
+      var concurrent = Number.POSITIVE_INFINITY;
+      var scheduler = null;
+      var last = observables[observables.length - 1];
+      if (isScheduler(last)) {
+          scheduler = observables.pop();
+          if (observables.length > 1 && typeof observables[observables.length - 1] === 'number') {
+              concurrent = observables.pop();
+          }
+      }
+      else if (typeof last === 'number') {
+          concurrent = observables.pop();
+      }
+      if (scheduler === null && observables.length === 1 && observables[0] instanceof Observable) {
+          return observables[0];
+      }
+      return mergeAll(concurrent)(fromArray(observables, scheduler));
+  }
   //# sourceMappingURL=merge.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_noop PURE_IMPORTS_END */
@@ -25548,15 +26019,439 @@
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   //# sourceMappingURL=index.js.map
 
-  function state(options) {
-    var value = options.value;
-    var stateSubject = new BehaviorSubject(value);
-    /* Object.keys(options.actions).forEach(key => {
-      console.log(key);
-    }); */
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=audit.js.map
 
-    return stateSubject;
+  /** PURE_IMPORTS_START _scheduler_async,_audit,_observable_timer PURE_IMPORTS_END */
+  //# sourceMappingURL=auditTime.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=buffer.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=bufferCount.js.map
+
+  /** PURE_IMPORTS_START tslib,_scheduler_async,_Subscriber,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=bufferTime.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscription,_util_subscribeToResult,_OuterSubscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=bufferToggle.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscription,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=bufferWhen.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=catchError.js.map
+
+  /** PURE_IMPORTS_START _observable_combineLatest PURE_IMPORTS_END */
+  //# sourceMappingURL=combineAll.js.map
+
+  /** PURE_IMPORTS_START _util_isArray,_observable_combineLatest,_observable_from PURE_IMPORTS_END */
+  //# sourceMappingURL=combineLatest.js.map
+
+  /** PURE_IMPORTS_START _observable_concat PURE_IMPORTS_END */
+  //# sourceMappingURL=concat.js.map
+
+  /** PURE_IMPORTS_START _mergeMap PURE_IMPORTS_END */
+  //# sourceMappingURL=concatMap.js.map
+
+  /** PURE_IMPORTS_START _concatMap PURE_IMPORTS_END */
+  //# sourceMappingURL=concatMapTo.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=count.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=debounce.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async PURE_IMPORTS_END */
+  //# sourceMappingURL=debounceTime.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=defaultIfEmpty.js.map
+
+  /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=isDate.js.map
+
+  /** PURE_IMPORTS_START tslib,_scheduler_async,_util_isDate,_Subscriber,_Notification PURE_IMPORTS_END */
+  //# sourceMappingURL=delay.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_Observable,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=delayWhen.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=dematerialize.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=distinct.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=distinctUntilChanged.js.map
+
+  /** PURE_IMPORTS_START _distinctUntilChanged PURE_IMPORTS_END */
+  //# sourceMappingURL=distinctUntilKeyChanged.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  function filter(predicate, thisArg) {
+      return function filterOperatorFunction(source) {
+          return source.lift(new FilterOperator(predicate, thisArg));
+      };
   }
+  var FilterOperator = /*@__PURE__*/ (function () {
+      function FilterOperator(predicate, thisArg) {
+          this.predicate = predicate;
+          this.thisArg = thisArg;
+      }
+      FilterOperator.prototype.call = function (subscriber, source) {
+          return source.subscribe(new FilterSubscriber(subscriber, this.predicate, this.thisArg));
+      };
+      return FilterOperator;
+  }());
+  var FilterSubscriber = /*@__PURE__*/ (function (_super) {
+      __extends(FilterSubscriber, _super);
+      function FilterSubscriber(destination, predicate, thisArg) {
+          var _this = _super.call(this, destination) || this;
+          _this.predicate = predicate;
+          _this.thisArg = thisArg;
+          _this.count = 0;
+          return _this;
+      }
+      FilterSubscriber.prototype._next = function (value) {
+          var result;
+          try {
+              result = this.predicate.call(this.thisArg, value, this.count++);
+          }
+          catch (err) {
+              this.destination.error(err);
+              return;
+          }
+          if (result) {
+              this.destination.next(value);
+          }
+      };
+      return FilterSubscriber;
+  }(Subscriber));
+  //# sourceMappingURL=filter.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_util_noop,_util_isFunction PURE_IMPORTS_END */
+  //# sourceMappingURL=tap.js.map
+
+  /** PURE_IMPORTS_START _tap,_util_EmptyError PURE_IMPORTS_END */
+  //# sourceMappingURL=throwIfEmpty.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError,_observable_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=take.js.map
+
+  /** PURE_IMPORTS_START _util_ArgumentOutOfRangeError,_filter,_throwIfEmpty,_defaultIfEmpty,_take PURE_IMPORTS_END */
+  //# sourceMappingURL=elementAt.js.map
+
+  /** PURE_IMPORTS_START _observable_fromArray,_observable_scalar,_observable_empty,_observable_concat,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=endWith.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=every.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=exhaust.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
+  //# sourceMappingURL=exhaustMap.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=expand.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_Subscription PURE_IMPORTS_END */
+  //# sourceMappingURL=finalize.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=find.js.map
+
+  /** PURE_IMPORTS_START _operators_find PURE_IMPORTS_END */
+  //# sourceMappingURL=findIndex.js.map
+
+  /** PURE_IMPORTS_START _util_EmptyError,_filter,_take,_defaultIfEmpty,_throwIfEmpty,_util_identity PURE_IMPORTS_END */
+  //# sourceMappingURL=first.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=ignoreElements.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=isEmpty.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError,_observable_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=takeLast.js.map
+
+  /** PURE_IMPORTS_START _util_EmptyError,_filter,_takeLast,_throwIfEmpty,_defaultIfEmpty,_util_identity PURE_IMPORTS_END */
+  //# sourceMappingURL=last.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=mapTo.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_Notification PURE_IMPORTS_END */
+  //# sourceMappingURL=materialize.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=scan.js.map
+
+  /** PURE_IMPORTS_START _scan,_takeLast,_defaultIfEmpty,_util_pipe PURE_IMPORTS_END */
+  //# sourceMappingURL=reduce.js.map
+
+  /** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
+  //# sourceMappingURL=max.js.map
+
+  /** PURE_IMPORTS_START _observable_merge PURE_IMPORTS_END */
+  //# sourceMappingURL=merge.js.map
+
+  /** PURE_IMPORTS_START _mergeMap PURE_IMPORTS_END */
+  //# sourceMappingURL=mergeMapTo.js.map
+
+  /** PURE_IMPORTS_START tslib,_util_subscribeToResult,_OuterSubscriber,_InnerSubscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=mergeScan.js.map
+
+  /** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
+  //# sourceMappingURL=min.js.map
+
+  /** PURE_IMPORTS_START _observable_ConnectableObservable PURE_IMPORTS_END */
+  //# sourceMappingURL=multicast.js.map
+
+  /** PURE_IMPORTS_START tslib,_observable_from,_util_isArray,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=onErrorResumeNext.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=pairwise.js.map
+
+  /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=not.js.map
+
+  /** PURE_IMPORTS_START _util_not,_filter PURE_IMPORTS_END */
+  //# sourceMappingURL=partition.js.map
+
+  /** PURE_IMPORTS_START _map PURE_IMPORTS_END */
+  function pluck() {
+      var properties = [];
+      for (var _i = 0; _i < arguments.length; _i++) {
+          properties[_i] = arguments[_i];
+      }
+      var length = properties.length;
+      if (length === 0) {
+          throw new Error('list of properties cannot be empty.');
+      }
+      return function (source) { return map(plucker(properties, length))(source); };
+  }
+  function plucker(props, length) {
+      var mapper = function (x) {
+          var currentProp = x;
+          for (var i = 0; i < length; i++) {
+              var p = currentProp[props[i]];
+              if (typeof p !== 'undefined') {
+                  currentProp = p;
+              }
+              else {
+                  return undefined;
+              }
+          }
+          return currentProp;
+      };
+      return mapper;
+  }
+  //# sourceMappingURL=pluck.js.map
+
+  /** PURE_IMPORTS_START _Subject,_multicast PURE_IMPORTS_END */
+  //# sourceMappingURL=publish.js.map
+
+  /** PURE_IMPORTS_START _BehaviorSubject,_multicast PURE_IMPORTS_END */
+  //# sourceMappingURL=publishBehavior.js.map
+
+  /** PURE_IMPORTS_START _AsyncSubject,_multicast PURE_IMPORTS_END */
+  //# sourceMappingURL=publishLast.js.map
+
+  /** PURE_IMPORTS_START _ReplaySubject,_multicast PURE_IMPORTS_END */
+  //# sourceMappingURL=publishReplay.js.map
+
+  /** PURE_IMPORTS_START _util_isArray,_observable_race PURE_IMPORTS_END */
+  //# sourceMappingURL=race.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_observable_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=repeat.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=repeatWhen.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=retry.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=retryWhen.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=sample.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async PURE_IMPORTS_END */
+  //# sourceMappingURL=sampleTime.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=sequenceEqual.js.map
+
+  /** PURE_IMPORTS_START _multicast,_refCount,_Subject PURE_IMPORTS_END */
+  //# sourceMappingURL=share.js.map
+
+  /** PURE_IMPORTS_START _ReplaySubject PURE_IMPORTS_END */
+  //# sourceMappingURL=shareReplay.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_util_EmptyError PURE_IMPORTS_END */
+  //# sourceMappingURL=single.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=skip.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError PURE_IMPORTS_END */
+  //# sourceMappingURL=skipLast.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=skipUntil.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=skipWhile.js.map
+
+  /** PURE_IMPORTS_START _observable_fromArray,_observable_scalar,_observable_empty,_observable_concat,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=startWith.js.map
+
+  /** PURE_IMPORTS_START tslib,_Observable,_scheduler_asap,_util_isNumeric PURE_IMPORTS_END */
+  //# sourceMappingURL=SubscribeOnObservable.js.map
+
+  /** PURE_IMPORTS_START _observable_SubscribeOnObservable PURE_IMPORTS_END */
+  //# sourceMappingURL=subscribeOn.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
+  function switchMap(project, resultSelector) {
+      if (typeof resultSelector === 'function') {
+          return function (source) { return source.pipe(switchMap(function (a, i) { return from(project(a, i)).pipe(map(function (b, ii) { return resultSelector(a, b, i, ii); })); })); };
+      }
+      return function (source) { return source.lift(new SwitchMapOperator(project)); };
+  }
+  var SwitchMapOperator = /*@__PURE__*/ (function () {
+      function SwitchMapOperator(project) {
+          this.project = project;
+      }
+      SwitchMapOperator.prototype.call = function (subscriber, source) {
+          return source.subscribe(new SwitchMapSubscriber(subscriber, this.project));
+      };
+      return SwitchMapOperator;
+  }());
+  var SwitchMapSubscriber = /*@__PURE__*/ (function (_super) {
+      __extends(SwitchMapSubscriber, _super);
+      function SwitchMapSubscriber(destination, project) {
+          var _this = _super.call(this, destination) || this;
+          _this.project = project;
+          _this.index = 0;
+          return _this;
+      }
+      SwitchMapSubscriber.prototype._next = function (value) {
+          var result;
+          var index = this.index++;
+          try {
+              result = this.project(value, index);
+          }
+          catch (error) {
+              this.destination.error(error);
+              return;
+          }
+          this._innerSub(result, value, index);
+      };
+      SwitchMapSubscriber.prototype._innerSub = function (result, value, index) {
+          var innerSubscription = this.innerSubscription;
+          if (innerSubscription) {
+              innerSubscription.unsubscribe();
+          }
+          var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
+          var destination = this.destination;
+          destination.add(innerSubscriber);
+          this.innerSubscription = subscribeToResult(this, result, value, index, innerSubscriber);
+      };
+      SwitchMapSubscriber.prototype._complete = function () {
+          var innerSubscription = this.innerSubscription;
+          if (!innerSubscription || innerSubscription.closed) {
+              _super.prototype._complete.call(this);
+          }
+          this.unsubscribe();
+      };
+      SwitchMapSubscriber.prototype._unsubscribe = function () {
+          this.innerSubscription = null;
+      };
+      SwitchMapSubscriber.prototype.notifyComplete = function (innerSub) {
+          var destination = this.destination;
+          destination.remove(innerSub);
+          this.innerSubscription = null;
+          if (this.isStopped) {
+              _super.prototype._complete.call(this);
+          }
+      };
+      SwitchMapSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
+          this.destination.next(innerValue);
+      };
+      return SwitchMapSubscriber;
+  }(OuterSubscriber));
+  //# sourceMappingURL=switchMap.js.map
+
+  /** PURE_IMPORTS_START _switchMap,_util_identity PURE_IMPORTS_END */
+  //# sourceMappingURL=switchAll.js.map
+
+  /** PURE_IMPORTS_START _switchMap PURE_IMPORTS_END */
+  //# sourceMappingURL=switchMapTo.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=takeUntil.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=takeWhile.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=throttle.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async,_throttle PURE_IMPORTS_END */
+  //# sourceMappingURL=throttleTime.js.map
+
+  /** PURE_IMPORTS_START _scheduler_async,_scan,_observable_defer,_map PURE_IMPORTS_END */
+  //# sourceMappingURL=timeInterval.js.map
+
+  /** PURE_IMPORTS_START tslib,_scheduler_async,_util_isDate,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=timeoutWith.js.map
+
+  /** PURE_IMPORTS_START _scheduler_async,_util_TimeoutError,_timeoutWith,_observable_throwError PURE_IMPORTS_END */
+  //# sourceMappingURL=timeout.js.map
+
+  /** PURE_IMPORTS_START _scheduler_async,_map PURE_IMPORTS_END */
+  //# sourceMappingURL=timestamp.js.map
+
+  /** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
+  //# sourceMappingURL=toArray.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=window.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subscriber,_Subject PURE_IMPORTS_END */
+  //# sourceMappingURL=windowCount.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subject,_scheduler_async,_Subscriber,_util_isNumeric,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=windowTime.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subject,_Subscription,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=windowToggle.js.map
+
+  /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=windowWhen.js.map
+
+  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=withLatestFrom.js.map
+
+  /** PURE_IMPORTS_START _observable_zip PURE_IMPORTS_END */
+  //# sourceMappingURL=zip.js.map
+
+  /** PURE_IMPORTS_START _observable_zip PURE_IMPORTS_END */
+  //# sourceMappingURL=zipAll.js.map
+
+  /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=index.js.map
 
   var f$1 = Object.getOwnPropertySymbols;
 
@@ -25695,341 +26590,14 @@
     return true;
   }
 
-  /**
-   * 创建一个包含指定数据、并且可更新的observable
-   * @param {*} data - 指定数据
-   */
-
-  function ofHot(data) {
-    var state$ = new BehaviorSubject(data);
-    state$.__data__ = data;
-
-    state$.update = function (mData) {
-      var newData;
-
-      var _data = typeof mData === "function" ? mData(state$.__data__) : mData;
-
-      if (isObject$1(_data)) {
-        newData = Object.assign({}, state$.__data__, _data);
-      } else {
-        newData = _data;
-      }
-
-      state$.__data__ = newData;
-      state$.next(newData);
-    };
-
-    return state$;
-  }
-
-  new Subject();
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=audit.js.map
-
-  /** PURE_IMPORTS_START _scheduler_async,_audit,_observable_timer PURE_IMPORTS_END */
-  //# sourceMappingURL=auditTime.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=buffer.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=bufferCount.js.map
-
-  /** PURE_IMPORTS_START tslib,_scheduler_async,_Subscriber,_util_isScheduler PURE_IMPORTS_END */
-  //# sourceMappingURL=bufferTime.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscription,_util_subscribeToResult,_OuterSubscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=bufferToggle.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscription,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=bufferWhen.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=catchError.js.map
-
-  /** PURE_IMPORTS_START _observable_combineLatest PURE_IMPORTS_END */
-  //# sourceMappingURL=combineAll.js.map
-
-  /** PURE_IMPORTS_START _util_isArray,_observable_combineLatest,_observable_from PURE_IMPORTS_END */
-  //# sourceMappingURL=combineLatest.js.map
-
-  /** PURE_IMPORTS_START _observable_concat PURE_IMPORTS_END */
-  //# sourceMappingURL=concat.js.map
-
-  /** PURE_IMPORTS_START _mergeMap PURE_IMPORTS_END */
-  //# sourceMappingURL=concatMap.js.map
-
-  /** PURE_IMPORTS_START _concatMap PURE_IMPORTS_END */
-  //# sourceMappingURL=concatMapTo.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=count.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=debounce.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async PURE_IMPORTS_END */
-  //# sourceMappingURL=debounceTime.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=defaultIfEmpty.js.map
-
-  /** PURE_IMPORTS_START  PURE_IMPORTS_END */
-  //# sourceMappingURL=isDate.js.map
-
-  /** PURE_IMPORTS_START tslib,_scheduler_async,_util_isDate,_Subscriber,_Notification PURE_IMPORTS_END */
-  //# sourceMappingURL=delay.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_Observable,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=delayWhen.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=dematerialize.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=distinct.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=distinctUntilChanged.js.map
-
-  /** PURE_IMPORTS_START _distinctUntilChanged PURE_IMPORTS_END */
-  //# sourceMappingURL=distinctUntilKeyChanged.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=filter.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_util_noop,_util_isFunction PURE_IMPORTS_END */
-  //# sourceMappingURL=tap.js.map
-
-  /** PURE_IMPORTS_START _tap,_util_EmptyError PURE_IMPORTS_END */
-  //# sourceMappingURL=throwIfEmpty.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError,_observable_empty PURE_IMPORTS_END */
-  //# sourceMappingURL=take.js.map
-
-  /** PURE_IMPORTS_START _util_ArgumentOutOfRangeError,_filter,_throwIfEmpty,_defaultIfEmpty,_take PURE_IMPORTS_END */
-  //# sourceMappingURL=elementAt.js.map
-
-  /** PURE_IMPORTS_START _observable_fromArray,_observable_scalar,_observable_empty,_observable_concat,_util_isScheduler PURE_IMPORTS_END */
-  //# sourceMappingURL=endWith.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=every.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=exhaust.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
-  //# sourceMappingURL=exhaustMap.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=expand.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_Subscription PURE_IMPORTS_END */
-  //# sourceMappingURL=finalize.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=find.js.map
-
-  /** PURE_IMPORTS_START _operators_find PURE_IMPORTS_END */
-  //# sourceMappingURL=findIndex.js.map
-
-  /** PURE_IMPORTS_START _util_EmptyError,_filter,_take,_defaultIfEmpty,_throwIfEmpty,_util_identity PURE_IMPORTS_END */
-  //# sourceMappingURL=first.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=ignoreElements.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=isEmpty.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError,_observable_empty PURE_IMPORTS_END */
-  //# sourceMappingURL=takeLast.js.map
-
-  /** PURE_IMPORTS_START _util_EmptyError,_filter,_takeLast,_throwIfEmpty,_defaultIfEmpty,_util_identity PURE_IMPORTS_END */
-  //# sourceMappingURL=last.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=mapTo.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_Notification PURE_IMPORTS_END */
-  //# sourceMappingURL=materialize.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=scan.js.map
-
-  /** PURE_IMPORTS_START _scan,_takeLast,_defaultIfEmpty,_util_pipe PURE_IMPORTS_END */
-  //# sourceMappingURL=reduce.js.map
-
-  /** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
-  //# sourceMappingURL=max.js.map
-
-  /** PURE_IMPORTS_START _observable_merge PURE_IMPORTS_END */
-  //# sourceMappingURL=merge.js.map
-
-  /** PURE_IMPORTS_START _mergeMap PURE_IMPORTS_END */
-  //# sourceMappingURL=mergeMapTo.js.map
-
-  /** PURE_IMPORTS_START tslib,_util_subscribeToResult,_OuterSubscriber,_InnerSubscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=mergeScan.js.map
-
-  /** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
-  //# sourceMappingURL=min.js.map
-
-  /** PURE_IMPORTS_START _observable_ConnectableObservable PURE_IMPORTS_END */
-  //# sourceMappingURL=multicast.js.map
-
-  /** PURE_IMPORTS_START tslib,_observable_from,_util_isArray,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=onErrorResumeNext.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=pairwise.js.map
-
-  /** PURE_IMPORTS_START  PURE_IMPORTS_END */
-  //# sourceMappingURL=not.js.map
-
-  /** PURE_IMPORTS_START _util_not,_filter PURE_IMPORTS_END */
-  //# sourceMappingURL=partition.js.map
-
-  /** PURE_IMPORTS_START _map PURE_IMPORTS_END */
-  //# sourceMappingURL=pluck.js.map
-
-  /** PURE_IMPORTS_START _Subject,_multicast PURE_IMPORTS_END */
-  //# sourceMappingURL=publish.js.map
-
-  /** PURE_IMPORTS_START _BehaviorSubject,_multicast PURE_IMPORTS_END */
-  //# sourceMappingURL=publishBehavior.js.map
-
-  /** PURE_IMPORTS_START _AsyncSubject,_multicast PURE_IMPORTS_END */
-  //# sourceMappingURL=publishLast.js.map
-
-  /** PURE_IMPORTS_START _ReplaySubject,_multicast PURE_IMPORTS_END */
-  //# sourceMappingURL=publishReplay.js.map
-
-  /** PURE_IMPORTS_START _util_isArray,_observable_race PURE_IMPORTS_END */
-  //# sourceMappingURL=race.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_observable_empty PURE_IMPORTS_END */
-  //# sourceMappingURL=repeat.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=repeatWhen.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=retry.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=retryWhen.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=sample.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async PURE_IMPORTS_END */
-  //# sourceMappingURL=sampleTime.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=sequenceEqual.js.map
-
-  /** PURE_IMPORTS_START _multicast,_refCount,_Subject PURE_IMPORTS_END */
-  //# sourceMappingURL=share.js.map
-
-  /** PURE_IMPORTS_START _ReplaySubject PURE_IMPORTS_END */
-  //# sourceMappingURL=shareReplay.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_util_EmptyError PURE_IMPORTS_END */
-  //# sourceMappingURL=single.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=skip.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError PURE_IMPORTS_END */
-  //# sourceMappingURL=skipLast.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=skipUntil.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=skipWhile.js.map
-
-  /** PURE_IMPORTS_START _observable_fromArray,_observable_scalar,_observable_empty,_observable_concat,_util_isScheduler PURE_IMPORTS_END */
-  //# sourceMappingURL=startWith.js.map
-
-  /** PURE_IMPORTS_START tslib,_Observable,_scheduler_asap,_util_isNumeric PURE_IMPORTS_END */
-  //# sourceMappingURL=SubscribeOnObservable.js.map
-
-  /** PURE_IMPORTS_START _observable_SubscribeOnObservable PURE_IMPORTS_END */
-  //# sourceMappingURL=subscribeOn.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
-  //# sourceMappingURL=switchMap.js.map
-
-  /** PURE_IMPORTS_START _switchMap,_util_identity PURE_IMPORTS_END */
-  //# sourceMappingURL=switchAll.js.map
-
-  /** PURE_IMPORTS_START _switchMap PURE_IMPORTS_END */
-  //# sourceMappingURL=switchMapTo.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=takeUntil.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-  //# sourceMappingURL=takeWhile.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=throttle.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async,_throttle PURE_IMPORTS_END */
-  //# sourceMappingURL=throttleTime.js.map
-
-  /** PURE_IMPORTS_START _scheduler_async,_scan,_observable_defer,_map PURE_IMPORTS_END */
-  //# sourceMappingURL=timeInterval.js.map
-
-  /** PURE_IMPORTS_START tslib,_scheduler_async,_util_isDate,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=timeoutWith.js.map
-
-  /** PURE_IMPORTS_START _scheduler_async,_util_TimeoutError,_timeoutWith,_observable_throwError PURE_IMPORTS_END */
-  //# sourceMappingURL=timeout.js.map
-
-  /** PURE_IMPORTS_START _scheduler_async,_map PURE_IMPORTS_END */
-  //# sourceMappingURL=timestamp.js.map
-
-  /** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
-  //# sourceMappingURL=toArray.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=window.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subscriber,_Subject PURE_IMPORTS_END */
-  //# sourceMappingURL=windowCount.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subject,_scheduler_async,_Subscriber,_util_isNumeric,_util_isScheduler PURE_IMPORTS_END */
-  //# sourceMappingURL=windowTime.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subject,_Subscription,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=windowToggle.js.map
-
-  /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=windowWhen.js.map
-
-  /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-  //# sourceMappingURL=withLatestFrom.js.map
-
-  /** PURE_IMPORTS_START _observable_zip PURE_IMPORTS_END */
-  //# sourceMappingURL=zip.js.map
-
-  /** PURE_IMPORTS_START _observable_zip PURE_IMPORTS_END */
-  //# sourceMappingURL=zipAll.js.map
-
-  /** PURE_IMPORTS_START  PURE_IMPORTS_END */
-  //# sourceMappingURL=index.js.map
-
   var Store = function Store() {
     _classCallCheck(this, Store);
 
-    _defineProperty(this, "obsMap", {});
+    _defineProperty(this, "subscriptions", {});
 
     _defineProperty(this, "stateTree", {});
+
+    _defineProperty(this, "stateRegister", {});
 
     _defineProperty(this, "eventLog", {
       dataMap: {},
@@ -26758,6 +27326,8 @@
   })();
   });
 
+  var eventBus$ = new Subject();
+
   var _global$1 = createCommonjsModule(function (module) {
   // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
   var global = module.exports = typeof window != 'undefined' && window.Math == Math
@@ -26768,7 +27338,7 @@
   });
 
   var _core$1 = createCommonjsModule(function (module) {
-  var core = module.exports = { version: '2.6.5' };
+  var core = module.exports = { version: '2.5.7' };
   if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
   });
   var _core_1$1 = _core$1.version;
@@ -26845,14 +27415,14 @@
     throw TypeError("Can't convert object to primitive value");
   };
 
-  var dP$1 = Object.defineProperty;
+  var dP$2 = Object.defineProperty;
 
   var f$3 = _descriptors$1 ? Object.defineProperty : function defineProperty(O, P, Attributes) {
     _anObject$1(O);
     P = _toPrimitive$1(P, true);
     _anObject$1(Attributes);
     if (_ie8DomDefine$1) try {
-      return dP$1(O, P, Attributes);
+      return dP$2(O, P, Attributes);
     } catch (e) { /* empty */ }
     if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
     if ('value' in Attributes) O[P] = Attributes.value;
@@ -27024,7 +27594,7 @@
   })('versions', []).push({
     version: _core$1.version,
     mode: 'pure',
-    copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
+    copyright: '© 2018 Denis Pushkarev (zloirock.ru)'
   });
   });
 
@@ -27159,7 +27729,7 @@
   };
   });
 
-  unwrapExports(_extends$1);
+  var _extends$2 = unwrapExports(_extends$1);
 
   // true  -> String#at
   // false -> String#codePointAt
@@ -27386,10 +27956,10 @@
     'TextTrackList,TouchList').split(',');
 
   for (var i$1 = 0; i$1 < DOMIterables$1.length; i$1++) {
-    var NAME$1 = DOMIterables$1[i$1];
-    var Collection$1 = _global$1[NAME$1];
+    var NAME$2 = DOMIterables$1[i$1];
+    var Collection$1 = _global$1[NAME$2];
     var proto$1 = Collection$1 && Collection$1.prototype;
-    if (proto$1 && !proto$1[TO_STRING_TAG$1]) _hide$1(proto$1, TO_STRING_TAG$1, NAME$1);
+    if (proto$1 && !proto$1[TO_STRING_TAG$1]) _hide$1(proto$1, TO_STRING_TAG$1, NAME$2);
   }
 
   var f$6 = _wks$1;
@@ -27398,13 +27968,13 @@
   	f: f$6
   };
 
-  var iterator = _wksExt.f('iterator');
+  var iterator$1 = _wksExt.f('iterator');
 
-  var iterator$1 = createCommonjsModule(function (module) {
-  module.exports = { "default": iterator, __esModule: true };
+  var iterator$2 = createCommonjsModule(function (module) {
+  module.exports = { "default": iterator$1, __esModule: true };
   });
 
-  unwrapExports(iterator$1);
+  unwrapExports(iterator$2);
 
   var _meta = createCommonjsModule(function (module) {
   var META = _uid$1('meta');
@@ -27573,7 +28143,7 @@
 
 
   var gOPD$1 = _objectGopd.f;
-  var dP$2 = _objectDp$1.f;
+  var dP$3 = _objectDp$1.f;
   var gOPN$1 = _objectGopnExt.f;
   var $Symbol = _global$1.Symbol;
   var $JSON = _global$1.JSON;
@@ -27593,15 +28163,15 @@
 
   // fallback for old Android, https://code.google.com/p/v8/issues/detail?id=687
   var setSymbolDesc = _descriptors$1 && _fails$1(function () {
-    return _objectCreate$1(dP$2({}, 'a', {
-      get: function () { return dP$2(this, 'a', { value: 7 }).a; }
+    return _objectCreate$1(dP$3({}, 'a', {
+      get: function () { return dP$3(this, 'a', { value: 7 }).a; }
     })).a != 7;
   }) ? function (it, key, D) {
     var protoDesc = gOPD$1(ObjectProto$2, key);
     if (protoDesc) delete ObjectProto$2[key];
-    dP$2(it, key, D);
-    if (protoDesc && it !== ObjectProto$2) dP$2(ObjectProto$2, key, protoDesc);
-  } : dP$2;
+    dP$3(it, key, D);
+    if (protoDesc && it !== ObjectProto$2) dP$3(ObjectProto$2, key, protoDesc);
+  } : dP$3;
 
   var wrap = function (tag) {
     var sym = AllSymbols[tag] = _objectCreate$1($Symbol[PROTOTYPE$4]);
@@ -27622,13 +28192,13 @@
     _anObject$1(D);
     if (_has$1(AllSymbols, key)) {
       if (!D.enumerable) {
-        if (!_has$1(it, HIDDEN)) dP$2(it, HIDDEN, _propertyDesc$1(1, {}));
+        if (!_has$1(it, HIDDEN)) dP$3(it, HIDDEN, _propertyDesc$1(1, {}));
         it[HIDDEN][key] = true;
       } else {
         if (_has$1(it, HIDDEN) && it[HIDDEN][key]) it[HIDDEN][key] = false;
         D = _objectCreate$1(D, { enumerable: _propertyDesc$1(0, false) });
       } return setSymbolDesc(it, key, D);
-    } return dP$2(it, key, D);
+    } return dP$3(it, key, D);
   };
   var $defineProperties = function defineProperties(it, P) {
     _anObject$1(it);
@@ -27798,7 +28368,7 @@
 
 
 
-  var _iterator2 = _interopRequireDefault(iterator$1);
+  var _iterator2 = _interopRequireDefault(iterator$2);
 
 
 
@@ -27815,24 +28385,1336 @@
   };
   });
 
-  unwrapExports(_typeof_1);
+  var _typeof = unwrapExports(_typeof_1);
 
-  var dP$3 = _objectDp.f;
-  var FProto = Function.prototype;
-  var nameRE = /^\s*function ([^ (]*)/;
-  var NAME$2 = 'name';
+  var formatRegExp = /%[sdj%]/g;
 
-  // 19.2.4.2 name
-  NAME$2 in FProto || _descriptors && dP$3(FProto, NAME$2, {
-    configurable: true,
-    get: function () {
-      try {
-        return ('' + this).match(nameRE)[1];
-      } catch (e) {
-        return '';
+  var warning = function warning() {};
+
+  // don't print warning message when in production env or node runtime
+  if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    warning = function warning(type, errors) {
+      if (typeof console !== 'undefined' && console.warn) {
+        if (errors.every(function (e) {
+          return typeof e === 'string';
+        })) {
+          console.warn(type, errors);
+        }
+      }
+    };
+  }
+
+  function format() {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    var i = 1;
+    var f = args[0];
+    var len = args.length;
+    if (typeof f === 'function') {
+      return f.apply(null, args.slice(1));
+    }
+    if (typeof f === 'string') {
+      var str = String(f).replace(formatRegExp, function (x) {
+        if (x === '%%') {
+          return '%';
+        }
+        if (i >= len) {
+          return x;
+        }
+        switch (x) {
+          case '%s':
+            return String(args[i++]);
+          case '%d':
+            return Number(args[i++]);
+          case '%j':
+            try {
+              return JSON.stringify(args[i++]);
+            } catch (_) {
+              return '[Circular]';
+            }
+            break;
+          default:
+            return x;
+        }
+      });
+      for (var arg = args[i]; i < len; arg = args[++i]) {
+        str += ' ' + arg;
+      }
+      return str;
+    }
+    return f;
+  }
+
+  function isNativeStringType(type) {
+    return type === 'string' || type === 'url' || type === 'hex' || type === 'email' || type === 'pattern';
+  }
+
+  function isEmptyValue(value, type) {
+    if (value === undefined || value === null) {
+      return true;
+    }
+    if (type === 'array' && Array.isArray(value) && !value.length) {
+      return true;
+    }
+    if (isNativeStringType(type) && typeof value === 'string' && !value) {
+      return true;
+    }
+    return false;
+  }
+
+  function asyncParallelArray(arr, func, callback) {
+    var results = [];
+    var total = 0;
+    var arrLength = arr.length;
+
+    function count(errors) {
+      results.push.apply(results, errors);
+      total++;
+      if (total === arrLength) {
+        callback(results);
       }
     }
-  });
+
+    arr.forEach(function (a) {
+      func(a, count);
+    });
+  }
+
+  function asyncSerialArray(arr, func, callback) {
+    var index = 0;
+    var arrLength = arr.length;
+
+    function next(errors) {
+      if (errors && errors.length) {
+        callback(errors);
+        return;
+      }
+      var original = index;
+      index = index + 1;
+      if (original < arrLength) {
+        func(arr[original], next);
+      } else {
+        callback([]);
+      }
+    }
+
+    next([]);
+  }
+
+  function flattenObjArr(objArr) {
+    var ret = [];
+    Object.keys(objArr).forEach(function (k) {
+      ret.push.apply(ret, objArr[k]);
+    });
+    return ret;
+  }
+
+  function asyncMap(objArr, option, func, callback) {
+    if (option.first) {
+      var flattenArr = flattenObjArr(objArr);
+      return asyncSerialArray(flattenArr, func, callback);
+    }
+    var firstFields = option.firstFields || [];
+    if (firstFields === true) {
+      firstFields = Object.keys(objArr);
+    }
+    var objArrKeys = Object.keys(objArr);
+    var objArrLength = objArrKeys.length;
+    var total = 0;
+    var results = [];
+    var next = function next(errors) {
+      results.push.apply(results, errors);
+      total++;
+      if (total === objArrLength) {
+        callback(results);
+      }
+    };
+    objArrKeys.forEach(function (key) {
+      var arr = objArr[key];
+      if (firstFields.indexOf(key) !== -1) {
+        asyncSerialArray(arr, func, next);
+      } else {
+        asyncParallelArray(arr, func, next);
+      }
+    });
+  }
+
+  function complementError(rule) {
+    return function (oe) {
+      if (oe && oe.message) {
+        oe.field = oe.field || rule.fullField;
+        return oe;
+      }
+      return {
+        message: oe,
+        field: oe.field || rule.fullField
+      };
+    };
+  }
+
+  function deepMerge(target, source) {
+    if (source) {
+      for (var s in source) {
+        if (source.hasOwnProperty(s)) {
+          var value = source[s];
+          if ((typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && _typeof(target[s]) === 'object') {
+            target[s] = _extends$2({}, target[s], value);
+          } else {
+            target[s] = value;
+          }
+        }
+      }
+    }
+    return target;
+  }
+
+  /**
+   *  Rule for validating required fields.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param source The source object being validated.
+   *  @param errors An array of errors that this rule may add
+   *  validation errors to.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function required(rule, value, source, errors, options, type) {
+    if (rule.required && (!source.hasOwnProperty(rule.field) || isEmptyValue(value, type || rule.type))) {
+      errors.push(format(options.messages.required, rule.fullField));
+    }
+  }
+
+  /**
+   *  Rule for validating whitespace.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param source The source object being validated.
+   *  @param errors An array of errors that this rule may add
+   *  validation errors to.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function whitespace(rule, value, source, errors, options) {
+    if (/^\s+$/.test(value) || value === '') {
+      errors.push(format(options.messages.whitespace, rule.fullField));
+    }
+  }
+
+  /* eslint max-len:0 */
+
+  var pattern = {
+    // http://emailregex.com/
+    email: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    url: new RegExp('^(?!mailto:)(?:(?:http|https|ftp)://|//)(?:\\S+(?::\\S*)?@)?(?:(?:(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}(?:\\.(?:[0-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|(?:(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]+-?)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,})))|localhost)(?::\\d{2,5})?(?:(/|\\?|#)[^\\s]*)?$', 'i'),
+    hex: /^#?([a-f0-9]{6}|[a-f0-9]{3})$/i
+  };
+
+  var types = {
+    integer: function integer(value) {
+      return types.number(value) && parseInt(value, 10) === value;
+    },
+    float: function float(value) {
+      return types.number(value) && !types.integer(value);
+    },
+    array: function array(value) {
+      return Array.isArray(value);
+    },
+    regexp: function regexp(value) {
+      if (value instanceof RegExp) {
+        return true;
+      }
+      try {
+        return !!new RegExp(value);
+      } catch (e) {
+        return false;
+      }
+    },
+    date: function date(value) {
+      return typeof value.getTime === 'function' && typeof value.getMonth === 'function' && typeof value.getYear === 'function';
+    },
+    number: function number(value) {
+      if (isNaN(value)) {
+        return false;
+      }
+      return typeof value === 'number';
+    },
+    object: function object(value) {
+      return (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' && !types.array(value);
+    },
+    method: function method(value) {
+      return typeof value === 'function';
+    },
+    email: function email(value) {
+      return typeof value === 'string' && !!value.match(pattern.email) && value.length < 255;
+    },
+    url: function url(value) {
+      return typeof value === 'string' && !!value.match(pattern.url);
+    },
+    hex: function hex(value) {
+      return typeof value === 'string' && !!value.match(pattern.hex);
+    }
+  };
+
+  /**
+   *  Rule for validating the type of a value.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param source The source object being validated.
+   *  @param errors An array of errors that this rule may add
+   *  validation errors to.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function type(rule, value, source, errors, options) {
+    if (rule.required && value === undefined) {
+      required(rule, value, source, errors, options);
+      return;
+    }
+    var custom = ['integer', 'float', 'array', 'regexp', 'object', 'method', 'email', 'number', 'date', 'url', 'hex'];
+    var ruleType = rule.type;
+    if (custom.indexOf(ruleType) > -1) {
+      if (!types[ruleType](value)) {
+        errors.push(format(options.messages.types[ruleType], rule.fullField, rule.type));
+      }
+      // straight typeof check
+    } else if (ruleType && (typeof value === 'undefined' ? 'undefined' : _typeof(value)) !== rule.type) {
+      errors.push(format(options.messages.types[ruleType], rule.fullField, rule.type));
+    }
+  }
+
+  /**
+   *  Rule for validating minimum and maximum allowed values.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param source The source object being validated.
+   *  @param errors An array of errors that this rule may add
+   *  validation errors to.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function range(rule, value, source, errors, options) {
+    var len = typeof rule.len === 'number';
+    var min = typeof rule.min === 'number';
+    var max = typeof rule.max === 'number';
+    // 正则匹配码点范围从U+010000一直到U+10FFFF的文字（补充平面Supplementary Plane）
+    var spRegexp = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
+    var val = value;
+    var key = null;
+    var num = typeof value === 'number';
+    var str = typeof value === 'string';
+    var arr = Array.isArray(value);
+    if (num) {
+      key = 'number';
+    } else if (str) {
+      key = 'string';
+    } else if (arr) {
+      key = 'array';
+    }
+    // if the value is not of a supported type for range validation
+    // the validation rule rule should use the
+    // type property to also test for a particular type
+    if (!key) {
+      return false;
+    }
+    if (arr) {
+      val = value.length;
+    }
+    if (str) {
+      // 处理码点大于U+010000的文字length属性不准确的bug，如"𠮷𠮷𠮷".lenght !== 3
+      val = value.replace(spRegexp, '_').length;
+    }
+    if (len) {
+      if (val !== rule.len) {
+        errors.push(format(options.messages[key].len, rule.fullField, rule.len));
+      }
+    } else if (min && !max && val < rule.min) {
+      errors.push(format(options.messages[key].min, rule.fullField, rule.min));
+    } else if (max && !min && val > rule.max) {
+      errors.push(format(options.messages[key].max, rule.fullField, rule.max));
+    } else if (min && max && (val < rule.min || val > rule.max)) {
+      errors.push(format(options.messages[key].range, rule.fullField, rule.min, rule.max));
+    }
+  }
+
+  var ENUM = 'enum';
+
+  /**
+   *  Rule for validating a value exists in an enumerable list.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param source The source object being validated.
+   *  @param errors An array of errors that this rule may add
+   *  validation errors to.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function enumerable(rule, value, source, errors, options) {
+    rule[ENUM] = Array.isArray(rule[ENUM]) ? rule[ENUM] : [];
+    if (rule[ENUM].indexOf(value) === -1) {
+      errors.push(format(options.messages[ENUM], rule.fullField, rule[ENUM].join(', ')));
+    }
+  }
+
+  /**
+   *  Rule for validating a regular expression pattern.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param source The source object being validated.
+   *  @param errors An array of errors that this rule may add
+   *  validation errors to.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function pattern$1(rule, value, source, errors, options) {
+    if (rule.pattern) {
+      if (rule.pattern instanceof RegExp) {
+        // if a RegExp instance is passed, reset `lastIndex` in case its `global`
+        // flag is accidentally set to `true`, which in a validation scenario
+        // is not necessary and the result might be misleading
+        rule.pattern.lastIndex = 0;
+        if (!rule.pattern.test(value)) {
+          errors.push(format(options.messages.pattern.mismatch, rule.fullField, value, rule.pattern));
+        }
+      } else if (typeof rule.pattern === 'string') {
+        var _pattern = new RegExp(rule.pattern);
+        if (!_pattern.test(value)) {
+          errors.push(format(options.messages.pattern.mismatch, rule.fullField, value, rule.pattern));
+        }
+      }
+    }
+  }
+
+  var rules = {
+    required: required,
+    whitespace: whitespace,
+    type: type,
+    range: range,
+    'enum': enumerable,
+    pattern: pattern$1
+  };
+
+  /**
+   *  Performs validation for string types.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param callback The callback function.
+   *  @param source The source object being validated.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function string(rule, value, callback, source, options) {
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    if (validate) {
+      if (isEmptyValue(value, 'string') && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options, 'string');
+      if (!isEmptyValue(value, 'string')) {
+        rules.type(rule, value, source, errors, options);
+        rules.range(rule, value, source, errors, options);
+        rules.pattern(rule, value, source, errors, options);
+        if (rule.whitespace === true) {
+          rules.whitespace(rule, value, source, errors, options);
+        }
+      }
+    }
+    callback(errors);
+  }
+
+  /**
+   *  Validates a function.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param callback The callback function.
+   *  @param source The source object being validated.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function method(rule, value, callback, source, options) {
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    if (validate) {
+      if (isEmptyValue(value) && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options);
+      if (value !== undefined) {
+        rules.type(rule, value, source, errors, options);
+      }
+    }
+    callback(errors);
+  }
+
+  /**
+   *  Validates a number.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param callback The callback function.
+   *  @param source The source object being validated.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function number(rule, value, callback, source, options) {
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    if (validate) {
+      if (isEmptyValue(value) && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options);
+      if (value !== undefined) {
+        rules.type(rule, value, source, errors, options);
+        rules.range(rule, value, source, errors, options);
+      }
+    }
+    callback(errors);
+  }
+
+  /**
+   *  Validates a boolean.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param callback The callback function.
+   *  @param source The source object being validated.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function boolean(rule, value, callback, source, options) {
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    if (validate) {
+      if (isEmptyValue(value) && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options);
+      if (value !== undefined) {
+        rules.type(rule, value, source, errors, options);
+      }
+    }
+    callback(errors);
+  }
+
+  /**
+   *  Validates the regular expression type.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param callback The callback function.
+   *  @param source The source object being validated.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function regexp(rule, value, callback, source, options) {
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    if (validate) {
+      if (isEmptyValue(value) && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options);
+      if (!isEmptyValue(value)) {
+        rules.type(rule, value, source, errors, options);
+      }
+    }
+    callback(errors);
+  }
+
+  /**
+   *  Validates a number is an integer.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param callback The callback function.
+   *  @param source The source object being validated.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function integer(rule, value, callback, source, options) {
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    if (validate) {
+      if (isEmptyValue(value) && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options);
+      if (value !== undefined) {
+        rules.type(rule, value, source, errors, options);
+        rules.range(rule, value, source, errors, options);
+      }
+    }
+    callback(errors);
+  }
+
+  /**
+   *  Validates a number is a floating point number.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param callback The callback function.
+   *  @param source The source object being validated.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function floatFn(rule, value, callback, source, options) {
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    if (validate) {
+      if (isEmptyValue(value) && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options);
+      if (value !== undefined) {
+        rules.type(rule, value, source, errors, options);
+        rules.range(rule, value, source, errors, options);
+      }
+    }
+    callback(errors);
+  }
+
+  /**
+   *  Validates an array.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param callback The callback function.
+   *  @param source The source object being validated.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function array(rule, value, callback, source, options) {
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    if (validate) {
+      if (isEmptyValue(value, 'array') && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options, 'array');
+      if (!isEmptyValue(value, 'array')) {
+        rules.type(rule, value, source, errors, options);
+        rules.range(rule, value, source, errors, options);
+      }
+    }
+    callback(errors);
+  }
+
+  /**
+   *  Validates an object.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param callback The callback function.
+   *  @param source The source object being validated.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function object(rule, value, callback, source, options) {
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    if (validate) {
+      if (isEmptyValue(value) && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options);
+      if (value !== undefined) {
+        rules.type(rule, value, source, errors, options);
+      }
+    }
+    callback(errors);
+  }
+
+  var ENUM$1 = 'enum';
+
+  /**
+   *  Validates an enumerable list.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param callback The callback function.
+   *  @param source The source object being validated.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function enumerable$1(rule, value, callback, source, options) {
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    if (validate) {
+      if (isEmptyValue(value) && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options);
+      if (value) {
+        rules[ENUM$1](rule, value, source, errors, options);
+      }
+    }
+    callback(errors);
+  }
+
+  /**
+   *  Validates a regular expression pattern.
+   *
+   *  Performs validation when a rule only contains
+   *  a pattern property but is not declared as a string type.
+   *
+   *  @param rule The validation rule.
+   *  @param value The value of the field on the source object.
+   *  @param callback The callback function.
+   *  @param source The source object being validated.
+   *  @param options The validation options.
+   *  @param options.messages The validation messages.
+   */
+  function pattern$2(rule, value, callback, source, options) {
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    if (validate) {
+      if (isEmptyValue(value, 'string') && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options);
+      if (!isEmptyValue(value, 'string')) {
+        rules.pattern(rule, value, source, errors, options);
+      }
+    }
+    callback(errors);
+  }
+
+  function date(rule, value, callback, source, options) {
+    // console.log('integer rule called %j', rule);
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    // console.log('validate on %s value', value);
+    if (validate) {
+      if (isEmptyValue(value) && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options);
+      if (!isEmptyValue(value)) {
+        var dateObject = void 0;
+
+        if (typeof value === 'number') {
+          dateObject = new Date(value);
+        } else {
+          dateObject = value;
+        }
+
+        rules.type(rule, dateObject, source, errors, options);
+        if (dateObject) {
+          rules.range(rule, dateObject.getTime(), source, errors, options);
+        }
+      }
+    }
+    callback(errors);
+  }
+
+  function required$1(rule, value, callback, source, options) {
+    var errors = [];
+    var type = Array.isArray(value) ? 'array' : typeof value === 'undefined' ? 'undefined' : _typeof(value);
+    rules.required(rule, value, source, errors, options, type);
+    callback(errors);
+  }
+
+  function type$1(rule, value, callback, source, options) {
+    var ruleType = rule.type;
+    var errors = [];
+    var validate = rule.required || !rule.required && source.hasOwnProperty(rule.field);
+    if (validate) {
+      if (isEmptyValue(value, ruleType) && !rule.required) {
+        return callback();
+      }
+      rules.required(rule, value, source, errors, options, ruleType);
+      if (!isEmptyValue(value, ruleType)) {
+        rules.type(rule, value, source, errors, options);
+      }
+    }
+    callback(errors);
+  }
+
+  var validators = {
+    string: string,
+    method: method,
+    number: number,
+    boolean: boolean,
+    regexp: regexp,
+    integer: integer,
+    float: floatFn,
+    array: array,
+    object: object,
+    'enum': enumerable$1,
+    pattern: pattern$2,
+    date: date,
+    url: type$1,
+    hex: type$1,
+    email: type$1,
+    required: required$1
+  };
+
+  function newMessages() {
+    return {
+      'default': 'Validation error on field %s',
+      required: '%s is required',
+      'enum': '%s must be one of %s',
+      whitespace: '%s cannot be empty',
+      date: {
+        format: '%s date %s is invalid for format %s',
+        parse: '%s date could not be parsed, %s is invalid ',
+        invalid: '%s date %s is invalid'
+      },
+      types: {
+        string: '%s is not a %s',
+        method: '%s is not a %s (function)',
+        array: '%s is not an %s',
+        object: '%s is not an %s',
+        number: '%s is not a %s',
+        date: '%s is not a %s',
+        boolean: '%s is not a %s',
+        integer: '%s is not an %s',
+        float: '%s is not a %s',
+        regexp: '%s is not a valid %s',
+        email: '%s is not a valid %s',
+        url: '%s is not a valid %s',
+        hex: '%s is not a valid %s'
+      },
+      string: {
+        len: '%s must be exactly %s characters',
+        min: '%s must be at least %s characters',
+        max: '%s cannot be longer than %s characters',
+        range: '%s must be between %s and %s characters'
+      },
+      number: {
+        len: '%s must equal %s',
+        min: '%s cannot be less than %s',
+        max: '%s cannot be greater than %s',
+        range: '%s must be between %s and %s'
+      },
+      array: {
+        len: '%s must be exactly %s in length',
+        min: '%s cannot be less than %s in length',
+        max: '%s cannot be greater than %s in length',
+        range: '%s must be between %s and %s in length'
+      },
+      pattern: {
+        mismatch: '%s value %s does not match pattern %s'
+      },
+      clone: function clone() {
+        var cloned = JSON.parse(JSON.stringify(this));
+        cloned.clone = this.clone;
+        return cloned;
+      }
+    };
+  }
+
+  var messages = newMessages();
+
+  /**
+   *  Encapsulates a validation schema.
+   *
+   *  @param descriptor An object declaring validation rules
+   *  for this schema.
+   */
+  function Schema(descriptor) {
+    this.rules = null;
+    this._messages = messages;
+    this.define(descriptor);
+  }
+
+  Schema.prototype = {
+    messages: function messages(_messages) {
+      if (_messages) {
+        this._messages = deepMerge(newMessages(), _messages);
+      }
+      return this._messages;
+    },
+    define: function define(rules) {
+      if (!rules) {
+        throw new Error('Cannot configure a schema with no rules');
+      }
+      if ((typeof rules === 'undefined' ? 'undefined' : _typeof(rules)) !== 'object' || Array.isArray(rules)) {
+        throw new Error('Rules must be an object');
+      }
+      this.rules = {};
+      var z = void 0;
+      var item = void 0;
+      for (z in rules) {
+        if (rules.hasOwnProperty(z)) {
+          item = rules[z];
+          this.rules[z] = Array.isArray(item) ? item : [item];
+        }
+      }
+    },
+    validate: function validate(source_) {
+      var _this = this;
+
+      var o = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var oc = arguments[2];
+
+      var source = source_;
+      var options = o;
+      var callback = oc;
+      if (typeof options === 'function') {
+        callback = options;
+        options = {};
+      }
+      if (!this.rules || Object.keys(this.rules).length === 0) {
+        if (callback) {
+          callback();
+        }
+        return;
+      }
+      function complete(results) {
+        var i = void 0;
+        var field = void 0;
+        var errors = [];
+        var fields = {};
+
+        function add(e) {
+          if (Array.isArray(e)) {
+            errors = errors.concat.apply(errors, e);
+          } else {
+            errors.push(e);
+          }
+        }
+
+        for (i = 0; i < results.length; i++) {
+          add(results[i]);
+        }
+        if (!errors.length) {
+          errors = null;
+          fields = null;
+        } else {
+          for (i = 0; i < errors.length; i++) {
+            field = errors[i].field;
+            fields[field] = fields[field] || [];
+            fields[field].push(errors[i]);
+          }
+        }
+        callback(errors, fields);
+      }
+
+      if (options.messages) {
+        var messages$1 = this.messages();
+        if (messages$1 === messages) {
+          messages$1 = newMessages();
+        }
+        deepMerge(messages$1, options.messages);
+        options.messages = messages$1;
+      } else {
+        options.messages = this.messages();
+      }
+      var arr = void 0;
+      var value = void 0;
+      var series = {};
+      var keys = options.keys || Object.keys(this.rules);
+      keys.forEach(function (z) {
+        arr = _this.rules[z];
+        value = source[z];
+        arr.forEach(function (r) {
+          var rule = r;
+          if (typeof rule.transform === 'function') {
+            if (source === source_) {
+              source = _extends$2({}, source);
+            }
+            value = source[z] = rule.transform(value);
+          }
+          if (typeof rule === 'function') {
+            rule = {
+              validator: rule
+            };
+          } else {
+            rule = _extends$2({}, rule);
+          }
+          rule.validator = _this.getValidationMethod(rule);
+          rule.field = z;
+          rule.fullField = rule.fullField || z;
+          rule.type = _this.getType(rule);
+          if (!rule.validator) {
+            return;
+          }
+          series[z] = series[z] || [];
+          series[z].push({
+            rule: rule,
+            value: value,
+            source: source,
+            field: z
+          });
+        });
+      });
+      var errorFields = {};
+      asyncMap(series, options, function (data, doIt) {
+        var rule = data.rule;
+        var deep = (rule.type === 'object' || rule.type === 'array') && (_typeof(rule.fields) === 'object' || _typeof(rule.defaultField) === 'object');
+        deep = deep && (rule.required || !rule.required && data.value);
+        rule.field = data.field;
+        function addFullfield(key, schema) {
+          return _extends$2({}, schema, {
+            fullField: rule.fullField + '.' + key
+          });
+        }
+
+        function cb() {
+          var e = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+          var errors = e;
+          if (!Array.isArray(errors)) {
+            errors = [errors];
+          }
+          if (errors.length) {
+            Schema.warning('async-validator:', errors);
+          }
+          if (errors.length && rule.message) {
+            errors = [].concat(rule.message);
+          }
+
+          errors = errors.map(complementError(rule));
+
+          if (options.first && errors.length) {
+            errorFields[rule.field] = 1;
+            return doIt(errors);
+          }
+          if (!deep) {
+            doIt(errors);
+          } else {
+            // if rule is required but the target object
+            // does not exist fail at the rule level and don't
+            // go deeper
+            if (rule.required && !data.value) {
+              if (rule.message) {
+                errors = [].concat(rule.message).map(complementError(rule));
+              } else if (options.error) {
+                errors = [options.error(rule, format(options.messages.required, rule.field))];
+              } else {
+                errors = [];
+              }
+              return doIt(errors);
+            }
+
+            var fieldsSchema = {};
+            if (rule.defaultField) {
+              for (var k in data.value) {
+                if (data.value.hasOwnProperty(k)) {
+                  fieldsSchema[k] = rule.defaultField;
+                }
+              }
+            }
+            fieldsSchema = _extends$2({}, fieldsSchema, data.rule.fields);
+            for (var f in fieldsSchema) {
+              if (fieldsSchema.hasOwnProperty(f)) {
+                var fieldSchema = Array.isArray(fieldsSchema[f]) ? fieldsSchema[f] : [fieldsSchema[f]];
+                fieldsSchema[f] = fieldSchema.map(addFullfield.bind(null, f));
+              }
+            }
+            var schema = new Schema(fieldsSchema);
+            schema.messages(options.messages);
+            if (data.rule.options) {
+              data.rule.options.messages = options.messages;
+              data.rule.options.error = options.error;
+            }
+            schema.validate(data.value, data.rule.options || options, function (errs) {
+              doIt(errs && errs.length ? errors.concat(errs) : errs);
+            });
+          }
+        }
+
+        var res = rule.validator(rule, data.value, cb, data.source, options);
+        if (res && res.then) {
+          res.then(function () {
+            return cb();
+          }, function (e) {
+            return cb(e);
+          });
+        }
+      }, function (results) {
+        complete(results);
+      });
+    },
+    getType: function getType(rule) {
+      if (rule.type === undefined && rule.pattern instanceof RegExp) {
+        rule.type = 'pattern';
+      }
+      if (typeof rule.validator !== 'function' && rule.type && !validators.hasOwnProperty(rule.type)) {
+        throw new Error(format('Unknown rule type %s', rule.type));
+      }
+      return rule.type || 'string';
+    },
+    getValidationMethod: function getValidationMethod(rule) {
+      if (typeof rule.validator === 'function') {
+        return rule.validator;
+      }
+      var keys = Object.keys(rule);
+      var messageIndex = keys.indexOf('message');
+      if (messageIndex !== -1) {
+        keys.splice(messageIndex, 1);
+      }
+      if (keys.length === 1 && keys[0] === 'required') {
+        return validators.required;
+      }
+      return validators[this.getType(rule)] || false;
+    }
+  };
+
+  Schema.register = function register(type, validator) {
+    if (typeof validator !== 'function') {
+      throw new Error('Cannot register a validator by type, validator is not a function');
+    }
+    validators[type] = validator;
+  };
+
+  Schema.warning = warning;
+
+  Schema.messages = messages;
+
+  var eventLog = store.eventLog;
+  /**
+   * 捕捉事件触发器(distributor$)推送的指定类型的事件，并返回一个observable
+   * @param {string|object} type - 事件类型 或 事件对象
+   */
+
+  var attract = function attract(_type) {
+    var validator = new Schema({
+      type: function type(rule, value, callback) {
+        var errors = [];
+
+        if (!(typeof _type === "string" || isObject$1(_type))) {
+          errors.push(new Error("type must be string or object"));
+        }
+
+        callback(errors);
+      }
+    });
+    validator.validate({
+      type: _type
+    }, function (errors) {
+      if (errors) {
+        console.error(errors[0]);
+      }
+    });
+    var options = null;
+    var _options = {
+      useCache: false,
+      cacheType: "eventCache" // eventCache itemCache
+
+    };
+
+    if (isCorrectVal(_type) && typeof _type === "string") {
+      options = Object.assign({}, _options);
+    } else if (isCorrectVal(_type) && isObject$1(_type)) {
+      options = Object.assign({}, _options, _type);
+      _type = options.type;
+      delete options.type;
+    }
+
+    var event$ = eventBus$.pipe(pluck(_type), filter(function (event) {
+      if (!isCorrectVal(event)) return false;
+
+      if (!isCorrectVal(eventLog.pushHeadersMap[event.type])) {
+        eventLog.pushHeadersMap[event.type] = {
+          event: event,
+          lastModifyId: new Date().getTime()
+        };
+        return true;
+      }
+
+      var pushHeaders = eventLog.pushHeadersMap[event.type];
+      var lastEvent = pushHeaders.event; // 判断是否要更新lastModifyId
+
+      if (!options.useCache || md5(JSON.stringify(lastEvent.payload)) !== md5(JSON.stringify(event.payload)) || md5(JSON.stringify(lastEvent.options)) !== md5(JSON.stringify(event.options))) {
+        eventLog.pushHeadersMap[event.type]["lastModifyId"] = new Date().getTime();
+      }
+
+      pushHeaders.event = event;
+      return true;
+    }));
+    var operations = [];
+    var _subscription = {
+      unsubscribe: function unsubscribe() {}
+    };
+
+    function generateObs(obs$) {
+      _subscription.unsubscribe();
+
+      var obs$$ = new Subject();
+      obs$$.__type__ = _type;
+
+      var _obs$ = obs$.pipe(switchMap(function (event) {
+        var pushHeaders = eventLog.pushHeadersMap[event.type];
+        var hasModified = obs$$.lastModifyId !== pushHeaders.lastModifyId; // 判断是否有缓存数据
+
+        var cacheData;
+
+        if (options.useCache && !hasModified) {
+          switch (options.cacheType) {
+            case "eventCache":
+              cacheData = eventLog.dataMap[event.type];
+
+              if (!isCorrectVal(cacheData)) {
+                hasModified = true;
+                pushHeaders.lastModifyId = new Date().getTime();
+              }
+
+              break;
+          }
+        }
+
+        event.hasModified = hasModified;
+        return hasModified ? operations.length === 0 ? of(event) : pipe_3(operations)(of(event)) : of(cacheData);
+      }), filter(function (data) {
+        var canPass = !(data === null || typeof data === "undefined");
+        var pushHeaders = eventLog.pushHeadersMap[_type];
+        var event = pushHeaders.event;
+        var hasModified = event.hasModified;
+
+        if (canPass) {
+          obs$$.lastModifyId = pushHeaders.lastModifyId;
+        } // 缓存数据
+
+
+        if (canPass && hasModified) {
+          switch (options.cacheType) {
+            case "eventCache":
+              eventLog.dataMap[_type] = data;
+              break;
+          }
+        }
+
+        return canPass;
+      }));
+
+      _subscription = _obs$.subscribe(obs$$);
+      return obs$$;
+    }
+
+    var processEvent$ = generateObs(event$);
+
+    processEvent$.pipe = function () {
+      for (var i = 0; i < arguments.length; i++) {
+        operations.push(arguments[i]);
+      }
+
+      return generateObs(event$);
+    };
+
+    return processEvent$;
+  };
+
+  var fromAction = attract;
+
+  var stateTree = store.stateTree;
+  var subscriptions = store.subscriptions;
+  var stateRegister = store.stateRegister;
+
+  function state(options) {
+    var name = options.name;
+
+    if (stateRegister[name] === true) {
+      throw new Error("\u540D\u4E3A'".concat(name, "'\u7684\u72B6\u6001\u6570\u636E\u5DF2\u5B58\u5728\uFF0C\u4E0D\u80FD\u91CD\u590D\u521B\u5EFA\uFF01"));
+    }
+
+    stateRegister[name] = true;
+    stateTree[name] = options.value;
+    var actions = options.fromAction;
+    var state$ = new BehaviorSubject(options.value);
+    var obsArr = [];
+    Object.keys(actions).forEach(function (key) {
+      obsArr.push(fromAction("".concat(name, "#").concat(key)).pipe(switchMap(function (action) {
+        return defer(function () {
+          var _result = actions[key](action, stateTree[name]);
+
+          return isObservable(_result) ? _result : of(_result);
+        });
+      })));
+    });
+    subscriptions[name] = merge.apply(void 0, obsArr).subscribe(function (val) {
+      stateTree[name] = val;
+      state$.next(val);
+    }, function (err) {
+      return state$.error(err);
+    });
+    return state$;
+  }
+
+  /**
+   * 创建一个包含指定数据、并且可更新的observable
+   * @param {*} data - 指定数据
+   */
+
+  function ofHot(data) {
+    var state$ = new BehaviorSubject(data);
+    state$.__data__ = data;
+
+    state$.update = function (mData) {
+      var newData;
+
+      var _data = typeof mData === "function" ? mData(state$.__data__) : mData;
+
+      if (isObject$1(_data)) {
+        newData = Object.assign({}, state$.__data__, _data);
+      } else {
+        newData = _data;
+      }
+
+      state$.__data__ = newData;
+      state$.next(newData);
+    };
+
+    return state$;
+  }
+
+  var distributor$ = {
+    /**
+     * 推送事件
+     * @param {string|object|objectArray} events - 事件集合
+     * @example
+     * import { distributor$ } from "rx-samsara";
+     * distributor$.next("eventName");
+     * @example
+     * import { distributor$ } from "rx-samsara";
+     * distributor$.next({
+     *   type: "eventName"
+     * });
+     * @example
+     * import { distributor$ } from "rx-samsara";
+     * distributor$.next([
+     *   {
+     *     type: "eventName"
+     *   }
+     * ]);
+    */
+    next: function next(events) {
+      if (!Array.isArray(events)) {
+        events = [events];
+      }
+
+      var map = {};
+      events.forEach(function (event) {
+        if (typeof event === "string") {
+          var type = event;
+          event = {
+            type: type
+          };
+        }
+
+        if (!isCorrectVal(event.payload)) event.payload = {};
+        if (!isCorrectVal(event.options)) event.options = {};
+        map[event.type] = event;
+      });
+      eventBus$.next(map);
+    }
+  };
+
+  var dispatch = function dispatch(action) {
+    distributor$.next(action);
+  };
 
   // https://github.com/tc39/Array.prototype.includes
 
@@ -27886,7 +29768,7 @@
     }
   });
 
-  var eventLog = store.eventLog;
+  var eventLog$1 = store.eventLog;
   /**
    * observable与react组件的集成(将observable转换为组件属性)
    * @param {object} observablesMap - 可观察对象集合
@@ -27971,7 +29853,7 @@
             var _loop = function _loop(i) {
               var subscription = obsArr[i].subscribe(function (data) {
                 var type = obsArr[i]["__type__"];
-                var pushHeaders = eventLog.pushHeadersMap[type];
+                var pushHeaders = eventLog$1.pushHeadersMap[type];
 
                 if (options.delayeringFields && options.delayeringFields.includes(_this2.suspendedObservableKeys[i])) {
                   var _stateObj = {};
@@ -28027,29 +29909,28 @@
 
   var subscription = permeate;
 
-  var _this = undefined;
   var todos$ = state({
-    name: "todos",
+    name: 'todos',
     value: [{
-      desc: "起床迎接新的一天",
+      desc: '起床迎接新的一天',
       check: true
     }, {
-      desc: "到达公司开始新一天的工作",
+      desc: '到达公司开始新一天的工作',
       check: true
     }, {
-      desc: "去公司附近的学校食堂吃午饭",
+      desc: '去公司附近的学校食堂吃午饭',
       check: false
     }, {
-      desc: "下班骑电动车回家",
+      desc: '下班骑电动车回家',
       check: false
     }, {
-      desc: "吃晚饭，出去吃或者自己做饭吃",
+      desc: '吃晚饭，出去吃或者自己做饭吃',
       check: false
     }],
-    actions: {
-      checkItem: pipe(map(function (action) {
-        var n = action.payload;
-        var todos = _this.value;
+    fromAction: {
+      checkItem: function checkItem(action, value) {
+        var n = action.index;
+        var todos = value;
         return todos.map(function (item, i) {
           if (i === n) {
             item.check = !item.check;
@@ -28057,19 +29938,18 @@
 
           return item;
         });
-      }))
-      /* delItem: function(payload, value) {
-        const n = payload;
-        const todos = value;
+      },
+      delItem: function delItem(action, value) {
+        var n = action.index;
+        var todos = value;
         todos.splice(n, 1);
         return todos.slice();
       },
-      addItem: function(payload, value) {
-        const todos = value;
-        const item = payload;
-        return todos.concat(item);
-      } */
-
+      addItem: function addItem(action, value) {
+        var todos = value;
+        var item = action.item;
+        return of(todos.concat(item));
+      }
     }
   });
   var undoneCount$ = todos$.pipe(map(function (todos) {
@@ -28103,13 +29983,21 @@
       _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(TodoList)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
       _defineProperty(_assertThisInitialized(_this), "state", {
-        newTodoContent: ""
+        newTodoContent: ''
       });
 
-      _defineProperty(_assertThisInitialized(_this), "checkItem", function (n) {// todos$.dispatch("checkItem", n);
+      _defineProperty(_assertThisInitialized(_this), "checkItem", function (n) {
+        dispatch({
+          type: 'todos#checkItem',
+          index: n
+        });
       });
 
-      _defineProperty(_assertThisInitialized(_this), "handleDel", function (n) {// todos$.dispatch("delItem", n);
+      _defineProperty(_assertThisInitialized(_this), "handleDel", function (n) {
+        dispatch({
+          type: 'todos#delItem',
+          index: n
+        });
       });
 
       _defineProperty(_assertThisInitialized(_this), "setNewTodoContent", function (e) {
@@ -28121,10 +30009,13 @@
       });
 
       _defineProperty(_assertThisInitialized(_this), "addTodo", function () {
-        /* todos$.dispatch("addItem", {
-          desc: this.state.newTodoContent,
-          check: false
-        }); */
+        dispatch({
+          type: 'todos#addItem',
+          item: {
+            desc: _this.state.newTodoContent,
+            check: false
+          }
+        });
       });
 
       return _this;
@@ -28169,8 +30060,8 @@
 
     return TodoList;
   }(react.Component), _temp)) || _class);
-  window.addEventListener("load", function () {
-    reactDom.render(react.createElement(TodoList, null), document.getElementById("app"));
+  window.addEventListener('load', function () {
+    reactDom.render(react.createElement(TodoList, null), document.getElementById('app'));
   });
 
 }());

@@ -1,6 +1,7 @@
 class Store {
-  obsMap = {};
+  subscriptions = {};
   stateTree = {};
+  stateRegister = {}
   eventLog = {
     dataMap: {},
     pushHeadersMap: {}

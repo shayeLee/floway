@@ -5,75 +5,160 @@
 
 ## 安装
 
-通过 npm
-
 ```
 $ npm install floway --save
 ```
 
 ## 开始使用
 
-#### 1. React组件订阅`observable`
+#### 1. 定义状态
+
+使用创建操作符`store`创建一个可管理的`observable`
+
+```javascript
+// file: store.js
+
+import { state } from "floway";
+
+const todos$ = state({
+  name: 'todos',
+  value: [
+    {
+      desc: '起床迎接新的一天',
+      check: true
+    },
+    {
+      desc: '到达公司开始新一天的工作',
+      check: true
+    },
+    {
+      desc: '去公司附近的学校食堂吃午饭',
+      check: false
+    },
+    {
+      desc: '下班骑电动车回家',
+      check: false
+    },
+    {
+      desc: '吃晚饭，出去吃或者自己做饭吃',
+      check: false
+    }
+  ]
+});
+
+export { todos$ }
+```
+
+#### 2. React视图组件订阅`observable`以响应状态的变化
+
 使用`subscription`装饰器可以订阅`observable`，它会将`observable`推送的数据转换为React组件的`props`
 
-```jsx
-import { of } from "rxjs";
-import { subscription } from "floway";
-import React from "react";
+```javascript
+// file: index.js
 
-const observable = of("react's flow-way");
+import React from "react";
+import { subscription } from "floway";
+import { todos$ } from "./store";
 
 @subscription({
-  floway: observable
+  todos: todos$
 })
-class TestComponent extends React.Component {
+class TodoList extends React.Component {
   render() {
-    console.log(this.props.floway === "react's flow-way");  // log: true
     return (
-      <div>{this.props.floway}</div>
-    )
+      <div className="todolist">
+        <h1 className="header">任务列表</h1>
+        {this.props.todos.map((item, n) => {
+          return (
+            <TodoItem
+              item={item}
+              key={item.desc}
+            />
+          );
+        })}
+      </div>
+    );
   }
 }
 ```
 
-#### 2. 使用`stateSubject`来更新组件的`props`
-`subject`在`RxJS`中是一种特殊的`observable`<br>
-而`stateSubject`是由`floway`自定义的一种特殊的`subject`<br>
-`stateSubject`可以通过`dispatch action`的模式来推送新的数据<br>
-使用`State`构造函数能够将普通`observable`转换为`stateSubject`<br>
+#### 3. 使用 `dispatch action` 的模式来更新状态
 
-```jsx
-import { of } from "rxjs";
-import { subscription, State } from "floway";
+```javascript
+// file: store.js
+
+import { state } from "floway";
+import { of } from 'rxjs';
+
+const todos$ = state({
+  name: 'todos',
+
+  fromAction: {
+    checkItem: function(action, value) {
+      const n = action.index;
+      const todos = value;
+      return todos.map((item, i) => {
+        if (i === n) {
+          item.check = !item.check;
+        }
+        return item;
+      });
+    }
+  }
+});
+
+export { todos$ }
+```
+
+以上代码的`fromAction.checkItem`可以认为等同于以下代码: 
+
+```javascript
+import { fromAction } from "floway";
+
+fromAction("todos#checkItem").pipe(
+  switchMap(action => {
+    return defer(() => checkItem(action, value));
+  })
+)
+```
+
+`fromAction(action.type)`是一个操作符，可以接收来自`dispatch`派遣的`action`.<br>
+`fromAction.checkItem`将会与`todos$`合并(merge)，当调用`dispatch("todos#checkItem")`之后，`todo$`将会推送新的数据，从而使`React`视图更新
+
+```javascript
+// file: index.js
+
 import React from "react";
-
-const observable = of(1);
-
-const stateSubject = new State(observable);
-
-// 注册action
-stateSubject.registerAction("plus", count => ++count);
+import { subscription, dispatch } from "floway";
+import { todos$ } from "./store";
 
 @subscription({
-  count: stateSubject
+  todos: todos$
 })
-class TestComponent extends React.Component {
+class TodoList extends React.Component {
   render() {
     return (
-      /**
-       * this.props.count初始值为1
-       * 每点击按钮一次，this.props.count值加1
-      */
-      <div>
-        <div>{this.props.count}</div>
-        <button onClick={this.plus}>plus one</button>
+      <div className="todolist">
+        <h1 className="header">任务列表</h1>
+        {this.props.todos.map((item, n) => {
+          return (
+            <TodoItem
+              item={item}
+              key={item.desc}
+              onClick={() => this.checkItem(n)}
+            />
+          );
+        })}
       </div>
-    )
-  }
+    );
+  };
 
-  plus() {
-    stateSubject.dispatch("plus");
-  }
+  checkItem = n => {
+    dispatch({
+      type: 'todos#checkItem',
+      index: n
+    });
+  };
 }
 ```
 

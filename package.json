@@ -9,7 +9,8 @@
     "start": "node fileServer.js ./",
     "test": "jest ./__tests__ --config ./jest.config.js --watch --onlyChanged",
     "dev": "concurrently \"npm start\" \"rollup -c ./build/rollup.dev.js -w\"",
-    "build": "rollup -c ./build/rollup.pro.js"
+    "build": "rollup -c ./build/rollup.pro.js",
+    "docs": "docsify serve docs"
   },
   "author": "shayeLee",
   "license": "ISC",

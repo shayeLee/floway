@@ -1,9 +1,9 @@
-import React from "react";
-import "./styles.scss";
-import ReactDOM from "react-dom";
-import TodoItem from "./todoItem";
-import { subscription } from "../../../../src/index";
-import { todos$, undoneCount$ } from "./todoList";
+import React from 'react';
+import './styles.scss';
+import ReactDOM from 'react-dom';
+import TodoItem from './todoItem';
+import { subscription, dispatch } from '../../../../src/index';
+import { todos$, undoneCount$ } from './store';
 
 @subscription({
   todos: todos$,
@@ -11,7 +11,7 @@ import { todos$, undoneCount$ } from "./todoList";
 })
 class TodoList extends React.Component {
   state = {
-    newTodoContent: ""
+    newTodoContent: ''
   };
 
   render() {
@@ -46,11 +46,17 @@ class TodoList extends React.Component {
   }
 
   checkItem = n => {
-    // todos$.dispatch("checkItem", n);
+    dispatch({
+      type: 'todos#checkItem',
+      index: n
+    });
   };
 
   handleDel = n => {
-    // todos$.dispatch("delItem", n);
+    dispatch({
+      type: 'todos#delItem',
+      index: n
+    });
   };
 
   setNewTodoContent = e => {
@@ -61,13 +67,16 @@ class TodoList extends React.Component {
   };
 
   addTodo = () => {
-    /* todos$.dispatch("addItem", {
-      desc: this.state.newTodoContent,
-      check: false
-    }); */
+    dispatch({
+      type: 'todos#addItem',
+      item: {
+        desc: this.state.newTodoContent,
+        check: false
+      }
+    });
   };
 }
 
-window.addEventListener("load", function() {
-  ReactDOM.render(<TodoList />, document.getElementById("app"));
+window.addEventListener('load', function() {
+  ReactDOM.render(<TodoList />, document.getElementById('app'));
 });

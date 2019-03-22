@@ -11,7 +11,7 @@ export { default as state } from "./state";
 
 export { default as ofHot } from "./ofHot";
 
-export { default as distributor$ } from "./distributor";
+export * from "./distributor";
 
 export { default as ofLast } from "./ofLast";
 
