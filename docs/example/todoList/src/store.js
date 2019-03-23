@@ -26,7 +26,7 @@ const todos$ = state({
       check: false
     }
   ],
-  fromAction: {
+  actions: {
     checkItem: function(action, value) {
       const n = action.index;
       const todos = value;

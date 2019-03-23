@@ -15,7 +15,7 @@ function state(options) {
   stateRegister[name] = true;
 
   stateTree[name] = options.value;
-  const actions = options.fromAction;
+  const actions = options.actions;
   const state$ = new BehaviorSubject(options.value);
 
   const obsArr = [];

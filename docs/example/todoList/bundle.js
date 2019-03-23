@@ -29622,7 +29622,7 @@
 
     stateRegister[name] = true;
     stateTree[name] = options.value;
-    var actions = options.fromAction;
+    var actions = options.actions;
     var state$ = new BehaviorSubject(options.value);
     var obsArr = [];
     Object.keys(actions).forEach(function (key) {
@@ -29927,7 +29927,7 @@
       desc: '吃晚饭，出去吃或者自己做饭吃',
       check: false
     }],
-    fromAction: {
+    actions: {
       checkItem: function checkItem(action, value) {
         var n = action.index;
         var todos = value;

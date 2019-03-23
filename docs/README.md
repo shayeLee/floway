@@ -95,7 +95,7 @@ const todos$ = state({
 
   // 省略其它代码……
 
-  fromAction: {
+  actions: {
     checkItem: function(action, value) {
       const n = action.index;
       const todos = value;
@@ -112,20 +112,26 @@ const todos$ = state({
 export { todos$ }
 ```
 
-以上代码的`fromAction.checkItem`的返回值可以是：基本数据类型、引用数据类型或者Observable；它可以认为等同于以下代码: 
+以上代码的`actions.checkItem`的返回值可以是：基本数据类型、引用数据类型或者Observable，**如果是引用数据类型必须返回一个新数据**<br>
+它可以认为等同于以下代码: 
 
 ```javascript
+import { isObservable, defer, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { fromAction } from "floway";
 
-fromAction("todos#checkItem").pipe(
+const checkItem$ = fromAction("todos#checkItem").pipe(
   switchMap(action => {
-    return defer(() => of(checkItem(action, value)));
+    return defer(() => {
+      const _result = actions.checkItem(action, stateTree[name]);
+      return isObservable(_result) ? _result : of(_result);
+    });
   })
 )
 ```
 
 `fromAction(action.type)`是一个操作符，可以接收来自`dispatch`派遣的`action`.<br>
-`fromAction.checkItem`将会与`todos$`合并(merge)，当调用`dispatch("todos#checkItem")`之后，`todo$`将会推送新的数据，从而使`React`视图更新
+`checkItem$`将会与`todos$`合并(merge)，当调用`dispatch("todos#checkItem")`之后，`todo$`将会把`checkItem$`产生的数据推送出去，从而使`React`视图更新
 
 ```javascript
 // file: index.js
