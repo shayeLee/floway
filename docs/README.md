@@ -169,7 +169,7 @@ export { todos$, undoneCount$ };
 ```
 
 `undoneCount$`能够根据`todos$`推送的数据响应式地计算出有几个未完成的任务。<br>
-因为`undoneCount$`也是`observable`，所以React组件可以订阅它。
+因为`undoneCount$`也是`observable`，所以React组件也可以订阅它。
 
 ### React组件之间的通信
 
