@@ -228,7 +228,7 @@ class Toast extends React.Component {
 
 #### 更新其它组件状态
 
-调用 `dispatch` 即可更新任意组件的状态
+在任意地方调用 `dispatch` 皆可更新任意组件的状态
 
 ```javascript
 // file: todoList.jsx
