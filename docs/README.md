@@ -11,7 +11,7 @@ $ npm install floway --save
 
 ## 使用教程
 
-[demo演示](/example/todoList/index.html ':ignore')
+[demo演示](https://shayelee.github.io/floway/example/todoList/index.html ':ignore')
 <br>
 [RxJS 相关概念](/concept.md)
 
