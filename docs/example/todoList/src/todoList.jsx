@@ -39,6 +39,7 @@ class TodoList extends React.Component {
             添加任务
           </button>
         </div>
+        <a href="https://github.com/shayeLee/floway/tree/master/docs/example/todoList/src" target="_blank">完整源码</a>
       </div>
     );
   }

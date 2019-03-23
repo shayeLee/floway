@@ -1,7 +1,7 @@
 # Floway
 
 **`Floway`是`flow-way`的简写，意为数据流的流动轨道！**<br>
-她是`RxJS v6`的扩展库，主要功能是作为`React`应用的状态(数据流)管理工具。
+她是`RxJS v6`的扩展库，主要功能是作为`React`应用的状态(数据流)管理工具。<br>
 
 ## 安装
 
@@ -10,6 +10,10 @@ $ npm install floway --save
 ```
 
 ## 使用教程
+
+[demo演示](/example/todoList/index.html ':ignore')
+<br>
+[RxJS 相关概念](/concept.md)
 
 ### 定义状态(`stateObservable`)
 
@@ -265,4 +269,8 @@ class Toast extends React.Component {
   }
 }
 ```
+
+## 资源
+
+### [Github源码](https://github.com/shayeLee/floway ':ignore')
 

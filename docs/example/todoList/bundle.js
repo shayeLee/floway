@@ -23601,7 +23601,7 @@
   }
   });
 
-  ___$insertStyle(".root {\n  position: relative;\n}\n\n.todolist {\n  box-sizing: border-box;\n  padding: 20px;\n  width: 600px;\n  background-color: #fafafa;\n  margin: auto;\n}\n\n.header {\n  font-size: 26px;\n  text-align: center;\n}\n\n.hints {\n  font-size: 13px;\n  color: #c06c84;\n  text-align: right;\n  line-height: 1.625;\n  padding-right: 8px;\n}\n\n.todo {\n  display: flex;\n  justify-content: space-between;\n  height: 36px;\n  background-color: #fce38a;\n  margin-bottom: 8px;\n  cursor: default;\n}\n.todo.checked {\n  background-color: #95e1d3;\n}\n.todo.checked .desc {\n  text-decoration: line-through;\n}\n.todo:hover .delbtn {\n  display: block;\n}\n\n.todo__content {\n  display: flex;\n  align-items: center;\n  height: 36px;\n}\n\n.todo__checkbox {\n  width: 14px;\n  margin-left: 14px;\n}\n\n.desc {\n  font-size: 14px;\n  margin-left: 8px;\n}\n\n.delbtn {\n  display: none;\n  font-size: 12px;\n  color: #999;\n  line-height: 36px;\n  padding-right: 10px;\n  cursor: pointer;\n}\n.delbtn:hover {\n  color: red;\n}\n\n.todolist__adder {\n  display: flex;\n  align-items: center;\n  height: 36px;\n  margin-top: 24px;\n  margin-bottom: 14px;\n}\n\n.todolist__input {\n  flex-grow: 1;\n  font-size: 14px;\n  line-height: 32px;\n  padding: 0 10px;\n  margin-right: 10px;\n}\n\n.todolist__btn {\n  font-size: 14px;\n  line-height: 29px;\n}\n\n.toast {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 600px;\n  position: absolute;\n  top: 0;\n  left: 50%;\n  bottom: 0;\n  margin-left: -300px;\n}\n\n.totast__inner {\n  font-size: 14px;\n  color: #fff;\n  padding: 20px;\n  width: 180px;\n  background-color: rgba(0, 0, 0, 0.7);\n  border-radius: 8px;\n}");
+  ___$insertStyle(".root {\n  position: relative;\n}\n\n.todolist {\n  box-sizing: border-box;\n  padding: 20px;\n  width: 600px;\n  background-color: #fafafa;\n  margin: auto;\n}\n\n.header {\n  font-size: 26px;\n  text-align: center;\n}\n\n.hints {\n  font-size: 13px;\n  color: #c06c84;\n  text-align: right;\n  line-height: 1.625;\n  padding-right: 8px;\n}\n\n.todo {\n  display: flex;\n  justify-content: space-between;\n  height: 36px;\n  background-color: #fce38a;\n  margin-bottom: 8px;\n  cursor: default;\n}\n.todo.checked {\n  background-color: #95e1d3;\n}\n.todo.checked .desc {\n  text-decoration: line-through;\n}\n.todo:hover .delbtn {\n  display: block;\n}\n\n.todo__content {\n  display: flex;\n  align-items: center;\n  height: 36px;\n}\n\n.todo__checkbox {\n  width: 14px;\n  margin-left: 14px;\n}\n\n.desc {\n  font-size: 14px;\n  margin-left: 8px;\n}\n\n.delbtn {\n  display: none;\n  font-size: 12px;\n  color: #999;\n  line-height: 36px;\n  padding-right: 10px;\n  cursor: pointer;\n}\n.delbtn:hover {\n  color: red;\n}\n\n.todolist__adder {\n  display: flex;\n  align-items: center;\n  height: 36px;\n  margin-top: 24px;\n  margin-bottom: 28px;\n}\n\n.todolist__input {\n  flex-grow: 1;\n  font-size: 14px;\n  line-height: 32px;\n  padding: 0 10px;\n  margin-right: 10px;\n}\n\n.todolist__btn {\n  font-size: 14px;\n  line-height: 29px;\n}\n\n.toast {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 600px;\n  position: absolute;\n  top: 0;\n  left: 50%;\n  bottom: 0;\n  margin-left: -300px;\n}\n\n.totast__inner {\n  font-size: 14px;\n  color: #fff;\n  padding: 20px;\n  width: 180px;\n  background-color: rgba(0, 0, 0, 0.7);\n  border-radius: 8px;\n}");
 
   var TodoItem =
   /*#__PURE__*/
@@ -32417,7 +32417,10 @@
         }), react.createElement("button", {
           className: "todolist__btn",
           onClick: this.addTodo
-        }, "\u6DFB\u52A0\u4EFB\u52A1")));
+        }, "\u6DFB\u52A0\u4EFB\u52A1")), react.createElement("a", {
+          href: "https://github.com/shayeLee/floway/tree/master/docs/example/todoList/src",
+          target: "_blank"
+        }, "\u5B8C\u6574\u6E90\u7801"));
       }
     }]);
 
