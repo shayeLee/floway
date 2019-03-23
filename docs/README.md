@@ -46,8 +46,6 @@ const todos$ = state({
     }
   ]
 });
-
-export { todos$ }
 ```
 
 ### 渲染视图
@@ -112,12 +110,10 @@ const todos$ = state({
     }
   }
 });
-
-export { todos$ }
 ```
 
 `actions.checkItem`的返回值可以是：基本数据类型、引用数据类型或者Observable，**如果是引用数据类型必须返回一个新数据**。<br>
-当调用`dispatch("todos", { type: "checkItem" })`之后，`todo$`将会把`actions.checkItem`的返回值作为新数据推送出去，从而使`React`视图更新。
+`Floway`提供了一个函数：`dispatch(stateName, action)`。当调用`dispatch`之后，`todo$`将会把`actions.checkItem`的返回值作为新数据推送出去，从而使`React`视图更新。
 
 ```javascript
 // file: todoList.jsx
@@ -164,8 +160,6 @@ const undoneCount$ = todos$.pipe(
     return _conut;
   })
 );
-
-export { todos$, undoneCount$ };
 ```
 
 `undoneCount$`能够根据`todos$`推送的数据响应式地计算出有几个未完成的任务。<br>
