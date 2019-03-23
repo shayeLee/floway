@@ -141,30 +141,11 @@ todos$.pipe(merge(checkItem$));
 ```javascript
 // file: todoList.jsx
 
-import TodoItem from './todoItem';
-import { subscription, dispatch } from "floway";
-import { todos$ } from "./store";
+import { dispatch } from "floway";
 
-@subscription({
-  todos: todos$
-})
 class TodoList extends React.Component {
-  render() {
-    return (
-      <div className="todolist">
-        <h1 className="header">任务列表</h1>
-        {this.props.todos.map((item, n) => {
-          return (
-            <TodoItem
-              item={item}
-              key={item.desc}
-              onClick={() => this.checkItem(n)}
-            />
-          );
-        })}
-      </div>
-    );
-  };
+  
+  // 省略其他代码……
 
   checkItem = n => {
     dispatch("todos", {
