@@ -13,7 +13,7 @@ $ npm install floway --save
 
 #### 1. 定义状态
 
-使用创建操作符`store`创建一个可管理的`observable`
+使用创建操作符`state`创建一个可管理的`observable`
 
 ```javascript
 // file: store.js
