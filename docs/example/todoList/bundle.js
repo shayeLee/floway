@@ -32449,11 +32449,11 @@
           } : {}
         }, react.createElement("div", {
           className: "totast__inner"
-        }, "\u606D\u559C\u4F60\u5B8C\u6210\u4E86\u4E00\u4E2A\u4EFB\u52A1\uFF0C\u8FD8\u6709 ", react.createElement("span", {
+        }, this.props.undoneCount === 0 ? react.createElement("div", null, "\u606D\u559C\u4F60\uFF0C\u4F60\u5DF2\u5B8C\u6210\u5168\u90E8\u4EFB\u52A1") : react.createElement("div", null, "\u606D\u559C\u4F60\u5B8C\u6210\u4E86\u4E00\u4E2A\u4EFB\u52A1\uFF0C\u8FD8\u6709 ", react.createElement("span", {
           style: {
             color: "red"
           }
-        }, this.props.undoneCount), " \u4E2A\u4EFB\u52A1\u672A\u5B8C\u6210\uFF0C\u8BF7\u7EE7\u7EED\u52AA\u529B\u3002"));
+        }, this.props.undoneCount), " \u4E2A\u4EFB\u52A1\u672A\u5B8C\u6210\uFF0C\u8BF7\u7EE7\u7EED\u52AA\u529B\u3002")));
       }
     }, {
       key: "componentDidUpdate",
