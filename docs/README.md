@@ -171,31 +171,6 @@ export { todos$, undoneCount$ };
 `undoneCount$`能够根据`todos$`推送的数据响应式地计算出有几个未完成的任务。<br>
 因为`undoneCount$`也是`observable`，所以React组件可以订阅它。
 
-```javascript
-// file: todoList.jsx
-
-import { subscription } from "floway";
-import { undoneCount$ } from "./store";
-
-@subscription({
-  undoneCount: undoneCount$
-})
-class TodoList extends React.Component {
-  render() {
-    return (
-      <div className="todolist">
-        <h1 className="header">任务列表</h1>
-        <div className="hints">未完成任务数量：{this.props.undoneCount}</div>
-        { /** 省略其它代码…… */ }
-      </div>
-    );
-  }
-
-  // 省略其它代码……
-
-}
-```
-
 ### React组件之间的通信
 
 假设现在有 `TodoList` 和 `Toast` 这两个组件
