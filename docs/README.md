@@ -117,26 +117,7 @@ export { todos$ }
 ```
 
 `actions.checkItem`的返回值可以是：基本数据类型、引用数据类型或者Observable，**如果是引用数据类型必须返回一个新数据**。<br>
-它可以认为等同于以下代码: 
-
-```javascript
-import { isObservable, defer, of } from 'rxjs';
-import { switchMap, merge } from 'rxjs/operators';
-import { fromAction } from "floway";
-
-const checkItem$ = fromAction("checkItem").pipe(
-  switchMap(action => {
-    return defer(() => {
-      const _result = actions.checkItem(action, value);
-      return isObservable(_result) ? _result : of(_result);
-    });
-  })
-)
-todos$.pipe(merge(checkItem$));
-```
-
-`fromAction(action.type)`是一个创建操作符，可以接收来自`dispatch`派遣的`action`.<br>
-`checkItem$`将会与`todos$`合并(merge)，当调用`dispatch("todos", { type: "checkItem" })`之后，`todo$`将会把`checkItem$`产生的数据推送出去，从而使`React`视图更新
+当调用`dispatch("todos", { type: "checkItem" })`之后，`todo$`将会把`actions.checkItem`的返回值作为新数据推送出去，从而使`React`视图更新。
 
 ```javascript
 // file: todoList.jsx
