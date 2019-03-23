@@ -51,6 +51,7 @@ const todos$ = state({
   }
 });
 
+// 未完成任务数量
 const undoneCount$ = todos$.pipe(
   map(todos => {
     let _conut = 0;
@@ -61,4 +62,17 @@ const undoneCount$ = todos$.pipe(
   })
 );
 
-export { todos$, undoneCount$ };
+const toastVisible$ = state({
+  name: "toastVisible",
+  value: false,
+  actions: {
+    show: function() {
+      return true;
+    },
+    hide: function() {
+      return false;
+    }
+  }
+});
+
+export { todos$, undoneCount$, toastVisible$ };

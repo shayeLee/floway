@@ -1,3 +1,7 @@
+.root {
+  position: relative;
+}
+
 .todolist {
   box-sizing: border-box;
   padding: 20px;
@@ -75,4 +79,24 @@
 .todolist__btn {
   font-size: 14px;
   line-height: 29px;
+}
+
+.toast {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 600px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  bottom: 0;
+  margin-left: -300px;
+}
+.totast__inner {
+  font-size: 14px;
+  color: #fff;
+  padding: 20px;
+  width: 180px;
+  background-color: rgba(0, 0, 0, .7);
+  border-radius: 8px;
 }

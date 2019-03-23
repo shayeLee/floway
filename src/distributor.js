@@ -43,7 +43,8 @@ const distributor$ = {
   }
 };
 
-const dispatch = function(action) {
+const dispatch = function(stateName, action) {
+  action.type = `${stateName}#${action.type}`;
   distributor$.next(action);
 }
 

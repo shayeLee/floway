@@ -1,3 +1,4 @@
+import { isCorrect } from "shaye-sword";
 import { isObservable, BehaviorSubject, defer, merge, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { fromAction } from './attract';
@@ -18,27 +19,29 @@ function state(options) {
   const actions = options.actions;
   const state$ = new BehaviorSubject(options.value);
 
-  const obsArr = [];
-  Object.keys(actions).forEach(key => {
-    obsArr.push(
-      fromAction(`${name}#${key}`).pipe(
-        switchMap(action => {
-          return defer(() => {
-            const _result = actions[key](action, stateTree[name]);
-            return isObservable(_result) ? _result : of(_result);
-          });
-        })
-      )
-    );
-  });
+  if (isCorrect(actions)) {
+    const obsArr = [];
+    Object.keys(actions).forEach(key => {
+      obsArr.push(
+        fromAction(`${name}#${key}`).pipe(
+          switchMap(action => {
+            return defer(() => {
+              const _result = actions[key](action, stateTree[name]);
+              return isObservable(_result) ? _result : of(_result);
+            });
+          })
+        )
+      );
+    });
 
-  subscriptions[name] = merge(...obsArr).subscribe(
-    val => {
-      stateTree[name] = val;
-      state$.next(val);
-    },
-    err => state$.error(err)
-  );
+    subscriptions[name] = merge(...obsArr).subscribe(
+      val => {
+        stateTree[name] = val;
+        state$.next(val);
+      },
+      err => state$.error(err)
+    );
+  }
 
   return state$;
 }
