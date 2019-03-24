@@ -5,8 +5,7 @@
       {
         "useBuiltIns": "usage",
         "modules": false,
-        "shippedProposals": true,
-        "corejs": 2
+        "shippedProposals": true
       }
     ],
     "@babel/preset-react"
