@@ -1,6 +1,6 @@
 {
   "name": "floway",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "RxJS v6 Extensions for React's state management solution",
   "module": "es/index.js",
   "main": "lib/index.js",
@@ -42,6 +42,7 @@
     "@babel/plugin-proposal-decorators": "^7.2.0",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/plugin-transform-modules-commonjs": "^7.4.0",
+    "@babel/plugin-transform-runtime": "^7.4.0",
     "@babel/preset-env": "^7.1.6",
     "@babel/preset-react": "^7.0.0",
     "concurrently": "^4.1.0",
@@ -58,7 +59,7 @@
     "rollup-plugin-uglify": "^6.0.2"
   },
   "dependencies": {
-    "core-js": "^2.6.5",
+    "@babel/runtime-corejs2": "^7.4.2",
     "react": "^16.8.4",
     "rxjs": "^6.4.0"
   }
