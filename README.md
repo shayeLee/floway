@@ -1,7 +1,7 @@
 # Floway
 
 [![NPM version](https://img.shields.io/npm/v/floway.svg?shayeLee=who)](https://www.npmjs.com/package/floway)
-
+[![Build Status](https://api.travis-ci.com/shayeLee/floway.svg?branch=master&shayeLee=who)](https://travis-ci.com/shayeLee/floway)
 **`Floway`是`flow-way`的简写，意为数据流的流动轨道！**<br>
 她是`RxJS v6`的扩展库，主要功能是作为`React`应用的状态(数据流)管理工具。
 
