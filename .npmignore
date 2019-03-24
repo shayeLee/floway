@@ -1,14 +1,10 @@
 __mocks__/
 __tests__/
-browser-redis/
 src/
 build/
 docs/
-.babelrc
 .eslintignore
 .eslintrc.json
 .gitignore
 fileServer.js
-gulpfile.js
-jest.config.js
 package-lock.json

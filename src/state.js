@@ -1,7 +1,7 @@
-import { isCorrect } from "shaye-sword";
+import { isCorrectVal } from "./utils";
 import { isObservable, BehaviorSubject, defer, merge, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { fromAction } from './attract';
+import fromAction from './fromAction';
 import store from './store';
 const stateTree = store.stateTree;
 const subscriptions = store.subscriptions;
@@ -19,7 +19,7 @@ function state(options) {
   const actions = options.actions;
   const state$ = new BehaviorSubject(options.value);
 
-  if (isCorrect(actions)) {
+  if (isCorrectVal(actions)) {
     const obsArr = [];
     Object.keys(actions).forEach(key => {
       obsArr.push(

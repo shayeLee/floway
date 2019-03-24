@@ -7,10 +7,12 @@
   "browser": "dist/floway.js",
   "scripts": {
     "start": "node fileServer.js ./",
-    "test": "jest ./__tests__ --config ./jest.config.js --watch --onlyChanged",
+    "jest": "jest ./__tests__ --watch",
+    "coverage": "jest ./__tests__ --coverage",
     "dev": "concurrently \"npm start\" \"rollup -c ./build/rollup.dev.js -w\"",
     "build": "rollup -c ./build/rollup.pro.js",
-    "docs": "docsify serve docs"
+    "docs": "docsify serve docs",
+    "test": "jest ./__tests__ && npm run build"
   },
   "author": "shayeLee",
   "license": "ISC",
@@ -39,9 +41,11 @@
     "@babel/plugin-proposal-class-properties": "^7.2.1",
     "@babel/plugin-proposal-decorators": "^7.2.0",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.4.0",
     "@babel/preset-env": "^7.1.6",
     "@babel/preset-react": "^7.0.0",
     "concurrently": "^4.1.0",
+    "jest": "^24.5.0",
     "node-sass": "^4.11.0",
     "react-dom": "^16.8.4",
     "rollup": "^1.6.0",
@@ -54,10 +58,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
-    "async-validator": "^1.10.1",
-    "js-md5": "^0.7.3",
     "react": "^16.8.4",
-    "rxjs": "^6.4.0",
-    "shaye-sword": "^1.0.14"
+    "rxjs": "^6.4.0"
   }
 }

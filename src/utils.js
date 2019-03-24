@@ -1,4 +1,4 @@
-function _isCorrectVal(variable, notBezero) {
+function isCorrectVal(variable, notBezero) {
   var result = true;
   if (typeof variable === "string") {
     if (
@@ -19,8 +19,8 @@ function _isCorrectVal(variable, notBezero) {
     result = false;
   } else if (typeof variable === "undefined") {
     result = false;
-  } else if (_isObject(variable)) {
-    if (_isEmptyObject(variable)) {
+  } else if (isObject(variable)) {
+    if (isEmptyObject(variable)) {
       result = false;
     }
   } else if (Array.isArray(variable)) {
@@ -30,17 +30,15 @@ function _isCorrectVal(variable, notBezero) {
   }
   return result;
 }
-export const isCorrectVal = _isCorrectVal;
 
-function _isObject(obj) {
+function isObject(obj) {
   return Object.prototype.toString.call(obj) === "[object Object]";
 }
-export const isObject = _isObject;
 
-function _isEmptyObject(obj) {
+function isEmptyObject(obj) {
   for (var key in obj) {
     return false;
   }
   return true;
 }
-export const isEmptyObject = _isEmptyObject;
+export { isCorrectVal, isObject, isEmptyObject }

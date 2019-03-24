@@ -4,45 +4,20 @@ const eventLog = store.eventLog;
 import { Subject, of } from "rxjs";
 import { pluck, filter, switchMap } from "rxjs/operators";
 import { pipeFromArray } from "rxjs/internal/util/pipe";
-import md5 from "js-md5";
-import eventBus$ from "./eventBus";
-import schema from "async-validator";
+import eventBus from "./eventBus";
 
-/**
- * 捕捉事件触发器(distributor$)推送的指定类型的事件，并返回一个observable
- * @param {string|object} type - 事件类型 或 事件对象
- */
-const attract = function(type) {
-  const validator = new schema({
-    type(rule, value, callback) {
-      const errors = [];
-      if (!(typeof type === "string" || isObject(type))) {
-        errors.push(new Error("type must be string or object"));
-      }
-      callback(errors);
-    }
-  });
-  validator.validate({ type }, errors => {
-    if (errors) {
-      console.error(errors[0]);
-    }
-  });
+const fromAction = function(type, options) {
+  if (!(typeof type === "string")) {
+    throw new Error("action's type must be string");
+  }
 
-  let options = null;
   const _options = {
     useCache: false,
     cacheType: "eventCache" // eventCache itemCache
   };
+  options = Object.assign({}, _options, options);
 
-  if (isCorrectVal(type) && typeof type === "string") {
-    options = Object.assign({}, _options);
-  } else if (isCorrectVal(type) && isObject(type)) {
-    options = Object.assign({}, _options, type);
-    type = options.type;
-    delete options.type;
-  }
-
-  const event$ = eventBus$.pipe(
+  const event$ = eventBus.pipe(
     pluck(type),
     filter(event => {
       if (!isCorrectVal(event)) return false;
@@ -62,8 +37,8 @@ const attract = function(type) {
       if (
         !options.useCache ||
         (
-          md5(JSON.stringify(lastEvent.payload)) !== md5(JSON.stringify(event.payload)) ||
-          md5(JSON.stringify(lastEvent.options)) !== md5(JSON.stringify(event.options))
+          JSON.stringify(lastEvent.payload) !== JSON.stringify(event.payload) ||
+          JSON.stringify(lastEvent.options) !== JSON.stringify(event.options)
         )
       ) {
         eventLog.pushHeadersMap[event.type][
@@ -143,6 +118,4 @@ const attract = function(type) {
   return processEvent$;
 };
 
-const fromAction = attract;
-
-export { fromAction, attract };
+export default fromAction;

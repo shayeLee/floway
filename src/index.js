@@ -1,20 +1,10 @@
-import config from "./config";
-
-const _setConfig = function(customConfig) {
-  Object.keys(customConfig).forEach(key => {
-    config[key] = customConfig[key];
-  });
-};
-export const setConfig = _setConfig;
 
 export { default as state } from "./state";
 
-export { default as ofHot } from "./ofHot";
+export { default as eventBus } from "./eventBus";
 
-export * from "./distributor";
+export { default as dispatch } from "./dispatch";
 
-export { default as ofLast } from "./ofLast";
+export { default as fromAction } from "./fromAction";
 
-export * from "./attract";
-
-export * from "./permeate";
+export { default as subscription } from "./subscription";

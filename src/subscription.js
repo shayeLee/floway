@@ -1,5 +1,4 @@
 import React from "react";
-import ofHot from "./ofHot";
 import store from "./store";
 const eventLog = store.eventLog;
 import { isObject, isCorrectVal } from "./utils";
@@ -10,28 +9,8 @@ import { isObject, isCorrectVal } from "./utils";
  * @param {object} inputOptions - 选项
  * @param {object} inputOptions.defaultProps - 组件的默认属性
  * @param {array} inputOptions.delayeringFields - 推送数据需要扁平化的可观察对象的key
- * @example
- * import { permeate } from "rx-samsara";
- * import { from } from "rxjs";
- * 
- * const testData$ = from(
- *   new Promise(resolve => {
- *     setTimeout(() => {
- *       resolve(123);
- *     }, 800);
- *   })
- * };
- * 
- * class CompA extends React.Component {
- *   render() {
- *     // this.props.testData === 123
- *     return <div>{this.props.testData}</div>;
- *   }
- * }
- * 
- * export default permeate({ testData: testData$ })(CompA);
 */
-const permeate = function(observablesMap, inputOptions) {
+const subscription = function(observablesMap, inputOptions) {
   let options = inputOptions || {};
 
   const handler = function(Comp) {
@@ -49,15 +28,7 @@ const permeate = function(observablesMap, inputOptions) {
         this._innerObservableMaps = {};
         if (this.suspendedObservableKeys.length > 0) {
           this.suspendedObservableKeys.forEach(key => {
-            let _observable;
-            if (typeof observablesMap[key]["subscribe"] !== "function") {
-              _observable = ofHot(observablesMap[key]);
-              this._innerObservableMaps[`${key}$`] = _observable;
-              this.state[key] = observablesMap[key];
-            } else {
-              _observable = observablesMap[key];
-            }
-            this._suspendedObservables.push(_observable);
+            this._suspendedObservables.push(observablesMap[key]);
           });
         } else {
           throw new TypeError(
@@ -122,6 +93,4 @@ const permeate = function(observablesMap, inputOptions) {
   return handler;
 };
 
-const subscription = permeate;
-
-export { permeate, subscription };
+export default subscription;

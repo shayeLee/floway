@@ -27,9 +27,6 @@ export default {
       /rxjs/.test(name) ||
       /react/.test(name) ||
       /react-dom/.test(name) ||
-      /js-md5/.test(name) ||
-      /async-validator/.test(name) ||
-      /shaye-sword/.test(name) ||
       /src/.test(name)
     );
   }
