@@ -1,6 +1,6 @@
 {
   "name": "floway",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "description": "RxJS v6 Extensions for React's state management solution",
   "module": "es/index.js",
   "main": "lib/index.js",
@@ -14,6 +14,21 @@
   },
   "author": "shayeLee",
   "license": "ISC",
+  "keywords": [
+    "floway",
+    "rxjs",
+    "react-rx",
+    "react"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shayeLee/floway.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shayeLee/floway/issues",
+    "email": "shaye_web@163.com"
+  },
+  "homepage": "https://shayelee.github.io/floway/",
   "browserslist": [
     "> 1%",
     "Chrome 45",
