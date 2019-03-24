@@ -57,8 +57,8 @@ export default fileArr
     {
       input: getAbsPath(__dirname, '..', 'lib/index.js'),
       output: {
-        file: getAbsPath(__dirname, '..', 'dist/moisten.js'),
-        name: 'moisten',
+        file: getAbsPath(__dirname, '..', 'dist/floway.js'),
+        name: 'floway',
         format: 'umd'
       },
       plugins: plugins.concat([uglify()])
