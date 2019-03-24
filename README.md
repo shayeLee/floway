@@ -1,7 +1,8 @@
 # Floway
 
-[![NPM version](https://img.shields.io/npm/v/floway.svg?shayeLee=who)](https://www.npmjs.com/package/floway)
-[![Build Status](https://api.travis-ci.com/shayeLee/floway.svg?branch=master&shayeLee=who)](https://travis-ci.com/shayeLee/floway)
+[![NPM version](https://img.shields.io/npm/v/floway.svg)](https://www.npmjs.com/package/floway)
+[![Build Status](https://api.travis-ci.com/shayeLee/floway.svg?branch=master)](https://travis-ci.com/shayeLee/floway)
+[![Coverage Status](https://coveralls.io/repos/github/shayeLee/floway/badge.svg?branch=master)](https://coveralls.io/github/shayeLee/floway?branch=master)
 <br>
 <br>
 **`Floway`是`flow-way`的简写，意为数据流的流动轨道！**<br>
