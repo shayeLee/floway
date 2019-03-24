@@ -26449,26 +26449,17 @@
 
   var eventLog = store.eventLog;
 
-  var fromAction = function fromAction(type) {
-    if (!(typeof type === "string" || isObject(type))) {
-      throw new Error("type must be string or object");
+  var fromAction = function fromAction(type, options) {
+    if (!(typeof type === "string")) {
+      throw new Error("action's type must be string");
     }
 
-    var options = null;
     var _options = {
       useCache: false,
       cacheType: "eventCache" // eventCache itemCache
 
     };
-
-    if (isCorrectVal(type) && typeof type === "string") {
-      options = Object.assign({}, _options);
-    } else if (isCorrectVal(type) && isObject(type)) {
-      options = Object.assign({}, _options, type);
-      type = options.type;
-      delete options.type;
-    }
-
+    options = Object.assign({}, _options, options);
     var event$ = eventBus.pipe(pluck(type), filter(function (event) {
       if (!isCorrectVal(event)) return false;
 

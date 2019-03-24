@@ -1,4 +1,4 @@
-import { isCorrectVal, isObject } from "./utils";
+import { isCorrectVal } from "./utils";
 import store from "./store";
 const eventLog = store.eventLog;
 import { Subject, of } from "rxjs";
