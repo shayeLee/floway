@@ -12,7 +12,7 @@
     "dev": "concurrently \"npm start\" \"rollup -c ./build/rollup.dev.js -w\"",
     "build": "rollup -c ./build/rollup.pro.js",
     "docs": "docsify serve docs",
-    "test": "jest ./__tests__ --coverage --coverageReporters=text-lcov | coveralls"
+    "test": "jest ./__tests__ --coverage --coverageReporters=text-lcov | coveralls && npm run build"
   },
   "author": "shayeLee",
   "license": "ISC",
