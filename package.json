@@ -1,6 +1,6 @@
 {
   "name": "floway",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "RxJS v6 Extensions for React's state management solution",
   "module": "es/index.js",
   "main": "lib/index.js",
