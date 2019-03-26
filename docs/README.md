@@ -49,6 +49,8 @@ const todos$ = state({
 });
 ```
 
+!> 请注意以上代码中的`name`属性，它是`stateObservable`的唯一标识名称，必须定义。<br>如果标识名称已经被占用，操作符`state`在执行时将会抛出错误！此时你必须重新定义一个。
+
 ### 渲染视图
 
 React 视图组件可以通过订阅`observable`以响应状态的变化。<br>
@@ -78,11 +80,10 @@ class TodoList extends React.Component {
 
 ### 更新状态
 
-`stateObservable` 使用 `dispatch action` 的模式来更新状态(推送新数据)。
+`stateObservable` 使用 `dispatch action` 的模式来更新状态(推送新数据)。<br>
+首先，请先定义一个`producer`函数来接收`action`。
 
 ```javascript
-// file: store.js
-
 import { state } from "floway";
 
 const todos$ = state({
@@ -112,23 +113,23 @@ const todos$ = state({
   producer(next, value, action) {
     const n = action.index;
     const todos = value;
+    let newTodos;
     switch (action.type) {
       case "checkItem":
-        next(
-          todos.map((item, i) => {
-            if (i === n) {
-              item.check = !item.check;
-            }
-            return item;
-          })
-        );
+        newTodos = todos.map((item, i) => {
+          if (i === n) {
+            item.check = !item.check;
+          }
+          return item;
+        });
+        next(newTodos);
         break;
     }
   }
 });
 ```
 
-在你想要的任意位置调用`dispatch`，派遣`action`
+接着，在你想要的任意位置调用`dispatch`，派遣`action`
 
 ```javascript
 import { dispatch } from "floway";
@@ -139,13 +140,13 @@ dispatch("todos", {
 });
 ```
 
-调用`dispatch`派遣`action`之后，`producer`函数就会执行，从而产生新的值并推送，`stateObservable`的当前值更新，`react`视图也会响应式地更新。<br>
+`action`派遣之后，`producer`函数就会执行，从而产生新的值并在调用`next`函数之后发出推送，`stateObservable`的当前值更新，`react`视图也会响应式地更新。<br>
 
-!> 通过`action`推送的数据可以是任何数据类型，包括`observable`；但需要注意的是：如果是非`observable`的引用数据类型，请先新建一个副本再推送。否则，`react`视图将不会更新！
+!> 通过函数`next`推送的数据可以是任何数据类型，包括`observable`；但需要注意的是：如果是非`observable`的引用数据类型，请先新建一个副本再推送。否则，`react`视图将不会更新！
 
 ### 计算状态
 
-使用`RxJS`操作符来动态计算`stateObservable`推送的数据
+由于我们使用`state`操作符定义的状态也是`observable`，所以可以很自然地使用`RxJS`操作符来动态计算当前状态而得到另一个想要的数据
 
 ```javascript
 import { map } from "rxjs/operators";
@@ -162,8 +163,7 @@ const undoneCount$ = todos$.pipe(
 );
 ```
 
-`undoneCount$`能够根据`todos$`推送的数据响应式地计算出有几个未完成的任务。<br>
-因为`undoneCount$`也是`observable`，所以 React 组件也可以订阅它。
+!> 需要注意的是：`stateObservable`在调用`pipe`函数之后，并不会对原本的`stateObservable`做任何修改，而是得到一个新的`observable`，这个新的`observable`推送数据的生产者来自原本的`stateObservable`；<br>也就是说，当原本的`stateObservable`推送数据后，新的`observable`会跟着响应也发出推送。
 
 ### React 组件之间的通信
 

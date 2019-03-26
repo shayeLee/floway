@@ -6,7 +6,7 @@
     - `{function} descConfig.producer(next, value, action)` stateObservable's producer
 - 返回值: `stateObservable`
 
-### @subscription(observablesMap) classComponent
+### @subscription(observablesMap) component
 
 - 参数:
   - `{object} observablesMap` 可观察对象集合
