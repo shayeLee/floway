@@ -9,11 +9,11 @@
 
 ## 功能特性
 
-- 使用`state`操作符函数创建一个具有初始值的特殊的`observable`来定义状态，称为`stateObservable`
+- 使用`state`操作符函数创建一个具有初始值的特殊的`observable`来定义状态，称为`stateObservable`
 - `stateObservable`通过`dispatch action`的模式来更新状态(推送新的值)
-- `stateObservable`具有当前值的概念，能够保存当前状态
+- `stateObservable`具有当前值的概念，能够保存当前状态
 - 使用`@subscription`装饰器订阅`observable`使React视图组件可以响应状态的变化
-- `stateObservable`可以使用`RxJS`的操作符来动态计算状态(类似计算属性)
+- `stateObservable`可以使用`RxJS`的操作符来动态计算状态(类似计算属性)
 - 多个组件可以共享状态数据
 - 可以在任意位置修改任意组件的状态
 
