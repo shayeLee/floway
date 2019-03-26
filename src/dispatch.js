@@ -1,12 +1,8 @@
-/**
- * 全局事件触发器
-*/
+import store from './store';
+const producerMap = store.producerMap;
 
-import eventBus from "./eventBus";
-import { isCorrectVal } from "./utils";
-
-const dispatch = function(stateName, actions) {
-  if (!Array.isArray(actions)) {
+const dispatch = function(stateName, action) {
+  /* if (!Array.isArray(actions)) {
     actions = [actions];
   }
   const map = {};
@@ -17,12 +13,16 @@ const dispatch = function(stateName, actions) {
     }
     action.type = `${stateName}#${action.type}`;
 
-    if (!isCorrectVal(action.payload)) action.payload = {};
-    if (!isCorrectVal(action.options)) action.options = {};
-
     map[action.type] = action;
   });
-  eventBus.next(map);
+  eventBus.next(map); */
+
+  if (typeof action === "string") {
+    const type = action;
+    action = { type };
+  }
+
+  producerMap[stateName](action);
 }
 
 export default dispatch;

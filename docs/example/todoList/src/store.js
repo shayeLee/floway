@@ -1,52 +1,53 @@
-import { of } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { state } from '../../../../src/index';
+import { of } from "rxjs";
+import { map } from "rxjs/operators";
+import { state } from "../../../../src/index";
 
 const todos$ = state({
-  name: 'todos',
+  name: "todos",
   value: [
     {
-      desc: '起床迎接新的一天',
+      desc: "起床迎接新的一天",
       check: true
     },
     {
-      desc: '到达公司开始新一天的工作',
+      desc: "到达公司开始新一天的工作",
       check: true
     },
     {
-      desc: '去公司附近的学校食堂吃午饭',
+      desc: "去公司附近的学校食堂吃午饭",
       check: false
     },
     {
-      desc: '下班骑电动车回家',
+      desc: "下班骑电动车回家",
       check: false
     },
     {
-      desc: '吃晚饭，出去吃或者自己做饭吃',
+      desc: "吃晚饭，出去吃或者自己做饭吃",
       check: false
     }
   ],
-  actions: {
-    checkItem: function(action, value) {
-      const n = action.index;
-      const todos = value;
-      return todos.map((item, i) => {
-        if (i === n) {
-          item.check = !item.check;
-        }
-        return item;
-      });
-    },
-    delItem: function(action, value) {
-      const n = action.index;
-      const todos = value;
-      todos.splice(n, 1);
-      return todos.slice();
-    },
-    addItem: function(action, value) {
-      const todos = value;
-      const item = action.item;
-      return of(todos.concat(item));
+  producer(next, value, action) {
+    const n = action.index;
+    const item = action.item;
+    const todos = value;
+    switch (action.type) {
+      case "checkItem":
+        next(
+          todos.map((item, i) => {
+            if (i === n) {
+              item.check = !item.check;
+            }
+            return item;
+          })
+        );
+        break;
+      case "delItem":
+        todos.splice(n, 1);
+        next(todos.slice());
+        break;
+      case "addItem":
+        next(of(todos.concat(item)));
+        break;
     }
   }
 });
@@ -65,12 +66,14 @@ const undoneCount$ = todos$.pipe(
 const toastVisible$ = state({
   name: "toastVisible",
   value: false,
-  actions: {
-    show: function() {
-      return true;
-    },
-    hide: function() {
-      return false;
+  producer(next, value, action) {
+    switch (action.type) {
+      case "show":
+        next(true);
+        break;
+      case "hide":
+        next(false);
+        break;
     }
   }
 });

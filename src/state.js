@@ -1,11 +1,13 @@
 import { isCorrectVal } from "./utils";
-import { isObservable, BehaviorSubject, defer, merge, of } from 'rxjs';
+import { isObservable, BehaviorSubject, defer, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import eventBus from "./eventBus";
 import fromAction from './fromAction';
 import store from './store';
 const stateTree = store.stateTree;
 const subscriptions = store.subscriptions;
 const stateRegister = store.stateRegister;
+const producerMap = store.producerMap;
 
 function state(options) {
   const name = options.name;
@@ -16,25 +18,26 @@ function state(options) {
   stateRegister[name] = true;
 
   stateTree[name] = options.value;
-  const actions = options.actions;
+  const producer = options.producer;
   const state$ = new BehaviorSubject(options.value);
 
-  if (isCorrectVal(actions)) {
-    const obsArr = [];
-    Object.keys(actions).forEach(key => {
-      obsArr.push(
-        fromAction(`${name}#${key}`).pipe(
-          switchMap(action => {
-            return defer(() => {
-              const _result = actions[key](action, stateTree[name]);
-              return isObservable(_result) ? _result : of(_result);
-            });
-          })
-        )
-      );
-    });
+  producerMap[name] = function(action) {
+    producer((result) => {
+      eventBus.next({
+        [name]: Object.assign({}, action, { type: name, result })
+      });
+    }, stateTree[name], action);
+  }
 
-    subscriptions[name] = merge(...obsArr).subscribe(
+  if (isCorrectVal(producer)) {
+    subscriptions[name] = fromAction(name).pipe(
+      switchMap(action => {
+        return defer(() => {
+          const _result = action.result;
+          return isObservable(_result) ? _result : of(_result);
+        });
+      })
+    ).subscribe(
       val => {
         stateTree[name] = val;
         state$.next(val);

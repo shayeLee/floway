@@ -7,7 +7,6 @@
   "browser": "dist/floway.js",
   "scripts": {
     "start": "node fileServer.js ./",
-    "jest": "jest ./__tests__ --watch",
     "coverage": "jest ./__tests__ --coverage",
     "dev": "concurrently \"npm start\" \"rollup -c ./build/rollup.dev.js -w\"",
     "build": "rollup -c ./build/rollup.pro.js",

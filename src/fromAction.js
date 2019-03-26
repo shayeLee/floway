@@ -22,6 +22,9 @@ const fromAction = function(type, options) {
     filter(event => {
       if (!isCorrectVal(event)) return false;
 
+      if (!isCorrectVal(event.payload)) event.payload = {};
+      if (!isCorrectVal(event.options)) event.options = {};
+
       if (!isCorrectVal(eventLog.pushHeadersMap[event.type])) {
         eventLog.pushHeadersMap[event.type] = {
           event,
@@ -36,10 +39,8 @@ const fromAction = function(type, options) {
       // 判断是否要更新lastModifyId
       if (
         !options.useCache ||
-        (
-          JSON.stringify(lastEvent.payload) !== JSON.stringify(event.payload) ||
-          JSON.stringify(lastEvent.options) !== JSON.stringify(event.options)
-        )
+        (JSON.stringify(lastEvent.payload) !== JSON.stringify(event.payload) ||
+          JSON.stringify(lastEvent.options) !== JSON.stringify(event.options))
       ) {
         eventLog.pushHeadersMap[event.type][
           "lastModifyId"

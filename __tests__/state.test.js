@@ -1,7 +1,7 @@
 import { dispatch, state } from '../src/index';
 import { map } from 'rxjs/operators';
 
-test('test state(options) without options.actions', done => {
+test('test state(options) without options.producer', done => {
   const status$ = state({
     name: 'status',
     value: false
@@ -13,13 +13,15 @@ test('test state(options) without options.actions', done => {
   });
 });
 
-test('test state(options) with options.actions', done => {
+test('test state(options) with options.producer', done => {
   const status$ = state({
     name: 'status1',
     value: false,
-    actions: {
-      change(action, value) {
-        return !value;
+    producer(next, value, action) {
+      switch(action.type) {
+        case "change":
+          next(!value);
+          break;
       }
     }
   });
