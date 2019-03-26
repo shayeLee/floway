@@ -48,7 +48,7 @@
     "coveralls": "^3.0.3",
     "jest": "^24.5.0",
     "node-sass": "^4.11.0",
-    "react-dom": "^16.8.4",
+    "react-test-renderer": "^16.8.5",
     "rollup": "^1.6.0",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^9.2.1",
@@ -60,6 +60,7 @@
   "dependencies": {
     "core-js": "^2.6.5",
     "react": "^16.8.4",
+    "react-dom": "^16.8.5",
     "rxjs": "^6.4.0"
   }
 }
