@@ -253,6 +253,10 @@ class Toast extends React.Component {
 }
 ```
 
+## API
+
+[API](./API.md ':include')
+
 ## 资源
 
 ### [Github 源码](https://github.com/shayeLee/floway ":ignore")
