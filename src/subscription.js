@@ -8,14 +8,13 @@ import { isObject, isCorrectVal } from "./utils";
  * @param {object} observablesMap - 可观察对象集合
  * @param {object} inputOptions - 选项
  * @param {object} inputOptions.defaultProps - 组件的默认属性
- * @param {array} inputOptions.delayeringFields - 推送数据需要扁平化的可观察对象的key
 */
 const subscription = function(observablesMap, inputOptions) {
   let options = inputOptions || {};
 
   const handler = function(Comp) {
     if (!isObject(observablesMap))
-      throw new TypeError(`方法permeate()的参数observablesMap必须是object类型`);
+      throw new TypeError(`方法subscription()的参数observablesMap必须是object类型`);
 
     class Permeate extends React.PureComponent {
       constructor() {
@@ -32,7 +31,7 @@ const subscription = function(observablesMap, inputOptions) {
           });
         } else {
           throw new TypeError(
-            `方法permeate()的参数observablesMap不允许传一个空的object`
+            `方法subscription()的参数observablesMap不允许传一个空的object`
           );
         }
 
@@ -48,23 +47,8 @@ const subscription = function(observablesMap, inputOptions) {
           len = obsArr.length;
         for (let i = 0; i < len; i++) {
           const subscription = obsArr[i].subscribe(data => {
-            const type = obsArr[i]["__type__"];
-            const pushHeaders = eventLog.pushHeadersMap[type];
-
-            if (
-              options.delayeringFields &&
-              options.delayeringFields.includes(this.suspendedObservableKeys[i])
-            ) {
-              const _stateObj = {};
-              for (const key in data) {
-                if (this.state[key] !== data[key]) {
-                  _stateObj[key] = data[key];
-                }
-              }
-              // if (isCorrectVal(pushHeaders))  console.log(pushHeaders);
-              this.setState(_stateObj);
-              return;
-            }
+            // const type = obsArr[i]["__type__"];
+            // const pushHeaders = eventLog.pushHeadersMap[type];
 
             if (this.state[this.suspendedObservableKeys[i]] !== data) {
               // if (isCorrectVal(pushHeaders))  console.log(pushHeaders);

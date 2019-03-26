@@ -23,6 +23,33 @@ test("test @subscription", () => {
     <TestComp />
   );
 
-  const tree = component.toJSON(); console.log(tree);
+  const tree = component.toJSON();
   expect(tree).toMatchSnapshot();
+});
+
+test("test @subscription with empty object param", () => {
+  expect(() => {
+    @subscription({})
+    class Comp extends React.Component {
+      render() {
+        return (
+          <div></div>
+        )
+      }
+    }
+
+    renderer.create(
+      <Comp />
+    );
+  }).toThrow();
+});
+
+test("test @subscription with erring param", () => {
+  expect(() => {
+    subscription([str$])(function (props) {
+      return (
+        <div>props.str</div>
+      )
+    })
+  }).toThrow();
 });

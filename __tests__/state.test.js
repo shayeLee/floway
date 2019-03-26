@@ -1,5 +1,17 @@
 import { dispatch, state } from '../src/index';
-import { map } from 'rxjs/operators';
+
+test("test state's name has registered", () => {
+  state({
+    name: 'test',
+    value: 'test'
+  });
+  expect(() => {
+    return test$ = state({
+      name: 'test',
+      value: 'test'
+    });
+  }).toThrow();
+});
 
 test('test state(options) without options.producer', done => {
   const status$ = state({

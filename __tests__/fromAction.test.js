@@ -1,6 +1,10 @@
 import { eventBus, fromAction } from '../src/index';
 import { map } from 'rxjs/operators';
 
+test("test fromAction(type, options) with type is not string", () => {
+  expect(() => fromAction(678)).toThrow();
+})
+
 test('test fromAction(type, options) without options', done => {
   const obs$ = fromAction('test eventType').pipe(
     map(action => {
