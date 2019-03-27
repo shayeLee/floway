@@ -7,7 +7,7 @@
 <br>
 基于 `RxJS v6` 的 `React` 应用状态管理解决方案
 
-## 功能特性
+## 特性
 
 - 使用`state`操作符函数创建一个具有初始值的特殊的`observable`来定义状态，称为`stateObservable`
 - `stateObservable`通过`dispatch action`的模式来更新状态(推送新的值)
