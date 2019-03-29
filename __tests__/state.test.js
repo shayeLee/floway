@@ -25,7 +25,7 @@ test('test state(options) without options.producer', done => {
   });
 });
 
-test('test state(options) with options.producer', done => {
+test('test state(options) with options.producer 1', done => {
   const status$ = state({
     name: 'status1',
     value: 1,
@@ -39,11 +39,9 @@ test('test state(options) with options.producer', done => {
   });
 
   dispatch('status1', 'change');
-  dispatch('change');
-  dispatch({ type: 'change' });
 
   status$.subscribe(status => {
-    expect(status).toBe(4);
+    expect(status).toBe(2);
     done();
   });
 });

@@ -1,5 +1,5 @@
 import { isCorrectVal } from "./utils";
-import { isObservable, BehaviorSubject, defer, of, merge } from 'rxjs';
+import { isObservable, BehaviorSubject, defer, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import eventBus from "./eventBus";
 import fromAction from './fromAction';
@@ -18,14 +18,15 @@ function state(options) {
   stateRegister[name] = true;
 
   stateTree[name] = options.value;
+
   const producer = options.producer;
-  const state$ = new BehaviorSubject(options.value);
+  const state$ = new BehaviorSubject(options.value);  
 
   if (isCorrectVal(producer)) {
     producerMap[name] = function(action) {
       producer((result) => {
         eventBus.next({
-          [name]: Object.assign({}, action, { type: action.global ? "global" : name, result })
+          [name]: Object.assign({}, action, { type: name, result })
         });
       }, stateTree[name], action);
     }
@@ -36,10 +37,7 @@ function state(options) {
         return isObservable(_result) ? _result : of(_result);
       });
     };
-    subscriptions[name] = merge(
-      fromAction(name).pipe(switchMap(observableFactory)),
-      fromAction("global").pipe(switchMap(observableFactory))
-    ).subscribe(
+    subscriptions[name] = fromAction(name).pipe(switchMap(observableFactory)).subscribe(
       val => {
         stateTree[name] = val;
         state$.next(val);
