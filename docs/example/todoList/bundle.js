@@ -8502,15 +8502,29 @@
     return node && node.ownerDocument && containsNode(node.ownerDocument.documentElement, node);
   }
 
+  function isSameOriginFrame(iframe) {
+    try {
+      // Accessing the contentDocument of a HTMLIframeElement can cause the browser
+      // to throw, e.g. if it has a cross-origin src attribute.
+      // Safari will show an error in the console when the access results in "Blocked a frame with origin". e.g:
+      // iframe.contentDocument.defaultView;
+      // A safety way is to access one of the cross origin properties: Window or Location
+      // Which might result in "SecurityError" DOM Exception and it is compatible to Safari.
+      // https://html.spec.whatwg.org/multipage/browsers.html#integration-with-idl
+
+      return typeof iframe.contentWindow.location.href === 'string';
+    } catch (err) {
+      return false;
+    }
+  }
+
   function getActiveElementDeep() {
     var win = window;
     var element = getActiveElement();
     while (element instanceof win.HTMLIFrameElement) {
-      // Accessing the contentDocument of a HTMLIframeElement can cause the browser
-      // to throw, e.g. if it has a cross-origin src attribute
-      try {
-        win = element.contentDocument.defaultView;
-      } catch (e) {
+      if (isSameOriginFrame(element)) {
+        win = element.contentWindow;
+      } else {
         return element;
       }
       element = getActiveElement(win.document);
@@ -10793,14 +10807,25 @@
         // See discussion in https://github.com/facebook/react/pull/6896
         // and discussion in https://bugzilla.mozilla.org/show_bug.cgi?id=1276240
         domElement = ownerDocument.createElement(type);
-        // Normally attributes are assigned in `setInitialDOMProperties`, however the `multiple`
-        // attribute on `select`s needs to be added before `option`s are inserted. This prevents
-        // a bug where the `select` does not scroll to the correct option because singular
-        // `select` elements automatically pick the first item.
+        // Normally attributes are assigned in `setInitialDOMProperties`, however the `multiple` and `size`
+        // attributes on `select`s needs to be added before `option`s are inserted.
+        // This prevents:
+        // - a bug where the `select` does not scroll to the correct option because singular
+        //  `select` elements automatically pick the first item #13222
+        // - a bug where the `select` set the first item as selected despite the `size` attribute #14239
         // See https://github.com/facebook/react/issues/13222
-        if (type === 'select' && props.multiple) {
+        // and https://github.com/facebook/react/issues/14239
+        if (type === 'select') {
           var node = domElement;
-          node.multiple = true;
+          if (props.multiple) {
+            node.multiple = true;
+          } else if (props.size) {
+            // Setting a size greater than 1 causes a select to behave like `multiple=true`, where
+            // it is possible that no option is selected.
+            //
+            // This is only necessary when a select in "single selection mode".
+            node.size = props.size;
+          }
         }
       }
     } else {
@@ -14290,14 +14315,35 @@
     var unmaskedContext = emptyContextObject;
     var context = null;
     var contextType = ctor.contextType;
-    if (typeof contextType === 'object' && contextType !== null) {
-      {
-        if (contextType.$$typeof !== REACT_CONTEXT_TYPE && !didWarnAboutInvalidateContextType.has(ctor)) {
+
+    {
+      if ('contextType' in ctor) {
+        var isValid =
+        // Allow null for conditional declaration
+        contextType === null || contextType !== undefined && contextType.$$typeof === REACT_CONTEXT_TYPE && contextType._context === undefined; // Not a <Context.Consumer>
+
+        if (!isValid && !didWarnAboutInvalidateContextType.has(ctor)) {
           didWarnAboutInvalidateContextType.add(ctor);
-          warningWithoutStack$1(false, '%s defines an invalid contextType. ' + 'contextType should point to the Context object returned by React.createContext(). ' + 'Did you accidentally pass the Context.Provider instead?', getComponentName(ctor) || 'Component');
+
+          var addendum = '';
+          if (contextType === undefined) {
+            addendum = ' However, it is set to undefined. ' + 'This can be caused by a typo or by mixing up named and default imports. ' + 'This can also happen due to a circular dependency, so ' + 'try moving the createContext() call to a separate file.';
+          } else if (typeof contextType !== 'object') {
+            addendum = ' However, it is set to a ' + typeof contextType + '.';
+          } else if (contextType.$$typeof === REACT_PROVIDER_TYPE) {
+            addendum = ' Did you accidentally pass the Context.Provider instead?';
+          } else if (contextType._context !== undefined) {
+            // <Context.Consumer>
+            addendum = ' Did you accidentally pass the Context.Consumer instead?';
+          } else {
+            addendum = ' However, it is set to an object with keys {' + Object.keys(contextType).join(', ') + '}.';
+          }
+          warningWithoutStack$1(false, '%s defines an invalid contextType. ' + 'contextType should point to the Context object returned by React.createContext().%s', getComponentName(ctor) || 'Component', addendum);
         }
       }
+    }
 
+    if (typeof contextType === 'object' && contextType !== null) {
       context = readContext(contextType);
     } else {
       unmaskedContext = getUnmaskedContext(workInProgress, ctor, true);
@@ -15815,7 +15861,7 @@
   }
 
   function throwInvalidHookError() {
-    invariant(false, 'Hooks can only be called inside the body of a function component. (https://fb.me/react-invalid-hook-call)');
+    invariant(false, 'Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:\n1. You might have mismatching versions of React and the renderer (such as React DOM)\n2. You might be breaking the Rules of Hooks\n3. You might have more than one copy of React in the same app\nSee https://fb.me/react-invalid-hook-call for tips about how to debug and fix this problem.');
   }
 
   function areHookInputsEqual(nextDeps, prevDeps) {
@@ -16087,8 +16133,8 @@
     var queue = hook.queue = {
       last: null,
       dispatch: null,
-      eagerReducer: reducer,
-      eagerState: initialState
+      lastRenderedReducer: reducer,
+      lastRenderedState: initialState
     };
     var dispatch = queue.dispatch = dispatchAction.bind(null,
     // Flow doesn't know this is non-null, but we do.
@@ -16100,6 +16146,8 @@
     var hook = updateWorkInProgressHook();
     var queue = hook.queue;
     !(queue !== null) ? invariant(false, 'Should have a queue. This is likely a bug in React. Please file an issue.') : void 0;
+
+    queue.lastRenderedReducer = reducer;
 
     if (numberOfReRenders > 0) {
       // This is a re-render. Apply the new render phase updates to the previous
@@ -16135,8 +16183,7 @@
             hook.baseState = newState;
           }
 
-          queue.eagerReducer = reducer;
-          queue.eagerState = newState;
+          queue.lastRenderedState = newState;
 
           return [newState, _dispatch];
         }
@@ -16215,8 +16262,7 @@
       hook.baseUpdate = newBaseUpdate;
       hook.baseState = newBaseState;
 
-      queue.eagerReducer = reducer;
-      queue.eagerState = _newState;
+      queue.lastRenderedState = _newState;
     }
 
     var dispatch = queue.dispatch;
@@ -16232,8 +16278,8 @@
     var queue = hook.queue = {
       last: null,
       dispatch: null,
-      eagerReducer: basicStateReducer,
-      eagerState: initialState
+      lastRenderedReducer: basicStateReducer,
+      lastRenderedState: initialState
     };
     var dispatch = queue.dispatch = dispatchAction.bind(null,
     // Flow doesn't know this is non-null, but we do.
@@ -16510,21 +16556,21 @@
         // The queue is currently empty, which means we can eagerly compute the
         // next state before entering the render phase. If the new state is the
         // same as the current state, we may be able to bail out entirely.
-        var _eagerReducer = queue.eagerReducer;
-        if (_eagerReducer !== null) {
+        var _lastRenderedReducer = queue.lastRenderedReducer;
+        if (_lastRenderedReducer !== null) {
           var prevDispatcher = void 0;
           {
             prevDispatcher = ReactCurrentDispatcher$1.current;
             ReactCurrentDispatcher$1.current = InvalidNestedHooksDispatcherOnUpdateInDEV;
           }
           try {
-            var currentState = queue.eagerState;
-            var _eagerState = _eagerReducer(currentState, action);
+            var currentState = queue.lastRenderedState;
+            var _eagerState = _lastRenderedReducer(currentState, action);
             // Stash the eagerly computed state, and the reducer used to compute
             // it, on the update object. If the reducer hasn't changed by the
             // time we enter the render phase, then the eager state can be used
             // without calling the reducer again.
-            _update2.eagerReducer = _eagerReducer;
+            _update2.eagerReducer = _lastRenderedReducer;
             _update2.eagerState = _eagerState;
             if (is(_eagerState, currentState)) {
               // Fast path. We can bail out without scheduling React to re-render.
@@ -19781,11 +19827,11 @@
               if (_destroy === null) {
                 addendum = ' You returned null. If your effect does not require clean ' + 'up, return undefined (or nothing).';
               } else if (typeof _destroy.then === 'function') {
-                addendum = '\n\nIt looks like you wrote useEffect(async () => ...) or returned a Promise. ' + 'Instead, you may write an async function separately ' + 'and then call it from inside the effect:\n\n' + 'async function fetchComment(commentId) {\n' + '  // You can await here\n' + '}\n\n' + 'useEffect(() => {\n' + '  fetchComment(commentId);\n' + '}, [commentId]);\n\n' + 'In the future, React will provide a more idiomatic solution for data fetching ' + "that doesn't involve writing effects manually.";
+                addendum = '\n\nIt looks like you wrote useEffect(async () => ...) or returned a Promise. ' + 'Instead, write the async function inside your effect ' + 'and call it immediately:\n\n' + 'useEffect(() => {\n' + '  async function fetchData() {\n' + '    // You can await here\n' + '    const response = await MyAPI.getData(someId);\n' + '    // ...\n' + '  }\n' + '  fetchData();\n' + '}, [someId]); // Or [] if effect doesn\'t need props or state\n\n' + 'Learn more about data fetching with Hooks: https://fb.me/react-hooks-data-fetching';
               } else {
                 addendum = ' You returned: ' + _destroy;
               }
-              warningWithoutStack$1(false, 'An Effect function must not return anything besides a function, ' + 'which is used for clean-up.%s%s', addendum, getStackByFiberInDevAndProd(finishedWork));
+              warningWithoutStack$1(false, 'An effect function must not return anything besides a function, ' + 'which is used for clean-up.%s%s', addendum, getStackByFiberInDevAndProd(finishedWork));
             }
           }
         }
@@ -23073,7 +23119,7 @@
 
   // TODO: this is special because it gets imported during build.
 
-  var ReactVersion = '16.8.4';
+  var ReactVersion = '16.8.6';
 
   // TODO: This type is shared between the reconciler and ReactDOM, but will
   // eventually be lifted out to the renderer.
@@ -25996,13 +26042,7 @@
   var Store = function Store() {
     _classCallCheck(this, Store);
 
-    _defineProperty(this, "subscriptions", {});
-
-    _defineProperty(this, "stateTree", {});
-
-    _defineProperty(this, "stateRegister", {});
-
-    _defineProperty(this, "producerMap", {});
+    _defineProperty(this, "stateMap", {});
 
     _defineProperty(this, "eventLog", {
       dataMap: {},
@@ -26160,50 +26200,68 @@
     return processEvent$;
   };
 
-  var stateTree = store.stateTree;
-  var subscriptions = store.subscriptions;
-  var stateRegister = store.stateRegister;
-  var producerMap = store.producerMap;
+  var stateMap = store.stateMap;
+
+  var StateMachine =
+  /*#__PURE__*/
+  function () {
+    function StateMachine(state$, options) {
+      var _this = this;
+
+      _classCallCheck(this, StateMachine);
+
+      this.name = options.name;
+
+      if (isCorrectVal(stateMap[this.name])) {
+        throw new Error("\u540D\u4E3A'".concat(this.name, "'\u7684\u72B6\u6001\u6570\u636E\u5DF2\u5B58\u5728\uFF0C\u4E0D\u80FD\u91CD\u590D\u521B\u5EFA\uFF01"));
+      }
+
+      this.value = options.value;
+
+      if (isCorrectVal(options.producer)) {
+        this._producer = options.producer;
+
+        var observableFactory = function observableFactory(action) {
+          return defer(function () {
+            var _result = action.result;
+            return isObservable(_result) ? _result : of(_result);
+          });
+        };
+
+        this.subscription = fromAction(this.name).pipe(switchMap(observableFactory)).subscribe(function (val) {
+          _this.value = val;
+          state$.next(val);
+        }, function (err) {
+          return state$.error(err);
+        });
+      }
+    }
+
+    _createClass(StateMachine, [{
+      key: "producer",
+      value: function producer(action) {
+        var _this2 = this;
+
+        this._producer(function (result) {
+          eventBus.next(_defineProperty({}, _this2.name, Object.assign({}, action, {
+            type: _this2.name,
+            result: result
+          })));
+        }, this.value, action);
+      }
+    }]);
+
+    return StateMachine;
+  }();
 
   function state(options) {
-    var name = options.name;
-
-    if (stateRegister[name] === true) {
-      throw new Error("\u540D\u4E3A'".concat(name, "'\u7684\u72B6\u6001\u6570\u636E\u5DF2\u5B58\u5728\uFF0C\u4E0D\u80FD\u91CD\u590D\u521B\u5EFA\uFF01"));
-    }
-
-    stateRegister[name] = true;
-    stateTree[name] = options.value;
-    var producer = options.producer;
     var state$ = new BehaviorSubject(options.value);
-
-    producerMap[name] = function (action) {
-      producer(function (result) {
-        eventBus.next(_defineProperty({}, name, Object.assign({}, action, {
-          type: name,
-          result: result
-        })));
-      }, stateTree[name], action);
-    };
-
-    if (isCorrectVal(producer)) {
-      subscriptions[name] = fromAction(name).pipe(switchMap(function (action) {
-        return defer(function () {
-          var _result = action.result;
-          return isObservable(_result) ? _result : of(_result);
-        });
-      })).subscribe(function (val) {
-        stateTree[name] = val;
-        state$.next(val);
-      }, function (err) {
-        return state$.error(err);
-      });
-    }
-
+    var stateMachine = new StateMachine(state$, options);
+    stateMap[options.name] = stateMachine;
     return state$;
   }
 
-  var producerMap$1 = store.producerMap;
+  var stateMap$1 = store.stateMap;
 
   var dispatch = function dispatch(stateName, action) {
     /* if (!Array.isArray(actions)) {
@@ -26216,7 +26274,7 @@
         action = { type };
       }
       action.type = `${stateName}#${action.type}`;
-       map[action.type] = action;
+        map[action.type] = action;
     });
     eventBus.next(map); */
     if (typeof action === "string") {
@@ -26226,7 +26284,7 @@
       };
     }
 
-    producerMap$1[stateName](action);
+    stateMap$1[stateName]["producer"](action);
   };
 
   var _wks = createCommonjsModule(function (module) {
@@ -26250,58 +26308,6 @@
   var _addToUnscopables = function (key) {
     ArrayProto[UNSCOPABLES][key] = true;
   };
-
-  // https://github.com/tc39/Array.prototype.includes
-
-  var $includes = _arrayIncludes(true);
-
-  _export(_export.P, 'Array', {
-    includes: function includes(el /* , fromIndex = 0 */) {
-      return $includes(this, el, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
-  _addToUnscopables('includes');
-
-  // 7.2.8 IsRegExp(argument)
-
-
-  var MATCH = _wks('match');
-  var _isRegexp = function (it) {
-    var isRegExp;
-    return _isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : _cof(it) == 'RegExp');
-  };
-
-  // helper for String#{startsWith, endsWith, includes}
-
-
-
-  var _stringContext = function (that, searchString, NAME) {
-    if (_isRegexp(searchString)) throw TypeError('String#' + NAME + " doesn't accept regex!");
-    return String(_defined(that));
-  };
-
-  var MATCH$1 = _wks('match');
-  var _failsIsRegexp = function (KEY) {
-    var re = /./;
-    try {
-      '/./'[KEY](re);
-    } catch (e) {
-      try {
-        re[MATCH$1] = false;
-        return !'/./'[KEY](re);
-      } catch (f) { /* empty */ }
-    } return true;
-  };
-
-  var INCLUDES = 'includes';
-
-  _export(_export.P + _export.F * _failsIsRegexp(INCLUDES), 'String', {
-    includes: function includes(searchString /* , position = 0 */) {
-      return !!~_stringContext(this, searchString, INCLUDES)
-        .indexOf(searchString, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
 
   var _iterStep = function (done, value) {
     return { value: value, done: !!done };
@@ -26559,20 +26565,18 @@
     };
   });
 
-  var eventLog$1 = store.eventLog;
   /**
    * observable与react组件的集成(将observable转换为组件属性)
    * @param {object} observablesMap - 可观察对象集合
    * @param {object} inputOptions - 选项
    * @param {object} inputOptions.defaultProps - 组件的默认属性
-   * @param {array} inputOptions.delayeringFields - 推送数据需要扁平化的可观察对象的key
   */
 
   var subscription = function subscription(observablesMap, inputOptions) {
     var options = inputOptions || {};
 
     var handler = function handler(Comp) {
-      if (!isObject(observablesMap)) throw new TypeError("\u65B9\u6CD5permeate()\u7684\u53C2\u6570observablesMap\u5FC5\u987B\u662Fobject\u7C7B\u578B");
+      if (!isObject(observablesMap)) throw new TypeError("\u65B9\u6CD5subscription()\u7684\u53C2\u6570observablesMap\u5FC5\u987B\u662Fobject\u7C7B\u578B");
 
       var Permeate =
       /*#__PURE__*/
@@ -26596,7 +26600,7 @@
               _this._suspendedObservables.push(observablesMap[key]);
             });
           } else {
-            throw new TypeError("\u65B9\u6CD5permeate()\u7684\u53C2\u6570observablesMap\u4E0D\u5141\u8BB8\u4F20\u4E00\u4E2A\u7A7A\u7684object");
+            throw new TypeError("\u65B9\u6CD5subscription()\u7684\u53C2\u6570observablesMap\u4E0D\u5141\u8BB8\u4F20\u4E00\u4E2A\u7A7A\u7684object");
           }
 
           _this.state = Object.assign({}, _this._innerObservableMaps, isCorrectVal(options.defaultProps) ? options.defaultProps : {});
@@ -26613,24 +26617,8 @@
 
             var _loop = function _loop(i) {
               var subscription = obsArr[i].subscribe(function (data) {
-                var type = obsArr[i]["__type__"];
-                var pushHeaders = eventLog$1.pushHeadersMap[type];
-
-                if (options.delayeringFields && options.delayeringFields.includes(_this2.suspendedObservableKeys[i])) {
-                  var _stateObj = {};
-
-                  for (var key in data) {
-                    if (_this2.state[key] !== data[key]) {
-                      _stateObj[key] = data[key];
-                    }
-                  } // if (isCorrectVal(pushHeaders))  console.log(pushHeaders);
-
-
-                  _this2.setState(_stateObj);
-
-                  return;
-                }
-
+                // const type = obsArr[i]["__type__"];
+                // const pushHeaders = eventLog.pushHeadersMap[type];
                 if (_this2.state[_this2.suspendedObservableKeys[i]] !== data) {
                   // if (isCorrectVal(pushHeaders))  console.log(pushHeaders);
                   _this2.setState(_defineProperty({}, _this2.suspendedObservableKeys[i], data));

@@ -1,8 +1,5 @@
 class Store {
-  subscriptions = {};
-  stateTree = {};
-  stateRegister = {};
-  producerMap = {};
+  stateMap = {};
   eventLog = {
     dataMap: {},
     pushHeadersMap: {}
