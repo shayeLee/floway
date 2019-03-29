@@ -28,20 +28,22 @@ test('test state(options) without options.producer', done => {
 test('test state(options) with options.producer', done => {
   const status$ = state({
     name: 'status1',
-    value: false,
+    value: 1,
     producer(next, value, action) {
       switch(action.type) {
         case "change":
-          next(!value);
+          next(++value);
           break;
       }
     }
   });
 
   dispatch('status1', 'change');
+  dispatch('change');
+  dispatch({ type: 'change' });
 
   status$.subscribe(status => {
-    expect(status).toBe(true);
+    expect(status).toBe(4);
     done();
   });
 });
