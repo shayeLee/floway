@@ -5,7 +5,8 @@ import baseConfig from "./rollup.base";
 /**
  * todoList
 */
-const exampleName = "todoList";
+// const exampleName = "todoList";
+const exampleName = "stateObservable";
 
 const plugins = baseConfig.plugins.slice().concat([sass({
   insert: true
@@ -26,7 +27,7 @@ export default {
   },
   output: {
     file: `docs/example/${exampleName}/bundle.js`,
-    name: "moisten",
+    name: "floway",
     sourcemap: true,
     format: "iife"
   },

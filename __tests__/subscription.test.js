@@ -4,7 +4,7 @@ import { subscription, state } from "../src/index";
 
 const str$ = state({
   name: "str",
-  value: "floway"
+  defaultValue: "floway"
 });
 
 @subscription({

@@ -25137,43 +25137,6 @@
   /** PURE_IMPORTS_START tslib,_Subscriber,_Subscription,_Observable,_Subject PURE_IMPORTS_END */
 
   /** PURE_IMPORTS_START tslib,_Subject,_util_ObjectUnsubscribedError PURE_IMPORTS_END */
-  var BehaviorSubject = /*@__PURE__*/ (function (_super) {
-      __extends(BehaviorSubject, _super);
-      function BehaviorSubject(_value) {
-          var _this = _super.call(this) || this;
-          _this._value = _value;
-          return _this;
-      }
-      Object.defineProperty(BehaviorSubject.prototype, "value", {
-          get: function () {
-              return this.getValue();
-          },
-          enumerable: true,
-          configurable: true
-      });
-      BehaviorSubject.prototype._subscribe = function (subscriber) {
-          var subscription = _super.prototype._subscribe.call(this, subscriber);
-          if (subscription && !subscription.closed) {
-              subscriber.next(this._value);
-          }
-          return subscription;
-      };
-      BehaviorSubject.prototype.getValue = function () {
-          if (this.hasError) {
-              throw this.thrownError;
-          }
-          else if (this.closed) {
-              throw new ObjectUnsubscribedError();
-          }
-          else {
-              return this._value;
-          }
-      };
-      BehaviorSubject.prototype.next = function (value) {
-          _super.prototype.next.call(this, this._value = value);
-      };
-      return BehaviorSubject;
-  }(Subject));
 
   /** PURE_IMPORTS_START tslib,_Subscription PURE_IMPORTS_END */
 
@@ -25300,6 +25263,9 @@
   /** PURE_IMPORTS_START tslib,_AsyncAction,_AsyncScheduler PURE_IMPORTS_END */
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  function identity(x) {
+      return x;
+  }
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
   function isObservable(obj) {
@@ -25646,8 +25612,104 @@
   }
 
   /** PURE_IMPORTS_START tslib,_util_subscribeToResult,_OuterSubscriber,_InnerSubscriber,_map,_observable_from PURE_IMPORTS_END */
+  function mergeMap(project, resultSelector, concurrent) {
+      if (concurrent === void 0) {
+          concurrent = Number.POSITIVE_INFINITY;
+      }
+      if (typeof resultSelector === 'function') {
+          return function (source) { return source.pipe(mergeMap(function (a, i) { return from(project(a, i)).pipe(map(function (b, ii) { return resultSelector(a, b, i, ii); })); }, concurrent)); };
+      }
+      else if (typeof resultSelector === 'number') {
+          concurrent = resultSelector;
+      }
+      return function (source) { return source.lift(new MergeMapOperator(project, concurrent)); };
+  }
+  var MergeMapOperator = /*@__PURE__*/ (function () {
+      function MergeMapOperator(project, concurrent) {
+          if (concurrent === void 0) {
+              concurrent = Number.POSITIVE_INFINITY;
+          }
+          this.project = project;
+          this.concurrent = concurrent;
+      }
+      MergeMapOperator.prototype.call = function (observer, source) {
+          return source.subscribe(new MergeMapSubscriber(observer, this.project, this.concurrent));
+      };
+      return MergeMapOperator;
+  }());
+  var MergeMapSubscriber = /*@__PURE__*/ (function (_super) {
+      __extends(MergeMapSubscriber, _super);
+      function MergeMapSubscriber(destination, project, concurrent) {
+          if (concurrent === void 0) {
+              concurrent = Number.POSITIVE_INFINITY;
+          }
+          var _this = _super.call(this, destination) || this;
+          _this.project = project;
+          _this.concurrent = concurrent;
+          _this.hasCompleted = false;
+          _this.buffer = [];
+          _this.active = 0;
+          _this.index = 0;
+          return _this;
+      }
+      MergeMapSubscriber.prototype._next = function (value) {
+          if (this.active < this.concurrent) {
+              this._tryNext(value);
+          }
+          else {
+              this.buffer.push(value);
+          }
+      };
+      MergeMapSubscriber.prototype._tryNext = function (value) {
+          var result;
+          var index = this.index++;
+          try {
+              result = this.project(value, index);
+          }
+          catch (err) {
+              this.destination.error(err);
+              return;
+          }
+          this.active++;
+          this._innerSub(result, value, index);
+      };
+      MergeMapSubscriber.prototype._innerSub = function (ish, value, index) {
+          var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
+          var destination = this.destination;
+          destination.add(innerSubscriber);
+          subscribeToResult(this, ish, value, index, innerSubscriber);
+      };
+      MergeMapSubscriber.prototype._complete = function () {
+          this.hasCompleted = true;
+          if (this.active === 0 && this.buffer.length === 0) {
+              this.destination.complete();
+          }
+          this.unsubscribe();
+      };
+      MergeMapSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
+          this.destination.next(innerValue);
+      };
+      MergeMapSubscriber.prototype.notifyComplete = function (innerSub) {
+          var buffer = this.buffer;
+          this.remove(innerSub);
+          this.active--;
+          if (buffer.length > 0) {
+              this._next(buffer.shift());
+          }
+          else if (this.active === 0 && this.hasCompleted) {
+              this.destination.complete();
+          }
+      };
+      return MergeMapSubscriber;
+  }(OuterSubscriber));
 
   /** PURE_IMPORTS_START _mergeMap,_util_identity PURE_IMPORTS_END */
+  function mergeAll(concurrent) {
+      if (concurrent === void 0) {
+          concurrent = Number.POSITIVE_INFINITY;
+      }
+      return mergeMap(identity, concurrent);
+  }
 
   /** PURE_IMPORTS_START _mergeAll PURE_IMPORTS_END */
 
@@ -25684,6 +25746,28 @@
   /** PURE_IMPORTS_START _Observable,_scheduler_async,_util_isNumeric PURE_IMPORTS_END */
 
   /** PURE_IMPORTS_START _Observable,_util_isScheduler,_operators_mergeAll,_fromArray PURE_IMPORTS_END */
+  function merge() {
+      var observables = [];
+      for (var _i = 0; _i < arguments.length; _i++) {
+          observables[_i] = arguments[_i];
+      }
+      var concurrent = Number.POSITIVE_INFINITY;
+      var scheduler = null;
+      var last = observables[observables.length - 1];
+      if (isScheduler(last)) {
+          scheduler = observables.pop();
+          if (observables.length > 1 && typeof observables[observables.length - 1] === 'number') {
+              concurrent = observables.pop();
+          }
+      }
+      else if (typeof last === 'number') {
+          concurrent = observables.pop();
+      }
+      if (scheduler === null && observables.length === 1 && observables[0] instanceof Observable) {
+          return observables[0];
+      }
+      return mergeAll(concurrent)(fromArray(observables, scheduler));
+  }
 
   /** PURE_IMPORTS_START _Observable,_util_noop PURE_IMPORTS_END */
 
@@ -26200,93 +26284,6 @@
     return processEvent$;
   };
 
-  var stateMap = store.stateMap;
-
-  var StateMachine =
-  /*#__PURE__*/
-  function () {
-    function StateMachine(state$, options) {
-      var _this = this;
-
-      _classCallCheck(this, StateMachine);
-
-      this.name = options.name;
-
-      if (isCorrectVal(stateMap[this.name])) {
-        throw new Error("\u540D\u4E3A'".concat(this.name, "'\u7684\u72B6\u6001\u6570\u636E\u5DF2\u5B58\u5728\uFF0C\u4E0D\u80FD\u91CD\u590D\u521B\u5EFA\uFF01"));
-      }
-
-      this.value = options.value;
-
-      if (isCorrectVal(options.producer)) {
-        this._producer = options.producer;
-
-        var observableFactory = function observableFactory(action) {
-          return defer(function () {
-            var _result = action.result;
-            return isObservable(_result) ? _result : of(_result);
-          });
-        };
-
-        this.subscription = fromAction(this.name).pipe(switchMap(observableFactory)).subscribe(function (val) {
-          _this.value = val;
-          state$.next(val);
-        }, function (err) {
-          return state$.error(err);
-        });
-      }
-    }
-
-    _createClass(StateMachine, [{
-      key: "producer",
-      value: function producer(action) {
-        var _this2 = this;
-
-        this._producer(function (result) {
-          eventBus.next(_defineProperty({}, _this2.name, Object.assign({}, action, {
-            type: _this2.name,
-            result: result
-          })));
-        }, this.value, action);
-      }
-    }]);
-
-    return StateMachine;
-  }();
-
-  function state(options) {
-    var state$ = new BehaviorSubject(options.value);
-    var stateMachine = new StateMachine(state$, options);
-    stateMap[options.name] = stateMachine;
-    return state$;
-  }
-
-  var stateMap$1 = store.stateMap;
-
-  var dispatch = function dispatch(stateName, action) {
-    /* if (!Array.isArray(actions)) {
-      actions = [actions];
-    }
-    const map = {};
-    actions.forEach(action => {
-      if (typeof action === "string") {
-        const type = action;
-        action = { type };
-      }
-      action.type = `${stateName}#${action.type}`;
-        map[action.type] = action;
-    });
-    eventBus.next(map); */
-    if (typeof action === "string") {
-      var type = action;
-      action = {
-        type: type
-      };
-    }
-
-    stateMap$1[stateName]["producer"](action);
-  };
-
   var _wks = createCommonjsModule(function (module) {
   var store = _shared('wks');
 
@@ -26544,6 +26541,125 @@
     }
   }
 
+  function StateSubject(value) {
+    this.observerList = [];
+    this.value = value;
+  }
+
+  StateSubject.prototype = Object.create(Observable.create(function (observer) {
+    if (isCorrectVal(this.value)) observer.next(this.value);
+    this.observerList.push(observer);
+  }));
+
+  StateSubject.prototype.next = function (val) {
+    this.value = val;
+    this.observerList.forEach(function (observer) {
+      observer.next(val);
+    });
+  };
+
+  var stateMap = store.stateMap;
+
+  var StateMachine =
+  /*#__PURE__*/
+  function () {
+    function StateMachine(state$, options) {
+      var _this = this;
+
+      _classCallCheck(this, StateMachine);
+
+      _defineProperty(this, "value", null);
+
+      this.name = options.name;
+
+      if (isCorrectVal(stateMap[this.name])) {
+        throw new Error("\u540D\u4E3A'".concat(this.name, "'\u7684\u72B6\u6001\u6570\u636E\u5DF2\u5B58\u5728\uFF0C\u4E0D\u80FD\u91CD\u590D\u521B\u5EFA\uFF01"));
+      }
+
+      this.defaultValue = options.defaultValue;
+      this.value = options.defaultValue;
+      this.initial$ = isObservable(options.initial) ? options.initial : of(this.value);
+
+      if (isCorrectVal(options.producer)) {
+        this._producer = options.producer;
+
+        var observableFactory = function observableFactory(action) {
+          if (!isObject(action)) {
+            return of(action);
+          } else if (isObject(action) && isCorrectVal(action.type)) {
+            return defer(function () {
+              var _result = action.result;
+              return isObservable(_result) ? _result : of(_result);
+            });
+          }
+        };
+
+        this.subscription = merge(this.initial$, fromAction(this.name)).pipe(switchMap(observableFactory)).subscribe(function (val) {
+          _this.value = val;
+          state$.next(val);
+        }, function (err) {
+          return state$.error(err);
+        });
+      } else {
+        this.initial$.subscribe(function (val) {
+          _this.value = val;
+          state$.next(val);
+        }, function (err) {
+          return state$.error(err);
+        });
+      }
+    }
+
+    _createClass(StateMachine, [{
+      key: "producer",
+      value: function producer(action) {
+        var _this2 = this;
+
+        this._producer(function (result) {
+          eventBus.next(_defineProperty({}, _this2.name, Object.assign({}, action, {
+            type: _this2.name,
+            result: result
+          })));
+        }, this.value, action);
+      }
+    }]);
+
+    return StateMachine;
+  }();
+
+  function state(options) {
+    var state$ = new StateSubject();
+    var stateMachine = new StateMachine(state$, options);
+    stateMap[options.name] = stateMachine;
+    return state$;
+  }
+
+  var stateMap$1 = store.stateMap;
+
+  var dispatch = function dispatch(stateName, action) {
+    /* if (!Array.isArray(actions)) {
+      actions = [actions];
+    }
+    const map = {};
+    actions.forEach(action => {
+      if (typeof action === "string") {
+        const type = action;
+        action = { type };
+      }
+      action.type = `${stateName}#${action.type}`;
+        map[action.type] = action;
+    });
+    eventBus.next(map); */
+    if (typeof action === "string") {
+      var type = action;
+      action = {
+        type: type
+      };
+    }
+
+    stateMap$1[stateName]["producer"](action);
+  };
+
   // most Object methods by ES6 should accept primitives
 
 
@@ -26658,7 +26774,7 @@
 
   var todos$ = state({
     name: "todos",
-    value: [{
+    defaultValue: [{
       desc: "起床迎接新的一天",
       check: true
     }, {
@@ -26711,7 +26827,7 @@
   }));
   var toastVisible$ = state({
     name: "toastVisible",
-    value: false,
+    defaultValue: false,
     producer: function producer(next, value, action) {
       switch (action.type) {
         case "show":

@@ -4,7 +4,7 @@ import { state } from "../../../../src/index";
 
 const todos$ = state({
   name: "todos",
-  value: [
+  defaultValue: [
     {
       desc: "起床迎接新的一天",
       check: true
@@ -65,7 +65,7 @@ const undoneCount$ = todos$.pipe(
 
 const toastVisible$ = state({
   name: "toastVisible",
-  value: false,
+  defaultValue: false,
   producer(next, value, action) {
     switch (action.type) {
       case "show":

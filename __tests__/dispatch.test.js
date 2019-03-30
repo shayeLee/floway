@@ -3,7 +3,7 @@ import { dispatch, state } from '../src/index';
 test('test dispatch(stateName, action) while action is string', done => {
   const count$ = state({
     name: 'count',
-    value: 0,
+    defaultValue: 0,
     producer(next, value, action) {
       switch(action.type) {
         case "plus":
@@ -24,7 +24,7 @@ test('test dispatch(stateName, action) while action is string', done => {
 test('test dispatch(stateName, action) while action is object', done => {
   const count$ = state({
     name: 'count1',
-    value: 0,
+    defaultValue: 0,
     producer(next, value, action) {
       switch(action.type) {
         case "plus":
