@@ -2,7 +2,8 @@
 - 参数:
   - `{object} descConfig` 状态描述配置对象
     - `{string} descConfig.name` stateObservable's name
-    - `{*} descConfig.value` stateObservable's initial value
+    - `{observalbe} descConfig.initial` stateObservable's initial value from observalbe
+    - `{*} descConfig.defaultValue` stateObservable's default value
     - `{function} descConfig.producer(next, value, action)` stateObservable's producer
 - 返回值: `stateObservable`
 
@@ -36,6 +37,14 @@
       return <div>{this.props.testData}</div>;
     }
   }
+  ```
+  如果没有启用`ES7`装饰器语法，可以用函数的写法： 
+  ```javascript
+  const CompA = subscription({
+    testData: testData$
+  })(function(props) {
+    return <div>{this.props.testData}</div>;
+  });
   ```
 
 ### dispatch(stateName, action)

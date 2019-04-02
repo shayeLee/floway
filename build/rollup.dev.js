@@ -5,8 +5,8 @@ import baseConfig from "./rollup.base";
 /**
  * todoList
 */
-// const exampleName = "todoList";
-const exampleName = "stateObservable";
+const exampleName = "todoList";
+// const exampleName = "stateObservable";
 
 const plugins = baseConfig.plugins.slice().concat([sass({
   insert: true

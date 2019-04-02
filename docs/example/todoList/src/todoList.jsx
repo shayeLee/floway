@@ -3,9 +3,16 @@ import TodoItem from './todoItem';
 import { subscription, dispatch } from '../../../../src/index';
 import { todos$, undoneCount$ } from './store';
 
-@subscription({
-  todos: todos$,
+const UndoneCount = subscription({
   undoneCount: undoneCount$
+})(function(props) {
+  return (
+    <div className="hints">未完成任务数量：{props.undoneCount}</div>
+  );
+})
+
+@subscription({
+  todos: todos$
 })
 class TodoList extends React.Component {
   state = {
@@ -16,7 +23,7 @@ class TodoList extends React.Component {
     return (
       <div className="todolist">
         <h1 className="header">任务列表</h1>
-        <div className="hints">未完成任务数量：{this.props.undoneCount}</div>
+        <UndoneCount />
         {this.props.todos.map((item, n) => {
           return (
             <TodoItem
