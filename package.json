@@ -30,11 +30,6 @@
     "email": "shaye_web@163.com"
   },
   "homepage": "https://shayelee.github.io/floway/",
-  "browserslist": [
-    "> 1%",
-    "Chrome 45",
-    "IE 11"
-  ],
   "devDependencies": {
     "@babel/core": "^7.4.0",
     "@babel/plugin-proposal-class-properties": "^7.2.1",
@@ -55,12 +50,49 @@
     "rollup-plugin-node-resolve": "^4.0.1",
     "rollup-plugin-replace": "^2.1.0",
     "rollup-plugin-sass": "^1.1.0",
-    "rollup-plugin-uglify": "^6.0.2"
+    "rollup-plugin-typescript2": "^0.20.1",
+    "rollup-plugin-uglify": "^6.0.2",
+    "typescript": "^3.4.3"
   },
   "dependencies": {
     "core-js": "^2.6.5",
     "react": "^16.8.4",
     "react-dom": "^16.8.5",
     "rxjs": "^6.4.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "Chrome 45",
+    "IE 11"
+  ],
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "useBuiltIns": "usage",
+          "modules": false,
+          "shippedProposals": true
+        }
+      ],
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      [
+        "@babel/plugin-proposal-decorators",
+        {
+          "legacy": true
+        }
+      ],
+      "@babel/plugin-syntax-dynamic-import",
+      "@babel/plugin-proposal-class-properties"
+    ],
+    "env": {
+      "test": {
+        "plugins": [
+          "@babel/plugin-transform-modules-commonjs"
+        ]
+      }
+    }
   }
 }

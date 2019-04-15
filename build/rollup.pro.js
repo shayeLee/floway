@@ -33,7 +33,7 @@ export default fileArr
     return {
       input: file,
       output: {
-        file: file.replace(/src/, 'es'),
+        file: file.replace(/src/, 'es').replace(/\.ts|\.jsx/, ".js"),
         format: 'es'
       },
       plugins,
@@ -45,7 +45,7 @@ export default fileArr
       return {
         input: file,
         output: {
-          file: file.replace(/src/, 'lib'),
+          file: file.replace(/src/, 'lib').replace(/\.ts|\.jsx/, ".js"),
           format: 'cjs'
         },
         plugins,
