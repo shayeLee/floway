@@ -1,6 +1,6 @@
 import React from "react";
 
-class TodoItem extends React.Component {
+/* class TodoItem extends React.Component {
   render() {
     return (
       <div
@@ -27,6 +27,31 @@ class TodoItem extends React.Component {
     e.stopPropagation();
     this.props.onDelete && this.props.onDelete();
   }
-}
+} */
 
-export default TodoItem;
+export default function TodoItem(props) {
+  const checkItem = () => {
+    props.onClick && props.onClick();
+  }
+
+  const handleDel = (e) => {
+    e.stopPropagation();
+    props.onDelete && props.onDelete();
+  }
+
+  return (
+    <div
+      className={props.item.check ? "todo checked" : "todo"}
+      onClick={checkItem}
+    >
+      <div className="todo__content">
+        <img
+          src={props.item.check ? "./static/check.png" : "./static/uncheck.png"}
+          className="todo__checkbox"
+        />
+        <div className="desc">{props.item.desc}</div>
+      </div>
+      <a className="delbtn" onClick={handleDel}>删除</a>
+    </div>
+  );
+};

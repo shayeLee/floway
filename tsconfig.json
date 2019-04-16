@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "ES2015",
+    "target": "es5",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "__mocks__", "__tests__"]
+}

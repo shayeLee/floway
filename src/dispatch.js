@@ -1,5 +1,7 @@
+/* import eventBus from "./eventBus";
+import { isCorrectVal } from "./utils"; */
 import store from './store';
-const producerMap = store.producerMap;
+const stateMap = store.stateMap;
 
 const dispatch = function(stateName, action) {
   /* if (!Array.isArray(actions)) {
@@ -21,8 +23,8 @@ const dispatch = function(stateName, action) {
     const type = action;
     action = { type };
   }
-
-  producerMap[stateName](action);
+  
+  stateMap[stateName]["producer"](action);
 }
 
 export default dispatch;

@@ -10793,14 +10793,25 @@
         // See discussion in https://github.com/facebook/react/pull/6896
         // and discussion in https://bugzilla.mozilla.org/show_bug.cgi?id=1276240
         domElement = ownerDocument.createElement(type);
-        // Normally attributes are assigned in `setInitialDOMProperties`, however the `multiple`
-        // attribute on `select`s needs to be added before `option`s are inserted. This prevents
-        // a bug where the `select` does not scroll to the correct option because singular
-        // `select` elements automatically pick the first item.
+        // Normally attributes are assigned in `setInitialDOMProperties`, however the `multiple` and `size`
+        // attributes on `select`s needs to be added before `option`s are inserted.
+        // This prevents:
+        // - a bug where the `select` does not scroll to the correct option because singular
+        //  `select` elements automatically pick the first item #13222
+        // - a bug where the `select` set the first item as selected despite the `size` attribute #14239
         // See https://github.com/facebook/react/issues/13222
-        if (type === 'select' && props.multiple) {
+        // and https://github.com/facebook/react/issues/14239
+        if (type === 'select') {
           var node = domElement;
-          node.multiple = true;
+          if (props.multiple) {
+            node.multiple = true;
+          } else if (props.size) {
+            // Setting a size greater than 1 causes a select to behave like `multiple=true`, where
+            // it is possible that no option is selected.
+            //
+            // This is only necessary when a select in "single selection mode".
+            node.size = props.size;
+          }
         }
       }
     } else {
@@ -15815,7 +15826,7 @@
   }
 
   function throwInvalidHookError() {
-    invariant(false, 'Hooks can only be called inside the body of a function component. (https://fb.me/react-invalid-hook-call)');
+    invariant(false, 'Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:\n1. You might have mismatching versions of React and the renderer (such as React DOM)\n2. You might be breaking the Rules of Hooks\n3. You might have more than one copy of React in the same app\nSee https://fb.me/react-invalid-hook-call for tips about how to debug and fix this problem.');
   }
 
   function areHookInputsEqual(nextDeps, prevDeps) {
@@ -19781,11 +19792,11 @@
               if (_destroy === null) {
                 addendum = ' You returned null. If your effect does not require clean ' + 'up, return undefined (or nothing).';
               } else if (typeof _destroy.then === 'function') {
-                addendum = '\n\nIt looks like you wrote useEffect(async () => ...) or returned a Promise. ' + 'Instead, you may write an async function separately ' + 'and then call it from inside the effect:\n\n' + 'async function fetchComment(commentId) {\n' + '  // You can await here\n' + '}\n\n' + 'useEffect(() => {\n' + '  fetchComment(commentId);\n' + '}, [commentId]);\n\n' + 'In the future, React will provide a more idiomatic solution for data fetching ' + "that doesn't involve writing effects manually.";
+                addendum = '\n\nIt looks like you wrote useEffect(async () => ...) or returned a Promise. ' + 'Instead, write the async function inside your effect ' + 'and call it immediately:\n\n' + 'useEffect(() => {\n' + '  async function fetchData() {\n' + '    // You can await here\n' + '    const response = await MyAPI.getData(someId);\n' + '    // ...\n' + '  }\n' + '  fetchData();\n' + '}, [someId]); // Or [] if effect doesn\'t need props or state\n\n' + 'Learn more about data fetching with Hooks: https://fb.me/react-hooks-data-fetching';
               } else {
                 addendum = ' You returned: ' + _destroy;
               }
-              warningWithoutStack$1(false, 'An Effect function must not return anything besides a function, ' + 'which is used for clean-up.%s%s', addendum, getStackByFiberInDevAndProd(finishedWork));
+              warningWithoutStack$1(false, 'An effect function must not return anything besides a function, ' + 'which is used for clean-up.%s%s', addendum, getStackByFiberInDevAndProd(finishedWork));
             }
           }
         }
@@ -23073,7 +23084,7 @@
 
   // TODO: this is special because it gets imported during build.
 
-  var ReactVersion = '16.8.4';
+  var ReactVersion = '16.8.5';
 
   // TODO: This type is shared between the reconciler and ReactDOM, but will
   // eventually be lifted out to the renderer.
@@ -23603,58 +23614,60 @@
 
   ___$insertStyle(".root {\n  position: relative;\n}\n\n.todolist {\n  box-sizing: border-box;\n  padding: 20px;\n  width: 600px;\n  background-color: #fafafa;\n  margin: auto;\n}\n\n.header {\n  font-size: 26px;\n  text-align: center;\n}\n\n.hints {\n  font-size: 13px;\n  color: #c06c84;\n  text-align: right;\n  line-height: 1.625;\n  padding-right: 8px;\n}\n\n.todo {\n  display: flex;\n  justify-content: space-between;\n  height: 36px;\n  background-color: #fce38a;\n  margin-bottom: 8px;\n  cursor: default;\n}\n.todo.checked {\n  background-color: #95e1d3;\n}\n.todo.checked .desc {\n  text-decoration: line-through;\n}\n.todo:hover .delbtn {\n  display: block;\n}\n\n.todo__content {\n  display: flex;\n  align-items: center;\n  height: 36px;\n}\n\n.todo__checkbox {\n  width: 14px;\n  margin-left: 14px;\n}\n\n.desc {\n  font-size: 14px;\n  margin-left: 8px;\n}\n\n.delbtn {\n  display: none;\n  font-size: 12px;\n  color: #999;\n  line-height: 36px;\n  padding-right: 10px;\n  cursor: pointer;\n}\n.delbtn:hover {\n  color: red;\n}\n\n.todolist__adder {\n  display: flex;\n  align-items: center;\n  height: 36px;\n  margin-top: 24px;\n  margin-bottom: 28px;\n}\n\n.todolist__input {\n  flex-grow: 1;\n  font-size: 14px;\n  line-height: 32px;\n  padding: 0 10px;\n  margin-right: 10px;\n}\n\n.todolist__btn {\n  font-size: 14px;\n  line-height: 29px;\n}\n\n.toast {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 600px;\n  position: absolute;\n  top: 0;\n  left: 50%;\n  bottom: 0;\n  margin-left: -300px;\n}\n\n.totast__inner {\n  font-size: 14px;\n  color: #fff;\n  padding: 20px;\n  width: 180px;\n  background-color: rgba(0, 0, 0, 0.7);\n  border-radius: 8px;\n}");
 
-  var TodoItem =
-  /*#__PURE__*/
-  function (_React$Component) {
-    _inherits(TodoItem, _React$Component);
-
-    function TodoItem() {
-      var _getPrototypeOf2;
-
-      var _this;
-
-      _classCallCheck(this, TodoItem);
-
-      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(TodoItem)).call.apply(_getPrototypeOf2, [this].concat(args)));
-
-      _defineProperty(_assertThisInitialized(_this), "checkItem", function () {
-        _this.props.onClick && _this.props.onClick();
-      });
-
-      _defineProperty(_assertThisInitialized(_this), "handleDel", function (e) {
-        e.stopPropagation();
-        _this.props.onDelete && _this.props.onDelete();
-      });
-
-      return _this;
+  /* class TodoItem extends React.Component {
+    render() {
+      return (
+        <div
+          className={this.props.item.check ? "todo checked" : "todo"}
+          onClick={this.checkItem}
+        >
+          <div className="todo__content">
+            <img
+              src={this.props.item.check ? "./static/check.png" : "./static/uncheck.png"}
+              className="todo__checkbox"
+            />
+            <div className="desc">{this.props.item.desc}</div>
+          </div>
+          <a className="delbtn" onClick={this.handleDel}>删除</a>
+        </div>
+      );
     }
 
-    _createClass(TodoItem, [{
-      key: "render",
-      value: function render() {
-        return react.createElement("div", {
-          className: this.props.item.check ? "todo checked" : "todo",
-          onClick: this.checkItem
-        }, react.createElement("div", {
-          className: "todo__content"
-        }, react.createElement("img", {
-          src: this.props.item.check ? "./static/check.png" : "./static/uncheck.png",
-          className: "todo__checkbox"
-        }), react.createElement("div", {
-          className: "desc"
-        }, this.props.item.desc)), react.createElement("a", {
-          className: "delbtn",
-          onClick: this.handleDel
-        }, "\u5220\u9664"));
-      }
-    }]);
+    checkItem = () => {
+      this.props.onClick && this.props.onClick();
+    }
 
-    return TodoItem;
-  }(react.Component);
+    handleDel = (e) => {
+      e.stopPropagation();
+      this.props.onDelete && this.props.onDelete();
+    }
+  } */
+
+  function TodoItem(props) {
+    var checkItem = function checkItem() {
+      props.onClick && props.onClick();
+    };
+
+    var handleDel = function handleDel(e) {
+      e.stopPropagation();
+      props.onDelete && props.onDelete();
+    };
+
+    return react.createElement("div", {
+      className: props.item.check ? "todo checked" : "todo",
+      onClick: checkItem
+    }, react.createElement("div", {
+      className: "todo__content"
+    }, react.createElement("img", {
+      src: props.item.check ? "./static/check.png" : "./static/uncheck.png",
+      className: "todo__checkbox"
+    }), react.createElement("div", {
+      className: "desc"
+    }, props.item.desc)), react.createElement("a", {
+      className: "delbtn",
+      onClick: handleDel
+    }, "\u5220\u9664"));
+  }
 
   var _global = createCommonjsModule(function (module) {
   // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
@@ -24170,6 +24183,7 @@
   function isFunction(x) {
       return typeof x === 'function';
   }
+  //# sourceMappingURL=isFunction.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   var _enable_super_gross_mode_that_will_cause_bad_things = false;
@@ -24186,11 +24200,13 @@
           return _enable_super_gross_mode_that_will_cause_bad_things;
       },
   };
+  //# sourceMappingURL=config.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function hostReportError(err) {
       setTimeout(function () { throw err; });
   }
+  //# sourceMappingURL=hostReportError.js.map
 
   /** PURE_IMPORTS_START _config,_util_hostReportError PURE_IMPORTS_END */
   var empty = {
@@ -24206,14 +24222,17 @@
       },
       complete: function () { }
   };
+  //# sourceMappingURL=Observer.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   var isArray = Array.isArray || (function (x) { return x && typeof x.length === 'number'; });
+  //# sourceMappingURL=isArray.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function isObject$1(x) {
       return x !== null && typeof x === 'object';
   }
+  //# sourceMappingURL=isObject.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function UnsubscriptionErrorImpl(errors) {
@@ -24226,6 +24245,7 @@
   }
   UnsubscriptionErrorImpl.prototype = /*@__PURE__*/ Object.create(Error.prototype);
   var UnsubscriptionError = UnsubscriptionErrorImpl;
+  //# sourceMappingURL=UnsubscriptionError.js.map
 
   /** PURE_IMPORTS_START _util_isArray,_util_isObject,_util_isFunction,_util_UnsubscriptionError PURE_IMPORTS_END */
   var Subscription = /*@__PURE__*/ (function () {
@@ -24364,11 +24384,13 @@
   function flattenUnsubscriptionErrors(errors) {
       return errors.reduce(function (errs, err) { return errs.concat((err instanceof UnsubscriptionError) ? err.errors : err); }, []);
   }
+  //# sourceMappingURL=Subscription.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   var rxSubscriber = typeof Symbol === 'function'
       ? /*@__PURE__*/ Symbol('rxSubscriber')
       : '@@rxSubscriber_' + /*@__PURE__*/ Math.random();
+  //# sourceMappingURL=rxSubscriber.js.map
 
   /** PURE_IMPORTS_START tslib,_util_isFunction,_Observer,_Subscription,_internal_symbol_rxSubscriber,_config,_util_hostReportError PURE_IMPORTS_END */
   var Subscriber = /*@__PURE__*/ (function (_super) {
@@ -24595,6 +24617,7 @@
       };
       return SafeSubscriber;
   }(Subscriber));
+  //# sourceMappingURL=Subscriber.js.map
 
   /** PURE_IMPORTS_START _Subscriber PURE_IMPORTS_END */
   function canReportError(observer) {
@@ -24612,6 +24635,7 @@
       }
       return true;
   }
+  //# sourceMappingURL=canReportError.js.map
 
   /** PURE_IMPORTS_START _Subscriber,_symbol_rxSubscriber,_Observer PURE_IMPORTS_END */
   function toSubscriber(nextOrObserver, error, complete) {
@@ -24628,12 +24652,15 @@
       }
       return new Subscriber(nextOrObserver, error, complete);
   }
+  //# sourceMappingURL=toSubscriber.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   var observable = typeof Symbol === 'function' && Symbol.observable || '@@observable';
+  //# sourceMappingURL=observable.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function noop() { }
+  //# sourceMappingURL=noop.js.map
 
   /** PURE_IMPORTS_START _noop PURE_IMPORTS_END */
   function pipeFromArray(fns) {
@@ -24647,6 +24674,7 @@
           return fns.reduce(function (prev, fn) { return fn(prev); }, input);
       };
   }
+  //# sourceMappingURL=pipe.js.map
 
   /** PURE_IMPORTS_START _util_canReportError,_util_toSubscriber,_internal_symbol_observable,_util_pipe,_config PURE_IMPORTS_END */
   var Observable = /*@__PURE__*/ (function () {
@@ -24757,6 +24785,7 @@
       }
       return promiseCtor;
   }
+  //# sourceMappingURL=Observable.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function ObjectUnsubscribedErrorImpl() {
@@ -24767,6 +24796,7 @@
   }
   ObjectUnsubscribedErrorImpl.prototype = /*@__PURE__*/ Object.create(Error.prototype);
   var ObjectUnsubscribedError = ObjectUnsubscribedErrorImpl;
+  //# sourceMappingURL=ObjectUnsubscribedError.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscription PURE_IMPORTS_END */
   var SubjectSubscription = /*@__PURE__*/ (function (_super) {
@@ -24796,6 +24826,7 @@
       };
       return SubjectSubscription;
   }(Subscription));
+  //# sourceMappingURL=SubjectSubscription.js.map
 
   /** PURE_IMPORTS_START tslib,_Observable,_Subscriber,_Subscription,_util_ObjectUnsubscribedError,_SubjectSubscription,_internal_symbol_rxSubscriber PURE_IMPORTS_END */
   var SubjectSubscriber = /*@__PURE__*/ (function (_super) {
@@ -24944,6 +24975,7 @@
       };
       return AnonymousSubject;
   }(Subject));
+  //# sourceMappingURL=Subject.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
   function refCount() {
@@ -25000,6 +25032,7 @@
       };
       return RefCountSubscriber;
   }(Subscriber));
+  //# sourceMappingURL=refCount.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_Observable,_Subscriber,_Subscription,_operators_refCount PURE_IMPORTS_END */
   var ConnectableObservable = /*@__PURE__*/ (function (_super) {
@@ -25087,59 +25120,33 @@
       };
       return ConnectableSubscriber;
   }(SubjectSubscriber));
+  //# sourceMappingURL=ConnectableObservable.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_Subscription,_Observable,_Subject PURE_IMPORTS_END */
+  //# sourceMappingURL=groupBy.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_util_ObjectUnsubscribedError PURE_IMPORTS_END */
-  var BehaviorSubject = /*@__PURE__*/ (function (_super) {
-      __extends(BehaviorSubject, _super);
-      function BehaviorSubject(_value) {
-          var _this = _super.call(this) || this;
-          _this._value = _value;
-          return _this;
-      }
-      Object.defineProperty(BehaviorSubject.prototype, "value", {
-          get: function () {
-              return this.getValue();
-          },
-          enumerable: true,
-          configurable: true
-      });
-      BehaviorSubject.prototype._subscribe = function (subscriber) {
-          var subscription = _super.prototype._subscribe.call(this, subscriber);
-          if (subscription && !subscription.closed) {
-              subscriber.next(this._value);
-          }
-          return subscription;
-      };
-      BehaviorSubject.prototype.getValue = function () {
-          if (this.hasError) {
-              throw this.thrownError;
-          }
-          else if (this.closed) {
-              throw new ObjectUnsubscribedError();
-          }
-          else {
-              return this._value;
-          }
-      };
-      BehaviorSubject.prototype.next = function (value) {
-          _super.prototype.next.call(this, this._value = value);
-      };
-      return BehaviorSubject;
-  }(Subject));
+  //# sourceMappingURL=BehaviorSubject.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscription PURE_IMPORTS_END */
+  //# sourceMappingURL=Action.js.map
 
   /** PURE_IMPORTS_START tslib,_Action PURE_IMPORTS_END */
+  //# sourceMappingURL=AsyncAction.js.map
 
   /** PURE_IMPORTS_START tslib,_AsyncAction PURE_IMPORTS_END */
+  //# sourceMappingURL=QueueAction.js.map
+
+  //# sourceMappingURL=Scheduler.js.map
 
   /** PURE_IMPORTS_START tslib,_Scheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=AsyncScheduler.js.map
 
   /** PURE_IMPORTS_START tslib,_AsyncScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=QueueScheduler.js.map
 
   /** PURE_IMPORTS_START _QueueAction,_QueueScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=queue.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
   var EMPTY = /*@__PURE__*/ new Observable(function (subscriber) { return subscriber.complete(); });
@@ -25149,11 +25156,13 @@
   function emptyScheduled(scheduler) {
       return new Observable(function (subscriber) { return scheduler.schedule(function () { return subscriber.complete(); }); });
   }
+  //# sourceMappingURL=empty.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function isScheduler(value) {
       return value && typeof value.schedule === 'function';
   }
+  //# sourceMappingURL=isScheduler.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   var subscribeToArray = function (array) {
@@ -25166,6 +25175,7 @@
           }
       };
   };
+  //# sourceMappingURL=subscribeToArray.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription,_util_subscribeToArray PURE_IMPORTS_END */
   function fromArray(input, scheduler) {
@@ -25190,6 +25200,7 @@
           });
       }
   }
+  //# sourceMappingURL=fromArray.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
   function scalar(value) {
@@ -25201,6 +25212,7 @@
       result.value = value;
       return result;
   }
+  //# sourceMappingURL=scalar.js.map
 
   /** PURE_IMPORTS_START _util_isScheduler,_fromArray,_empty,_scalar PURE_IMPORTS_END */
   function of() {
@@ -25224,47 +25236,70 @@
               return fromArray(args, scheduler);
       }
   }
+  //# sourceMappingURL=of.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
+  //# sourceMappingURL=throwError.js.map
 
   /** PURE_IMPORTS_START _observable_empty,_observable_of,_observable_throwError PURE_IMPORTS_END */
+  //# sourceMappingURL=Notification.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_Notification PURE_IMPORTS_END */
+  //# sourceMappingURL=observeOn.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_scheduler_queue,_Subscription,_operators_observeOn,_util_ObjectUnsubscribedError,_SubjectSubscription PURE_IMPORTS_END */
+  //# sourceMappingURL=ReplaySubject.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_Subscription PURE_IMPORTS_END */
+  //# sourceMappingURL=AsyncSubject.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=Immediate.js.map
 
   /** PURE_IMPORTS_START tslib,_util_Immediate,_AsyncAction PURE_IMPORTS_END */
+  //# sourceMappingURL=AsapAction.js.map
 
   /** PURE_IMPORTS_START tslib,_AsyncScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=AsapScheduler.js.map
 
   /** PURE_IMPORTS_START _AsapAction,_AsapScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=asap.js.map
 
   /** PURE_IMPORTS_START _AsyncAction,_AsyncScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=async.js.map
 
   /** PURE_IMPORTS_START tslib,_AsyncAction PURE_IMPORTS_END */
+  //# sourceMappingURL=AnimationFrameAction.js.map
 
   /** PURE_IMPORTS_START tslib,_AsyncScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=AnimationFrameScheduler.js.map
 
   /** PURE_IMPORTS_START _AnimationFrameAction,_AnimationFrameScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=animationFrame.js.map
 
   /** PURE_IMPORTS_START tslib,_AsyncAction,_AsyncScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=VirtualTimeScheduler.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  function identity(x) {
+      return x;
+  }
+  //# sourceMappingURL=identity.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
   function isObservable(obj) {
       return !!obj && (obj instanceof Observable || (typeof obj.lift === 'function' && typeof obj.subscribe === 'function'));
   }
+  //# sourceMappingURL=isObservable.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=ArgumentOutOfRangeError.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=EmptyError.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=TimeoutError.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
   function map(project, thisArg) {
@@ -25307,10 +25342,13 @@
       };
       return MapSubscriber;
   }(Subscriber));
+  //# sourceMappingURL=map.js.map
 
   /** PURE_IMPORTS_START _Observable,_AsyncSubject,_operators_map,_util_canReportError,_util_isArray,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=bindCallback.js.map
 
   /** PURE_IMPORTS_START _Observable,_AsyncSubject,_operators_map,_util_canReportError,_util_isScheduler,_util_isArray PURE_IMPORTS_END */
+  //# sourceMappingURL=bindNodeCallback.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
   var OuterSubscriber = /*@__PURE__*/ (function (_super) {
@@ -25329,6 +25367,7 @@
       };
       return OuterSubscriber;
   }(Subscriber));
+  //# sourceMappingURL=OuterSubscriber.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
   var InnerSubscriber = /*@__PURE__*/ (function (_super) {
@@ -25354,6 +25393,7 @@
       };
       return InnerSubscriber;
   }(Subscriber));
+  //# sourceMappingURL=InnerSubscriber.js.map
 
   /** PURE_IMPORTS_START _hostReportError PURE_IMPORTS_END */
   var subscribeToPromise = function (promise) {
@@ -25368,6 +25408,7 @@
           return subscriber;
       };
   };
+  //# sourceMappingURL=subscribeToPromise.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function getSymbolIterator() {
@@ -25377,6 +25418,7 @@
       return Symbol.iterator;
   }
   var iterator = /*@__PURE__*/ getSymbolIterator();
+  //# sourceMappingURL=iterator.js.map
 
   /** PURE_IMPORTS_START _symbol_iterator PURE_IMPORTS_END */
   var subscribeToIterable = function (iterable) {
@@ -25403,6 +25445,7 @@
           return subscriber;
       };
   };
+  //# sourceMappingURL=subscribeToIterable.js.map
 
   /** PURE_IMPORTS_START _symbol_observable PURE_IMPORTS_END */
   var subscribeToObservable = function (obj) {
@@ -25416,14 +25459,17 @@
           }
       };
   };
+  //# sourceMappingURL=subscribeToObservable.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   var isArrayLike = (function (x) { return x && typeof x.length === 'number' && typeof x !== 'function'; });
+  //# sourceMappingURL=isArrayLike.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
   function isPromise(value) {
       return !!value && typeof value.subscribe !== 'function' && typeof value.then === 'function';
   }
+  //# sourceMappingURL=isPromise.js.map
 
   /** PURE_IMPORTS_START _Observable,_subscribeToArray,_subscribeToPromise,_subscribeToIterable,_subscribeToObservable,_isArrayLike,_isPromise,_isObject,_symbol_iterator,_symbol_observable PURE_IMPORTS_END */
   var subscribeTo = function (result) {
@@ -25458,6 +25504,7 @@
           throw new TypeError(msg);
       }
   };
+  //# sourceMappingURL=subscribeTo.js.map
 
   /** PURE_IMPORTS_START _InnerSubscriber,_subscribeTo PURE_IMPORTS_END */
   function subscribeToResult(outerSubscriber, result, outerValue, outerIndex, destination) {
@@ -25469,18 +25516,22 @@
       }
       return subscribeTo(result)(destination);
   }
+  //# sourceMappingURL=subscribeToResult.js.map
 
   /** PURE_IMPORTS_START tslib,_util_isScheduler,_util_isArray,_OuterSubscriber,_util_subscribeToResult,_fromArray PURE_IMPORTS_END */
+  //# sourceMappingURL=combineLatest.js.map
 
   /** PURE_IMPORTS_START _symbol_observable PURE_IMPORTS_END */
   function isInteropObservable(input) {
       return input && typeof input[observable] === 'function';
   }
+  //# sourceMappingURL=isInteropObservable.js.map
 
   /** PURE_IMPORTS_START _symbol_iterator PURE_IMPORTS_END */
   function isIterable(input) {
       return input && typeof input[iterator] === 'function';
   }
+  //# sourceMappingURL=isIterable.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription,_util_subscribeToPromise PURE_IMPORTS_END */
   function fromPromise(input, scheduler) {
@@ -25504,6 +25555,7 @@
           });
       }
   }
+  //# sourceMappingURL=fromPromise.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription,_symbol_iterator,_util_subscribeToIterable PURE_IMPORTS_END */
   function fromIterable(input, scheduler) {
@@ -25552,6 +25604,7 @@
           });
       }
   }
+  //# sourceMappingURL=fromIterable.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription,_symbol_observable,_util_subscribeToObservable PURE_IMPORTS_END */
   function fromObservable(input, scheduler) {
@@ -25573,6 +25626,7 @@
           });
       }
   }
+  //# sourceMappingURL=fromObservable.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_isPromise,_util_isArrayLike,_util_isInteropObservable,_util_isIterable,_fromArray,_fromPromise,_fromIterable,_fromObservable,_util_subscribeTo PURE_IMPORTS_END */
   function from(input, scheduler) {
@@ -25598,14 +25652,115 @@
       }
       throw new TypeError((input !== null && typeof input || input) + ' is not observable');
   }
+  //# sourceMappingURL=from.js.map
 
   /** PURE_IMPORTS_START tslib,_util_subscribeToResult,_OuterSubscriber,_InnerSubscriber,_map,_observable_from PURE_IMPORTS_END */
+  function mergeMap(project, resultSelector, concurrent) {
+      if (concurrent === void 0) {
+          concurrent = Number.POSITIVE_INFINITY;
+      }
+      if (typeof resultSelector === 'function') {
+          return function (source) { return source.pipe(mergeMap(function (a, i) { return from(project(a, i)).pipe(map(function (b, ii) { return resultSelector(a, b, i, ii); })); }, concurrent)); };
+      }
+      else if (typeof resultSelector === 'number') {
+          concurrent = resultSelector;
+      }
+      return function (source) { return source.lift(new MergeMapOperator(project, concurrent)); };
+  }
+  var MergeMapOperator = /*@__PURE__*/ (function () {
+      function MergeMapOperator(project, concurrent) {
+          if (concurrent === void 0) {
+              concurrent = Number.POSITIVE_INFINITY;
+          }
+          this.project = project;
+          this.concurrent = concurrent;
+      }
+      MergeMapOperator.prototype.call = function (observer, source) {
+          return source.subscribe(new MergeMapSubscriber(observer, this.project, this.concurrent));
+      };
+      return MergeMapOperator;
+  }());
+  var MergeMapSubscriber = /*@__PURE__*/ (function (_super) {
+      __extends(MergeMapSubscriber, _super);
+      function MergeMapSubscriber(destination, project, concurrent) {
+          if (concurrent === void 0) {
+              concurrent = Number.POSITIVE_INFINITY;
+          }
+          var _this = _super.call(this, destination) || this;
+          _this.project = project;
+          _this.concurrent = concurrent;
+          _this.hasCompleted = false;
+          _this.buffer = [];
+          _this.active = 0;
+          _this.index = 0;
+          return _this;
+      }
+      MergeMapSubscriber.prototype._next = function (value) {
+          if (this.active < this.concurrent) {
+              this._tryNext(value);
+          }
+          else {
+              this.buffer.push(value);
+          }
+      };
+      MergeMapSubscriber.prototype._tryNext = function (value) {
+          var result;
+          var index = this.index++;
+          try {
+              result = this.project(value, index);
+          }
+          catch (err) {
+              this.destination.error(err);
+              return;
+          }
+          this.active++;
+          this._innerSub(result, value, index);
+      };
+      MergeMapSubscriber.prototype._innerSub = function (ish, value, index) {
+          var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
+          var destination = this.destination;
+          destination.add(innerSubscriber);
+          subscribeToResult(this, ish, value, index, innerSubscriber);
+      };
+      MergeMapSubscriber.prototype._complete = function () {
+          this.hasCompleted = true;
+          if (this.active === 0 && this.buffer.length === 0) {
+              this.destination.complete();
+          }
+          this.unsubscribe();
+      };
+      MergeMapSubscriber.prototype.notifyNext = function (outerValue, innerValue, outerIndex, innerIndex, innerSub) {
+          this.destination.next(innerValue);
+      };
+      MergeMapSubscriber.prototype.notifyComplete = function (innerSub) {
+          var buffer = this.buffer;
+          this.remove(innerSub);
+          this.active--;
+          if (buffer.length > 0) {
+              this._next(buffer.shift());
+          }
+          else if (this.active === 0 && this.hasCompleted) {
+              this.destination.complete();
+          }
+      };
+      return MergeMapSubscriber;
+  }(OuterSubscriber));
+  //# sourceMappingURL=mergeMap.js.map
 
   /** PURE_IMPORTS_START _mergeMap,_util_identity PURE_IMPORTS_END */
+  function mergeAll(concurrent) {
+      if (concurrent === void 0) {
+          concurrent = Number.POSITIVE_INFINITY;
+      }
+      return mergeMap(identity, concurrent);
+  }
+  //# sourceMappingURL=mergeAll.js.map
 
   /** PURE_IMPORTS_START _mergeAll PURE_IMPORTS_END */
+  //# sourceMappingURL=concatAll.js.map
 
   /** PURE_IMPORTS_START _of,_operators_concatAll PURE_IMPORTS_END */
+  //# sourceMappingURL=concat.js.map
 
   /** PURE_IMPORTS_START _Observable,_from,_empty PURE_IMPORTS_END */
   function defer(observableFactory) {
@@ -25622,88 +25777,152 @@
           return source.subscribe(subscriber);
       });
   }
+  //# sourceMappingURL=defer.js.map
 
   /** PURE_IMPORTS_START tslib,_Observable,_util_isArray,_empty,_util_subscribeToResult,_OuterSubscriber,_operators_map PURE_IMPORTS_END */
+  //# sourceMappingURL=forkJoin.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_isArray,_util_isFunction,_operators_map PURE_IMPORTS_END */
+  //# sourceMappingURL=fromEvent.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_isArray,_util_isFunction,_operators_map PURE_IMPORTS_END */
+  //# sourceMappingURL=fromEventPattern.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_identity,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=generate.js.map
 
   /** PURE_IMPORTS_START _defer,_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=iif.js.map
 
   /** PURE_IMPORTS_START _isArray PURE_IMPORTS_END */
+  //# sourceMappingURL=isNumeric.js.map
 
   /** PURE_IMPORTS_START _Observable,_scheduler_async,_util_isNumeric PURE_IMPORTS_END */
+  //# sourceMappingURL=interval.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_isScheduler,_operators_mergeAll,_fromArray PURE_IMPORTS_END */
+  function merge() {
+      var observables = [];
+      for (var _i = 0; _i < arguments.length; _i++) {
+          observables[_i] = arguments[_i];
+      }
+      var concurrent = Number.POSITIVE_INFINITY;
+      var scheduler = null;
+      var last = observables[observables.length - 1];
+      if (isScheduler(last)) {
+          scheduler = observables.pop();
+          if (observables.length > 1 && typeof observables[observables.length - 1] === 'number') {
+              concurrent = observables.pop();
+          }
+      }
+      else if (typeof last === 'number') {
+          concurrent = observables.pop();
+      }
+      if (scheduler === null && observables.length === 1 && observables[0] instanceof Observable) {
+          return observables[0];
+      }
+      return mergeAll(concurrent)(fromArray(observables, scheduler));
+  }
+  //# sourceMappingURL=merge.js.map
 
   /** PURE_IMPORTS_START _Observable,_util_noop PURE_IMPORTS_END */
+  //# sourceMappingURL=never.js.map
 
   /** PURE_IMPORTS_START _Observable,_from,_util_isArray,_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=onErrorResumeNext.js.map
 
   /** PURE_IMPORTS_START _Observable,_Subscription PURE_IMPORTS_END */
+  //# sourceMappingURL=pairs.js.map
 
   /** PURE_IMPORTS_START tslib,_util_isArray,_fromArray,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=race.js.map
 
   /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
+  //# sourceMappingURL=range.js.map
 
   /** PURE_IMPORTS_START _Observable,_scheduler_async,_util_isNumeric,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=timer.js.map
 
   /** PURE_IMPORTS_START _Observable,_from,_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=using.js.map
 
   /** PURE_IMPORTS_START tslib,_fromArray,_util_isArray,_Subscriber,_OuterSubscriber,_util_subscribeToResult,_.._internal_symbol_iterator PURE_IMPORTS_END */
+  //# sourceMappingURL=zip.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=index.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=audit.js.map
 
   /** PURE_IMPORTS_START _scheduler_async,_audit,_observable_timer PURE_IMPORTS_END */
+  //# sourceMappingURL=auditTime.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=buffer.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=bufferCount.js.map
 
   /** PURE_IMPORTS_START tslib,_scheduler_async,_Subscriber,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=bufferTime.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscription,_util_subscribeToResult,_OuterSubscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=bufferToggle.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscription,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=bufferWhen.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=catchError.js.map
 
   /** PURE_IMPORTS_START _observable_combineLatest PURE_IMPORTS_END */
+  //# sourceMappingURL=combineAll.js.map
 
   /** PURE_IMPORTS_START _util_isArray,_observable_combineLatest,_observable_from PURE_IMPORTS_END */
+  //# sourceMappingURL=combineLatest.js.map
 
   /** PURE_IMPORTS_START _observable_concat PURE_IMPORTS_END */
+  //# sourceMappingURL=concat.js.map
 
   /** PURE_IMPORTS_START _mergeMap PURE_IMPORTS_END */
+  //# sourceMappingURL=concatMap.js.map
 
   /** PURE_IMPORTS_START _concatMap PURE_IMPORTS_END */
+  //# sourceMappingURL=concatMapTo.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=count.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=debounce.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async PURE_IMPORTS_END */
+  //# sourceMappingURL=debounceTime.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=defaultIfEmpty.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=isDate.js.map
 
   /** PURE_IMPORTS_START tslib,_scheduler_async,_util_isDate,_Subscriber,_Notification PURE_IMPORTS_END */
+  //# sourceMappingURL=delay.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_Observable,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=delayWhen.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=dematerialize.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=distinct.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=distinctUntilChanged.js.map
 
   /** PURE_IMPORTS_START _distinctUntilChanged PURE_IMPORTS_END */
+  //# sourceMappingURL=distinctUntilKeyChanged.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
   function filter(predicate, thisArg) {
@@ -25745,68 +25964,100 @@
       };
       return FilterSubscriber;
   }(Subscriber));
+  //# sourceMappingURL=filter.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_util_noop,_util_isFunction PURE_IMPORTS_END */
+  //# sourceMappingURL=tap.js.map
 
   /** PURE_IMPORTS_START _tap,_util_EmptyError PURE_IMPORTS_END */
+  //# sourceMappingURL=throwIfEmpty.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError,_observable_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=take.js.map
 
   /** PURE_IMPORTS_START _util_ArgumentOutOfRangeError,_filter,_throwIfEmpty,_defaultIfEmpty,_take PURE_IMPORTS_END */
+  //# sourceMappingURL=elementAt.js.map
 
   /** PURE_IMPORTS_START _observable_fromArray,_observable_scalar,_observable_empty,_observable_concat,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=endWith.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=every.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=exhaust.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
+  //# sourceMappingURL=exhaustMap.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=expand.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_Subscription PURE_IMPORTS_END */
+  //# sourceMappingURL=finalize.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=find.js.map
 
   /** PURE_IMPORTS_START _operators_find PURE_IMPORTS_END */
+  //# sourceMappingURL=findIndex.js.map
 
   /** PURE_IMPORTS_START _util_EmptyError,_filter,_take,_defaultIfEmpty,_throwIfEmpty,_util_identity PURE_IMPORTS_END */
+  //# sourceMappingURL=first.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=ignoreElements.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=isEmpty.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError,_observable_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=takeLast.js.map
 
   /** PURE_IMPORTS_START _util_EmptyError,_filter,_takeLast,_throwIfEmpty,_defaultIfEmpty,_util_identity PURE_IMPORTS_END */
+  //# sourceMappingURL=last.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=mapTo.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_Notification PURE_IMPORTS_END */
+  //# sourceMappingURL=materialize.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=scan.js.map
 
   /** PURE_IMPORTS_START _scan,_takeLast,_defaultIfEmpty,_util_pipe PURE_IMPORTS_END */
+  //# sourceMappingURL=reduce.js.map
 
   /** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
+  //# sourceMappingURL=max.js.map
 
   /** PURE_IMPORTS_START _observable_merge PURE_IMPORTS_END */
+  //# sourceMappingURL=merge.js.map
 
   /** PURE_IMPORTS_START _mergeMap PURE_IMPORTS_END */
+  //# sourceMappingURL=mergeMapTo.js.map
 
   /** PURE_IMPORTS_START tslib,_util_subscribeToResult,_OuterSubscriber,_InnerSubscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=mergeScan.js.map
 
   /** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
+  //# sourceMappingURL=min.js.map
 
   /** PURE_IMPORTS_START _observable_ConnectableObservable PURE_IMPORTS_END */
+  //# sourceMappingURL=multicast.js.map
 
   /** PURE_IMPORTS_START tslib,_observable_from,_util_isArray,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=onErrorResumeNext.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=pairwise.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=not.js.map
 
   /** PURE_IMPORTS_START _util_not,_filter PURE_IMPORTS_END */
+  //# sourceMappingURL=partition.js.map
 
   /** PURE_IMPORTS_START _map PURE_IMPORTS_END */
   function pluck() {
@@ -25836,50 +26087,73 @@
       };
       return mapper;
   }
+  //# sourceMappingURL=pluck.js.map
 
   /** PURE_IMPORTS_START _Subject,_multicast PURE_IMPORTS_END */
+  //# sourceMappingURL=publish.js.map
 
   /** PURE_IMPORTS_START _BehaviorSubject,_multicast PURE_IMPORTS_END */
+  //# sourceMappingURL=publishBehavior.js.map
 
   /** PURE_IMPORTS_START _AsyncSubject,_multicast PURE_IMPORTS_END */
+  //# sourceMappingURL=publishLast.js.map
 
   /** PURE_IMPORTS_START _ReplaySubject,_multicast PURE_IMPORTS_END */
+  //# sourceMappingURL=publishReplay.js.map
 
   /** PURE_IMPORTS_START _util_isArray,_observable_race PURE_IMPORTS_END */
+  //# sourceMappingURL=race.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_observable_empty PURE_IMPORTS_END */
+  //# sourceMappingURL=repeat.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=repeatWhen.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=retry.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=retryWhen.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=sample.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async PURE_IMPORTS_END */
+  //# sourceMappingURL=sampleTime.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=sequenceEqual.js.map
 
   /** PURE_IMPORTS_START _multicast,_refCount,_Subject PURE_IMPORTS_END */
+  //# sourceMappingURL=share.js.map
 
   /** PURE_IMPORTS_START _ReplaySubject PURE_IMPORTS_END */
+  //# sourceMappingURL=shareReplay.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_util_EmptyError PURE_IMPORTS_END */
+  //# sourceMappingURL=single.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=skip.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError PURE_IMPORTS_END */
+  //# sourceMappingURL=skipLast.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=skipUntil.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=skipWhile.js.map
 
   /** PURE_IMPORTS_START _observable_fromArray,_observable_scalar,_observable_empty,_observable_concat,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=startWith.js.map
 
   /** PURE_IMPORTS_START tslib,_Observable,_scheduler_asap,_util_isNumeric PURE_IMPORTS_END */
+  //# sourceMappingURL=SubscribeOnObservable.js.map
 
   /** PURE_IMPORTS_START _observable_SubscribeOnObservable PURE_IMPORTS_END */
+  //# sourceMappingURL=subscribeOn.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
   function switchMap(project, resultSelector) {
@@ -25950,59 +26224,74 @@
       };
       return SwitchMapSubscriber;
   }(OuterSubscriber));
+  //# sourceMappingURL=switchMap.js.map
 
   /** PURE_IMPORTS_START _switchMap,_util_identity PURE_IMPORTS_END */
+  //# sourceMappingURL=switchAll.js.map
 
   /** PURE_IMPORTS_START _switchMap PURE_IMPORTS_END */
+  //# sourceMappingURL=switchMapTo.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=takeUntil.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
+  //# sourceMappingURL=takeWhile.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=throttle.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async,_throttle PURE_IMPORTS_END */
+  //# sourceMappingURL=throttleTime.js.map
 
   /** PURE_IMPORTS_START _scheduler_async,_scan,_observable_defer,_map PURE_IMPORTS_END */
+  //# sourceMappingURL=timeInterval.js.map
 
   /** PURE_IMPORTS_START tslib,_scheduler_async,_util_isDate,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=timeoutWith.js.map
 
   /** PURE_IMPORTS_START _scheduler_async,_util_TimeoutError,_timeoutWith,_observable_throwError PURE_IMPORTS_END */
+  //# sourceMappingURL=timeout.js.map
 
   /** PURE_IMPORTS_START _scheduler_async,_map PURE_IMPORTS_END */
+  //# sourceMappingURL=timestamp.js.map
 
   /** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
+  //# sourceMappingURL=toArray.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=window.js.map
 
   /** PURE_IMPORTS_START tslib,_Subscriber,_Subject PURE_IMPORTS_END */
+  //# sourceMappingURL=windowCount.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_scheduler_async,_Subscriber,_util_isNumeric,_util_isScheduler PURE_IMPORTS_END */
+  //# sourceMappingURL=windowTime.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_Subscription,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=windowToggle.js.map
 
   /** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=windowWhen.js.map
 
   /** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
+  //# sourceMappingURL=withLatestFrom.js.map
 
   /** PURE_IMPORTS_START _observable_zip PURE_IMPORTS_END */
+  //# sourceMappingURL=zip.js.map
 
   /** PURE_IMPORTS_START _observable_zip PURE_IMPORTS_END */
+  //# sourceMappingURL=zipAll.js.map
 
   /** PURE_IMPORTS_START  PURE_IMPORTS_END */
+  //# sourceMappingURL=index.js.map
 
   var eventBus = new Subject();
 
   var Store = function Store() {
     _classCallCheck(this, Store);
 
-    _defineProperty(this, "subscriptions", {});
-
-    _defineProperty(this, "stateTree", {});
-
-    _defineProperty(this, "stateRegister", {});
-
-    _defineProperty(this, "producerMap", {});
+    _defineProperty(this, "stateMap", {});
 
     _defineProperty(this, "eventLog", {
       dataMap: {},
@@ -26016,7 +26305,7 @@
   Object.defineProperty(exports, "__esModule", { value: true });
   function noop() { }
   exports.noop = noop;
-
+  //# sourceMappingURL=noop.js.map
   });
 
   unwrapExports(noop_1);
@@ -26045,7 +26334,7 @@
       };
   }
   exports.pipeFromArray = pipeFromArray;
-
+  //# sourceMappingURL=pipe.js.map
   });
 
   unwrapExports(pipe_1);
@@ -26160,75 +26449,6 @@
     return processEvent$;
   };
 
-  var stateTree = store.stateTree;
-  var subscriptions = store.subscriptions;
-  var stateRegister = store.stateRegister;
-  var producerMap = store.producerMap;
-
-  function state(options) {
-    var name = options.name;
-
-    if (stateRegister[name] === true) {
-      throw new Error("\u540D\u4E3A'".concat(name, "'\u7684\u72B6\u6001\u6570\u636E\u5DF2\u5B58\u5728\uFF0C\u4E0D\u80FD\u91CD\u590D\u521B\u5EFA\uFF01"));
-    }
-
-    stateRegister[name] = true;
-    stateTree[name] = options.value;
-    var producer = options.producer;
-    var state$ = new BehaviorSubject(options.value);
-
-    producerMap[name] = function (action) {
-      producer(function (result) {
-        eventBus.next(_defineProperty({}, name, Object.assign({}, action, {
-          type: name,
-          result: result
-        })));
-      }, stateTree[name], action);
-    };
-
-    if (isCorrectVal(producer)) {
-      subscriptions[name] = fromAction(name).pipe(switchMap(function (action) {
-        return defer(function () {
-          var _result = action.result;
-          return isObservable(_result) ? _result : of(_result);
-        });
-      })).subscribe(function (val) {
-        stateTree[name] = val;
-        state$.next(val);
-      }, function (err) {
-        return state$.error(err);
-      });
-    }
-
-    return state$;
-  }
-
-  var producerMap$1 = store.producerMap;
-
-  var dispatch = function dispatch(stateName, action) {
-    /* if (!Array.isArray(actions)) {
-      actions = [actions];
-    }
-    const map = {};
-    actions.forEach(action => {
-      if (typeof action === "string") {
-        const type = action;
-        action = { type };
-      }
-      action.type = `${stateName}#${action.type}`;
-       map[action.type] = action;
-    });
-    eventBus.next(map); */
-    if (typeof action === "string") {
-      var type = action;
-      action = {
-        type: type
-      };
-    }
-
-    producerMap$1[stateName](action);
-  };
-
   var _wks = createCommonjsModule(function (module) {
   var store = _shared('wks');
 
@@ -26250,58 +26470,6 @@
   var _addToUnscopables = function (key) {
     ArrayProto[UNSCOPABLES][key] = true;
   };
-
-  // https://github.com/tc39/Array.prototype.includes
-
-  var $includes = _arrayIncludes(true);
-
-  _export(_export.P, 'Array', {
-    includes: function includes(el /* , fromIndex = 0 */) {
-      return $includes(this, el, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
-  _addToUnscopables('includes');
-
-  // 7.2.8 IsRegExp(argument)
-
-
-  var MATCH = _wks('match');
-  var _isRegexp = function (it) {
-    var isRegExp;
-    return _isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : _cof(it) == 'RegExp');
-  };
-
-  // helper for String#{startsWith, endsWith, includes}
-
-
-
-  var _stringContext = function (that, searchString, NAME) {
-    if (_isRegexp(searchString)) throw TypeError('String#' + NAME + " doesn't accept regex!");
-    return String(_defined(that));
-  };
-
-  var MATCH$1 = _wks('match');
-  var _failsIsRegexp = function (KEY) {
-    var re = /./;
-    try {
-      '/./'[KEY](re);
-    } catch (e) {
-      try {
-        re[MATCH$1] = false;
-        return !'/./'[KEY](re);
-      } catch (f) { /* empty */ }
-    } return true;
-  };
-
-  var INCLUDES = 'includes';
-
-  _export(_export.P + _export.F * _failsIsRegexp(INCLUDES), 'String', {
-    includes: function includes(searchString /* , position = 0 */) {
-      return !!~_stringContext(this, searchString, INCLUDES)
-        .indexOf(searchString, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
 
   var _iterStep = function (done, value) {
     return { value: value, done: !!done };
@@ -26538,6 +26706,125 @@
     }
   }
 
+  function StateSubject(value) {
+    this.observerList = [];
+    this.value = value;
+  }
+
+  StateSubject.prototype = Object.create(Observable.create(function (observer) {
+    if (typeof this.value !== "undefined") observer.next(this.value);
+    this.observerList.push(observer);
+  }));
+
+  StateSubject.prototype.next = function (val) {
+    this.value = val;
+    this.observerList.forEach(function (observer) {
+      observer.next(val);
+    });
+  };
+
+  var stateMap = store.stateMap;
+
+  var StateMachine =
+  /*#__PURE__*/
+  function () {
+    function StateMachine(state$, options) {
+      var _this = this;
+
+      _classCallCheck(this, StateMachine);
+
+      _defineProperty(this, "value", null);
+
+      this.name = options.name;
+
+      if (isCorrectVal(stateMap[this.name])) {
+        throw new Error("\u540D\u4E3A'".concat(this.name, "'\u7684\u72B6\u6001\u6570\u636E\u5DF2\u5B58\u5728\uFF0C\u4E0D\u80FD\u91CD\u590D\u521B\u5EFA\uFF01"));
+      }
+
+      this.defaultValue = options.defaultValue;
+      this.value = options.defaultValue;
+      this.initial$ = isObservable(options.initial) ? options.initial : of(this.value);
+
+      if (isCorrectVal(options.producer)) {
+        this._producer = options.producer;
+
+        var observableFactory = function observableFactory(action) {
+          if (!isObject(action)) {
+            return of(action);
+          } else if (isObject(action) && isCorrectVal(action.type)) {
+            return defer(function () {
+              var _result = action.result;
+              return isObservable(_result) ? _result : of(_result);
+            });
+          }
+        };
+
+        this.subscription = merge(this.initial$, fromAction(this.name)).pipe(switchMap(observableFactory)).subscribe(function (val) {
+          _this.value = val;
+          state$.next(val);
+        }, function (err) {
+          return state$.error(err);
+        });
+      } else {
+        this.initial$.subscribe(function (val) {
+          _this.value = val;
+          state$.next(val);
+        }, function (err) {
+          return state$.error(err);
+        });
+      }
+    }
+
+    _createClass(StateMachine, [{
+      key: "producer",
+      value: function producer(action) {
+        var _this2 = this;
+
+        this._producer(function (result) {
+          eventBus.next(_defineProperty({}, _this2.name, Object.assign({}, action, {
+            type: _this2.name,
+            result: result
+          })));
+        }, this.value, action);
+      }
+    }]);
+
+    return StateMachine;
+  }();
+
+  function state(options) {
+    var state$ = new StateSubject();
+    var stateMachine = new StateMachine(state$, options);
+    stateMap[options.name] = stateMachine;
+    return state$;
+  }
+
+  var stateMap$1 = store.stateMap;
+
+  var dispatch = function dispatch(stateName, action) {
+    /* if (!Array.isArray(actions)) {
+      actions = [actions];
+    }
+    const map = {};
+    actions.forEach(action => {
+      if (typeof action === "string") {
+        const type = action;
+        action = { type };
+      }
+      action.type = `${stateName}#${action.type}`;
+       map[action.type] = action;
+    });
+    eventBus.next(map); */
+    if (typeof action === "string") {
+      var type = action;
+      action = {
+        type: type
+      };
+    }
+
+    stateMap$1[stateName]["producer"](action);
+  };
+
   // most Object methods by ES6 should accept primitives
 
 
@@ -26559,20 +26846,18 @@
     };
   });
 
-  var eventLog$1 = store.eventLog;
   /**
    * observable与react组件的集成(将observable转换为组件属性)
    * @param {object} observablesMap - 可观察对象集合
    * @param {object} inputOptions - 选项
    * @param {object} inputOptions.defaultProps - 组件的默认属性
-   * @param {array} inputOptions.delayeringFields - 推送数据需要扁平化的可观察对象的key
   */
 
   var subscription = function subscription(observablesMap, inputOptions) {
     var options = inputOptions || {};
 
     var handler = function handler(Comp) {
-      if (!isObject(observablesMap)) throw new TypeError("\u65B9\u6CD5permeate()\u7684\u53C2\u6570observablesMap\u5FC5\u987B\u662Fobject\u7C7B\u578B");
+      if (!isObject(observablesMap)) throw new TypeError("\u65B9\u6CD5subscription()\u7684\u53C2\u6570observablesMap\u5FC5\u987B\u662Fobject\u7C7B\u578B");
 
       var Permeate =
       /*#__PURE__*/
@@ -26596,7 +26881,7 @@
               _this._suspendedObservables.push(observablesMap[key]);
             });
           } else {
-            throw new TypeError("\u65B9\u6CD5permeate()\u7684\u53C2\u6570observablesMap\u4E0D\u5141\u8BB8\u4F20\u4E00\u4E2A\u7A7A\u7684object");
+            throw new TypeError("\u65B9\u6CD5subscription()\u7684\u53C2\u6570observablesMap\u4E0D\u5141\u8BB8\u4F20\u4E00\u4E2A\u7A7A\u7684object");
           }
 
           _this.state = Object.assign({}, _this._innerObservableMaps, isCorrectVal(options.defaultProps) ? options.defaultProps : {});
@@ -26613,24 +26898,8 @@
 
             var _loop = function _loop(i) {
               var subscription = obsArr[i].subscribe(function (data) {
-                var type = obsArr[i]["__type__"];
-                var pushHeaders = eventLog$1.pushHeadersMap[type];
-
-                if (options.delayeringFields && options.delayeringFields.includes(_this2.suspendedObservableKeys[i])) {
-                  var _stateObj = {};
-
-                  for (var key in data) {
-                    if (_this2.state[key] !== data[key]) {
-                      _stateObj[key] = data[key];
-                    }
-                  } // if (isCorrectVal(pushHeaders))  console.log(pushHeaders);
-
-
-                  _this2.setState(_stateObj);
-
-                  return;
-                }
-
+                // const type = obsArr[i]["__type__"];
+                // const pushHeaders = eventLog.pushHeadersMap[type];
                 if (_this2.state[_this2.suspendedObservableKeys[i]] !== data) {
                   // if (isCorrectVal(pushHeaders))  console.log(pushHeaders);
                   _this2.setState(_defineProperty({}, _this2.suspendedObservableKeys[i], data));
@@ -26670,7 +26939,7 @@
 
   var todos$ = state({
     name: "todos",
-    value: [{
+    defaultValue: [{
       desc: "起床迎接新的一天",
       check: true
     }, {
@@ -26723,7 +26992,7 @@
   }));
   var toastVisible$ = state({
     name: "toastVisible",
-    value: false,
+    defaultValue: false,
     producer: function producer(next, value, action) {
       switch (action.type) {
         case "show":
@@ -26738,9 +27007,15 @@
   });
 
   var _dec, _class, _temp;
-  var TodoList = (_dec = subscription({
-    todos: todos$,
+  var UndoneCount = subscription({
     undoneCount: undoneCount$
+  })(function (props) {
+    return react.createElement("div", {
+      className: "hints"
+    }, "\u672A\u5B8C\u6210\u4EFB\u52A1\u6570\u91CF\uFF1A", props.undoneCount);
+  });
+  var TodoList = (_dec = subscription({
+    todos: todos$
   }), _dec(_class = (_temp =
   /*#__PURE__*/
   function (_React$Component) {
@@ -26813,9 +27088,7 @@
           className: "todolist"
         }, react.createElement("h1", {
           className: "header"
-        }, "\u4EFB\u52A1\u5217\u8868"), react.createElement("div", {
-          className: "hints"
-        }, "\u672A\u5B8C\u6210\u4EFB\u52A1\u6570\u91CF\uFF1A", this.props.undoneCount), this.props.todos.map(function (item, n) {
+        }, "\u4EFB\u52A1\u5217\u8868"), react.createElement(UndoneCount, null), this.props.todos.map(function (item, n) {
           return react.createElement(TodoItem, {
             item: item,
             key: item.desc,
