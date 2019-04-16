@@ -55,12 +55,13 @@ export default fileArr
   )
   .concat([
     {
-      input: getAbsPath(__dirname, '..', 'lib/index.js'),
+      input: getAbsPath(__dirname, '..', 'src/index.js'),
       output: {
         file: getAbsPath(__dirname, '..', 'dist/floway.js'),
         name: 'floway',
         format: 'umd'
       },
-      plugins: plugins.concat([uglify()])
+      // plugins: plugins.concat([uglify()])
+      plugins: plugins
     }
   ]);
