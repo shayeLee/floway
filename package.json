@@ -4,7 +4,7 @@
   "description": "RxJS v6 Extensions for React's state management solution",
   "module": "es/index.js",
   "main": "lib/index.js",
-  "browser": "dist/floway.js",
+  "browser": "es/index.js",
   "scripts": {
     "start": "node fileServer.js ./",
     "coverage": "jest ./__tests__ --coverage",

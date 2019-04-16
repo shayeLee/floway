@@ -61,7 +61,6 @@ export default fileArr
         name: 'floway',
         format: 'umd'
       },
-      // plugins: plugins.concat([uglify()])
-      plugins: plugins
+      plugins: plugins.concat([uglify()])
     }
   ]);
