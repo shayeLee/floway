@@ -32,27 +32,20 @@ export default fileArr
   .map(file => {
     return {
       input: file,
-      output: {
-        file: file.replace(/src/, 'es').replace(/\.ts|\.jsx/, ".js"),
-        format: 'es'
-      },
+      output: [
+        {
+          file: file.replace(/src/, 'es').replace(/\.ts|\.jsx/, ".js"),
+          format: 'es'
+        },
+        {
+          file: file.replace(/src/, 'lib').replace(/\.ts|\.jsx/, ".js"),
+          format: 'cjs'
+        }
+      ],
       plugins,
       external
     };
   })
-  .concat(
-    fileArr.map(file => {
-      return {
-        input: file,
-        output: {
-          file: file.replace(/src/, 'lib').replace(/\.ts|\.jsx/, ".js"),
-          format: 'cjs'
-        },
-        plugins,
-        external
-      };
-    })
-  )
   .concat([
     {
       input: getAbsPath(__dirname, '..', 'src/index.js'),

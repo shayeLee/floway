@@ -25,6 +25,8 @@
     }
   }
 
+  var classCallCheck = _classCallCheck;
+
   function _defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
       var descriptor = props[i];
@@ -41,38 +43,81 @@
     return Constructor;
   }
 
-  function _defineProperty(obj, key, value) {
-    if (key in obj) {
-      Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-      });
+  var createClass = _createClass;
+
+  var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+  function unwrapExports (x) {
+  	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x.default : x;
+  }
+
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
+
+  var _typeof_1 = createCommonjsModule(function (module) {
+  function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
+
+  function _typeof(obj) {
+    if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
+      module.exports = _typeof = function _typeof(obj) {
+        return _typeof2(obj);
+      };
     } else {
-      obj[key] = value;
+      module.exports = _typeof = function _typeof(obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
+      };
     }
 
-    return obj;
+    return _typeof(obj);
   }
 
-  function _extends() {
-    _extends = Object.assign || function (target) {
-      for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
+  module.exports = _typeof;
+  });
 
-        for (var key in source) {
-          if (Object.prototype.hasOwnProperty.call(source, key)) {
-            target[key] = source[key];
-          }
-        }
-      }
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
 
-      return target;
+    return self;
+  }
+
+  var assertThisInitialized = _assertThisInitialized;
+
+  function _possibleConstructorReturn(self, call) {
+    if (call && (_typeof_1(call) === "object" || typeof call === "function")) {
+      return call;
+    }
+
+    return assertThisInitialized(self);
+  }
+
+  var possibleConstructorReturn = _possibleConstructorReturn;
+
+  var getPrototypeOf = createCommonjsModule(function (module) {
+  function _getPrototypeOf(o) {
+    module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+      return o.__proto__ || Object.getPrototypeOf(o);
+    };
+    return _getPrototypeOf(o);
+  }
+
+  module.exports = _getPrototypeOf;
+  });
+
+  var setPrototypeOf = createCommonjsModule(function (module) {
+  function _setPrototypeOf(o, p) {
+    module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
     };
 
-    return _extends.apply(this, arguments);
+    return _setPrototypeOf(o, p);
   }
+
+  module.exports = _setPrototypeOf;
+  });
 
   function _inherits(subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
@@ -86,50 +131,10 @@
         configurable: true
       }
     });
-    if (superClass) _setPrototypeOf(subClass, superClass);
+    if (superClass) setPrototypeOf(subClass, superClass);
   }
 
-  function _getPrototypeOf(o) {
-    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-      return o.__proto__ || Object.getPrototypeOf(o);
-    };
-    return _getPrototypeOf(o);
-  }
-
-  function _setPrototypeOf(o, p) {
-    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-      o.__proto__ = p;
-      return o;
-    };
-
-    return _setPrototypeOf(o, p);
-  }
-
-  function _assertThisInitialized(self) {
-    if (self === void 0) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return self;
-  }
-
-  function _possibleConstructorReturn(self, call) {
-    if (call && (typeof call === "object" || typeof call === "function")) {
-      return call;
-    }
-
-    return _assertThisInitialized(self);
-  }
-
-  var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-  function unwrapExports (x) {
-  	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x.default : x;
-  }
-
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
+  var inherits = _inherits;
 
   /*
   object-assign
@@ -23614,6 +23619,23 @@
 
   ___$insertStyle(".root {\n  position: relative;\n}\n\n.todolist {\n  box-sizing: border-box;\n  padding: 20px;\n  width: 600px;\n  background-color: #fafafa;\n  margin: auto;\n}\n\n.header {\n  font-size: 26px;\n  text-align: center;\n}\n\n.hints {\n  font-size: 13px;\n  color: #c06c84;\n  text-align: right;\n  line-height: 1.625;\n  padding-right: 8px;\n}\n\n.todo {\n  display: flex;\n  justify-content: space-between;\n  height: 36px;\n  background-color: #fce38a;\n  margin-bottom: 8px;\n  cursor: default;\n}\n.todo.checked {\n  background-color: #95e1d3;\n}\n.todo.checked .desc {\n  text-decoration: line-through;\n}\n.todo:hover .delbtn {\n  display: block;\n}\n\n.todo__content {\n  display: flex;\n  align-items: center;\n  height: 36px;\n}\n\n.todo__checkbox {\n  width: 14px;\n  margin-left: 14px;\n}\n\n.desc {\n  font-size: 14px;\n  margin-left: 8px;\n}\n\n.delbtn {\n  display: none;\n  font-size: 12px;\n  color: #999;\n  line-height: 36px;\n  padding-right: 10px;\n  cursor: pointer;\n}\n.delbtn:hover {\n  color: red;\n}\n\n.todolist__adder {\n  display: flex;\n  align-items: center;\n  height: 36px;\n  margin-top: 24px;\n  margin-bottom: 28px;\n}\n\n.todolist__input {\n  flex-grow: 1;\n  font-size: 14px;\n  line-height: 32px;\n  padding: 0 10px;\n  margin-right: 10px;\n}\n\n.todolist__btn {\n  font-size: 14px;\n  line-height: 29px;\n}\n\n.toast {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 600px;\n  position: absolute;\n  top: 0;\n  left: 50%;\n  bottom: 0;\n  margin-left: -300px;\n}\n\n.totast__inner {\n  font-size: 14px;\n  color: #fff;\n  padding: 20px;\n  width: 180px;\n  background-color: rgba(0, 0, 0, 0.7);\n  border-radius: 8px;\n}");
 
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
+  var defineProperty = _defineProperty;
+
   /* class TodoItem extends React.Component {
     render() {
       return (
@@ -23667,445 +23689,6 @@
       className: "delbtn",
       onClick: handleDel
     }, "\u5220\u9664"));
-  }
-
-  var _global = createCommonjsModule(function (module) {
-  // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
-  var global = module.exports = typeof window != 'undefined' && window.Math == Math
-    ? window : typeof self != 'undefined' && self.Math == Math ? self
-    // eslint-disable-next-line no-new-func
-    : Function('return this')();
-  if (typeof __g == 'number') __g = global; // eslint-disable-line no-undef
-  });
-
-  var _core = createCommonjsModule(function (module) {
-  var core = module.exports = { version: '2.6.5' };
-  if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
-  });
-  var _core_1 = _core.version;
-
-  var _isObject = function (it) {
-    return typeof it === 'object' ? it !== null : typeof it === 'function';
-  };
-
-  var _anObject = function (it) {
-    if (!_isObject(it)) throw TypeError(it + ' is not an object!');
-    return it;
-  };
-
-  var _fails = function (exec) {
-    try {
-      return !!exec();
-    } catch (e) {
-      return true;
-    }
-  };
-
-  // Thank's IE8 for his funny defineProperty
-  var _descriptors = !_fails(function () {
-    return Object.defineProperty({}, 'a', { get: function () { return 7; } }).a != 7;
-  });
-
-  var document$1 = _global.document;
-  // typeof document.createElement is 'object' in old IE
-  var is = _isObject(document$1) && _isObject(document$1.createElement);
-  var _domCreate = function (it) {
-    return is ? document$1.createElement(it) : {};
-  };
-
-  var _ie8DomDefine = !_descriptors && !_fails(function () {
-    return Object.defineProperty(_domCreate('div'), 'a', { get: function () { return 7; } }).a != 7;
-  });
-
-  // 7.1.1 ToPrimitive(input [, PreferredType])
-
-  // instead of the ES6 spec version, we didn't implement @@toPrimitive case
-  // and the second argument - flag - preferred type is a string
-  var _toPrimitive = function (it, S) {
-    if (!_isObject(it)) return it;
-    var fn, val;
-    if (S && typeof (fn = it.toString) == 'function' && !_isObject(val = fn.call(it))) return val;
-    if (typeof (fn = it.valueOf) == 'function' && !_isObject(val = fn.call(it))) return val;
-    if (!S && typeof (fn = it.toString) == 'function' && !_isObject(val = fn.call(it))) return val;
-    throw TypeError("Can't convert object to primitive value");
-  };
-
-  var dP = Object.defineProperty;
-
-  var f = _descriptors ? Object.defineProperty : function defineProperty(O, P, Attributes) {
-    _anObject(O);
-    P = _toPrimitive(P, true);
-    _anObject(Attributes);
-    if (_ie8DomDefine) try {
-      return dP(O, P, Attributes);
-    } catch (e) { /* empty */ }
-    if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
-    if ('value' in Attributes) O[P] = Attributes.value;
-    return O;
-  };
-
-  var _objectDp = {
-  	f: f
-  };
-
-  var _propertyDesc = function (bitmap, value) {
-    return {
-      enumerable: !(bitmap & 1),
-      configurable: !(bitmap & 2),
-      writable: !(bitmap & 4),
-      value: value
-    };
-  };
-
-  var _hide = _descriptors ? function (object, key, value) {
-    return _objectDp.f(object, key, _propertyDesc(1, value));
-  } : function (object, key, value) {
-    object[key] = value;
-    return object;
-  };
-
-  var hasOwnProperty$1 = {}.hasOwnProperty;
-  var _has = function (it, key) {
-    return hasOwnProperty$1.call(it, key);
-  };
-
-  var id = 0;
-  var px = Math.random();
-  var _uid = function (key) {
-    return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
-  };
-
-  var _library = false;
-
-  var _shared = createCommonjsModule(function (module) {
-  var SHARED = '__core-js_shared__';
-  var store = _global[SHARED] || (_global[SHARED] = {});
-
-  (module.exports = function (key, value) {
-    return store[key] || (store[key] = value !== undefined ? value : {});
-  })('versions', []).push({
-    version: _core.version,
-    mode: _library ? 'pure' : 'global',
-    copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
-  });
-  });
-
-  var _functionToString = _shared('native-function-to-string', Function.toString);
-
-  var _redefine = createCommonjsModule(function (module) {
-  var SRC = _uid('src');
-
-  var TO_STRING = 'toString';
-  var TPL = ('' + _functionToString).split(TO_STRING);
-
-  _core.inspectSource = function (it) {
-    return _functionToString.call(it);
-  };
-
-  (module.exports = function (O, key, val, safe) {
-    var isFunction = typeof val == 'function';
-    if (isFunction) _has(val, 'name') || _hide(val, 'name', key);
-    if (O[key] === val) return;
-    if (isFunction) _has(val, SRC) || _hide(val, SRC, O[key] ? '' + O[key] : TPL.join(String(key)));
-    if (O === _global) {
-      O[key] = val;
-    } else if (!safe) {
-      delete O[key];
-      _hide(O, key, val);
-    } else if (O[key]) {
-      O[key] = val;
-    } else {
-      _hide(O, key, val);
-    }
-  // add fake Function#toString for correct work wrapped methods / constructors with methods like LoDash isNative
-  })(Function.prototype, TO_STRING, function toString() {
-    return typeof this == 'function' && this[SRC] || _functionToString.call(this);
-  });
-  });
-
-  var _aFunction = function (it) {
-    if (typeof it != 'function') throw TypeError(it + ' is not a function!');
-    return it;
-  };
-
-  // optional / simple context binding
-
-  var _ctx = function (fn, that, length) {
-    _aFunction(fn);
-    if (that === undefined) return fn;
-    switch (length) {
-      case 1: return function (a) {
-        return fn.call(that, a);
-      };
-      case 2: return function (a, b) {
-        return fn.call(that, a, b);
-      };
-      case 3: return function (a, b, c) {
-        return fn.call(that, a, b, c);
-      };
-    }
-    return function (/* ...args */) {
-      return fn.apply(that, arguments);
-    };
-  };
-
-  var PROTOTYPE = 'prototype';
-
-  var $export = function (type, name, source) {
-    var IS_FORCED = type & $export.F;
-    var IS_GLOBAL = type & $export.G;
-    var IS_STATIC = type & $export.S;
-    var IS_PROTO = type & $export.P;
-    var IS_BIND = type & $export.B;
-    var target = IS_GLOBAL ? _global : IS_STATIC ? _global[name] || (_global[name] = {}) : (_global[name] || {})[PROTOTYPE];
-    var exports = IS_GLOBAL ? _core : _core[name] || (_core[name] = {});
-    var expProto = exports[PROTOTYPE] || (exports[PROTOTYPE] = {});
-    var key, own, out, exp;
-    if (IS_GLOBAL) source = name;
-    for (key in source) {
-      // contains in native
-      own = !IS_FORCED && target && target[key] !== undefined;
-      // export native or passed
-      out = (own ? target : source)[key];
-      // bind timers to global for call from export context
-      exp = IS_BIND && own ? _ctx(out, _global) : IS_PROTO && typeof out == 'function' ? _ctx(Function.call, out) : out;
-      // extend global
-      if (target) _redefine(target, key, out, type & $export.U);
-      // export
-      if (exports[key] != out) _hide(exports, key, exp);
-      if (IS_PROTO && expProto[key] != out) expProto[key] = out;
-    }
-  };
-  _global.core = _core;
-  // type bitmap
-  $export.F = 1;   // forced
-  $export.G = 2;   // global
-  $export.S = 4;   // static
-  $export.P = 8;   // proto
-  $export.B = 16;  // bind
-  $export.W = 32;  // wrap
-  $export.U = 64;  // safe
-  $export.R = 128; // real proto method for `library`
-  var _export = $export;
-
-  var toString = {}.toString;
-
-  var _cof = function (it) {
-    return toString.call(it).slice(8, -1);
-  };
-
-  // fallback for non-array-like ES3 and non-enumerable old V8 strings
-
-  // eslint-disable-next-line no-prototype-builtins
-  var _iobject = Object('z').propertyIsEnumerable(0) ? Object : function (it) {
-    return _cof(it) == 'String' ? it.split('') : Object(it);
-  };
-
-  // 7.2.1 RequireObjectCoercible(argument)
-  var _defined = function (it) {
-    if (it == undefined) throw TypeError("Can't call method on  " + it);
-    return it;
-  };
-
-  // to indexed object, toObject with fallback for non-array-like ES3 strings
-
-
-  var _toIobject = function (it) {
-    return _iobject(_defined(it));
-  };
-
-  // 7.1.4 ToInteger
-  var ceil = Math.ceil;
-  var floor = Math.floor;
-  var _toInteger = function (it) {
-    return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
-  };
-
-  // 7.1.15 ToLength
-
-  var min = Math.min;
-  var _toLength = function (it) {
-    return it > 0 ? min(_toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
-  };
-
-  var max = Math.max;
-  var min$1 = Math.min;
-  var _toAbsoluteIndex = function (index, length) {
-    index = _toInteger(index);
-    return index < 0 ? max(index + length, 0) : min$1(index, length);
-  };
-
-  // false -> Array#indexOf
-  // true  -> Array#includes
-
-
-
-  var _arrayIncludes = function (IS_INCLUDES) {
-    return function ($this, el, fromIndex) {
-      var O = _toIobject($this);
-      var length = _toLength(O.length);
-      var index = _toAbsoluteIndex(fromIndex, length);
-      var value;
-      // Array#includes uses SameValueZero equality algorithm
-      // eslint-disable-next-line no-self-compare
-      if (IS_INCLUDES && el != el) while (length > index) {
-        value = O[index++];
-        // eslint-disable-next-line no-self-compare
-        if (value != value) return true;
-      // Array#indexOf ignores holes, Array#includes - not
-      } else for (;length > index; index++) if (IS_INCLUDES || index in O) {
-        if (O[index] === el) return IS_INCLUDES || index || 0;
-      } return !IS_INCLUDES && -1;
-    };
-  };
-
-  var shared = _shared('keys');
-
-  var _sharedKey = function (key) {
-    return shared[key] || (shared[key] = _uid(key));
-  };
-
-  var arrayIndexOf = _arrayIncludes(false);
-  var IE_PROTO = _sharedKey('IE_PROTO');
-
-  var _objectKeysInternal = function (object, names) {
-    var O = _toIobject(object);
-    var i = 0;
-    var result = [];
-    var key;
-    for (key in O) if (key != IE_PROTO) _has(O, key) && result.push(key);
-    // Don't enum bug & hidden keys
-    while (names.length > i) if (_has(O, key = names[i++])) {
-      ~arrayIndexOf(result, key) || result.push(key);
-    }
-    return result;
-  };
-
-  // IE 8- don't enum bug keys
-  var _enumBugKeys = (
-    'constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf'
-  ).split(',');
-
-  // 19.1.2.14 / 15.2.3.14 Object.keys(O)
-
-
-
-  var _objectKeys = Object.keys || function keys(O) {
-    return _objectKeysInternal(O, _enumBugKeys);
-  };
-
-  var f$1 = Object.getOwnPropertySymbols;
-
-  var _objectGops = {
-  	f: f$1
-  };
-
-  var f$2 = {}.propertyIsEnumerable;
-
-  var _objectPie = {
-  	f: f$2
-  };
-
-  // 7.1.13 ToObject(argument)
-
-  var _toObject = function (it) {
-    return Object(_defined(it));
-  };
-
-  // 19.1.2.1 Object.assign(target, source, ...)
-
-
-
-
-
-  var $assign = Object.assign;
-
-  // should work with symbols and should have deterministic property order (V8 bug)
-  var _objectAssign = !$assign || _fails(function () {
-    var A = {};
-    var B = {};
-    // eslint-disable-next-line no-undef
-    var S = Symbol();
-    var K = 'abcdefghijklmnopqrst';
-    A[S] = 7;
-    K.split('').forEach(function (k) { B[k] = k; });
-    return $assign({}, A)[S] != 7 || Object.keys($assign({}, B)).join('') != K;
-  }) ? function assign(target, source) { // eslint-disable-line no-unused-vars
-    var T = _toObject(target);
-    var aLen = arguments.length;
-    var index = 1;
-    var getSymbols = _objectGops.f;
-    var isEnum = _objectPie.f;
-    while (aLen > index) {
-      var S = _iobject(arguments[index++]);
-      var keys = getSymbols ? _objectKeys(S).concat(getSymbols(S)) : _objectKeys(S);
-      var length = keys.length;
-      var j = 0;
-      var key;
-      while (length > j) if (isEnum.call(S, key = keys[j++])) T[key] = S[key];
-    } return T;
-  } : $assign;
-
-  // 19.1.3.1 Object.assign(target, source)
-
-
-  _export(_export.S + _export.F, 'Object', { assign: _objectAssign });
-
-  var dP$1 = _objectDp.f;
-  var FProto = Function.prototype;
-  var nameRE = /^\s*function ([^ (]*)/;
-  var NAME = 'name';
-
-  // 19.2.4.2 name
-  NAME in FProto || _descriptors && dP$1(FProto, NAME, {
-    configurable: true,
-    get: function () {
-      try {
-        return ('' + this).match(nameRE)[1];
-      } catch (e) {
-        return '';
-      }
-    }
-  });
-
-  // 21.2.5.3 get RegExp.prototype.flags
-
-  var _flags = function () {
-    var that = _anObject(this);
-    var result = '';
-    if (that.global) result += 'g';
-    if (that.ignoreCase) result += 'i';
-    if (that.multiline) result += 'm';
-    if (that.unicode) result += 'u';
-    if (that.sticky) result += 'y';
-    return result;
-  };
-
-  // 21.2.5.3 get RegExp.prototype.flags()
-  if (_descriptors && /./g.flags != 'g') _objectDp.f(RegExp.prototype, 'flags', {
-    configurable: true,
-    get: _flags
-  });
-
-  var TO_STRING = 'toString';
-  var $toString = /./[TO_STRING];
-
-  var define = function (fn) {
-    _redefine(RegExp.prototype, TO_STRING, fn, true);
-  };
-
-  // 21.2.5.14 RegExp.prototype.toString()
-  if (_fails(function () { return $toString.call({ source: 'a', flags: 'b' }) != '/a/b'; })) {
-    define(function toString() {
-      var R = _anObject(this);
-      return '/'.concat(R.source, '/',
-        'flags' in R ? R.flags : !_descriptors && R instanceof RegExp ? _flags.call(R) : undefined);
-    });
-  // FF44- RegExp#toString has a wrong name
-  } else if ($toString.name != TO_STRING) {
-    define(function toString() {
-      return $toString.call(this);
-    });
   }
 
   function isCorrectVal(variable, notBezero) {
@@ -26289,11 +25872,11 @@
   var eventBus = new Subject();
 
   var Store = function Store() {
-    _classCallCheck(this, Store);
+    classCallCheck(this, Store);
 
-    _defineProperty(this, "stateMap", {});
+    defineProperty(this, "stateMap", {});
 
-    _defineProperty(this, "eventLog", {
+    defineProperty(this, "eventLog", {
       dataMap: {},
       pushHeadersMap: {}
     });
@@ -26449,263 +26032,6 @@
     return processEvent$;
   };
 
-  var _wks = createCommonjsModule(function (module) {
-  var store = _shared('wks');
-
-  var Symbol = _global.Symbol;
-  var USE_SYMBOL = typeof Symbol == 'function';
-
-  var $exports = module.exports = function (name) {
-    return store[name] || (store[name] =
-      USE_SYMBOL && Symbol[name] || (USE_SYMBOL ? Symbol : _uid)('Symbol.' + name));
-  };
-
-  $exports.store = store;
-  });
-
-  // 22.1.3.31 Array.prototype[@@unscopables]
-  var UNSCOPABLES = _wks('unscopables');
-  var ArrayProto = Array.prototype;
-  if (ArrayProto[UNSCOPABLES] == undefined) _hide(ArrayProto, UNSCOPABLES, {});
-  var _addToUnscopables = function (key) {
-    ArrayProto[UNSCOPABLES][key] = true;
-  };
-
-  var _iterStep = function (done, value) {
-    return { value: value, done: !!done };
-  };
-
-  var _iterators = {};
-
-  var _objectDps = _descriptors ? Object.defineProperties : function defineProperties(O, Properties) {
-    _anObject(O);
-    var keys = _objectKeys(Properties);
-    var length = keys.length;
-    var i = 0;
-    var P;
-    while (length > i) _objectDp.f(O, P = keys[i++], Properties[P]);
-    return O;
-  };
-
-  var document$2 = _global.document;
-  var _html = document$2 && document$2.documentElement;
-
-  // 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
-
-
-
-  var IE_PROTO$1 = _sharedKey('IE_PROTO');
-  var Empty = function () { /* empty */ };
-  var PROTOTYPE$1 = 'prototype';
-
-  // Create object with fake `null` prototype: use iframe Object with cleared prototype
-  var createDict = function () {
-    // Thrash, waste and sodomy: IE GC bug
-    var iframe = _domCreate('iframe');
-    var i = _enumBugKeys.length;
-    var lt = '<';
-    var gt = '>';
-    var iframeDocument;
-    iframe.style.display = 'none';
-    _html.appendChild(iframe);
-    iframe.src = 'javascript:'; // eslint-disable-line no-script-url
-    // createDict = iframe.contentWindow.Object;
-    // html.removeChild(iframe);
-    iframeDocument = iframe.contentWindow.document;
-    iframeDocument.open();
-    iframeDocument.write(lt + 'script' + gt + 'document.F=Object' + lt + '/script' + gt);
-    iframeDocument.close();
-    createDict = iframeDocument.F;
-    while (i--) delete createDict[PROTOTYPE$1][_enumBugKeys[i]];
-    return createDict();
-  };
-
-  var _objectCreate = Object.create || function create(O, Properties) {
-    var result;
-    if (O !== null) {
-      Empty[PROTOTYPE$1] = _anObject(O);
-      result = new Empty();
-      Empty[PROTOTYPE$1] = null;
-      // add "__proto__" for Object.getPrototypeOf polyfill
-      result[IE_PROTO$1] = O;
-    } else result = createDict();
-    return Properties === undefined ? result : _objectDps(result, Properties);
-  };
-
-  var def = _objectDp.f;
-
-  var TAG = _wks('toStringTag');
-
-  var _setToStringTag = function (it, tag, stat) {
-    if (it && !_has(it = stat ? it : it.prototype, TAG)) def(it, TAG, { configurable: true, value: tag });
-  };
-
-  var IteratorPrototype = {};
-
-  // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
-  _hide(IteratorPrototype, _wks('iterator'), function () { return this; });
-
-  var _iterCreate = function (Constructor, NAME, next) {
-    Constructor.prototype = _objectCreate(IteratorPrototype, { next: _propertyDesc(1, next) });
-    _setToStringTag(Constructor, NAME + ' Iterator');
-  };
-
-  // 19.1.2.9 / 15.2.3.2 Object.getPrototypeOf(O)
-
-
-  var IE_PROTO$2 = _sharedKey('IE_PROTO');
-  var ObjectProto = Object.prototype;
-
-  var _objectGpo = Object.getPrototypeOf || function (O) {
-    O = _toObject(O);
-    if (_has(O, IE_PROTO$2)) return O[IE_PROTO$2];
-    if (typeof O.constructor == 'function' && O instanceof O.constructor) {
-      return O.constructor.prototype;
-    } return O instanceof Object ? ObjectProto : null;
-  };
-
-  var ITERATOR = _wks('iterator');
-  var BUGGY = !([].keys && 'next' in [].keys()); // Safari has buggy iterators w/o `next`
-  var FF_ITERATOR = '@@iterator';
-  var KEYS = 'keys';
-  var VALUES = 'values';
-
-  var returnThis = function () { return this; };
-
-  var _iterDefine = function (Base, NAME, Constructor, next, DEFAULT, IS_SET, FORCED) {
-    _iterCreate(Constructor, NAME, next);
-    var getMethod = function (kind) {
-      if (!BUGGY && kind in proto) return proto[kind];
-      switch (kind) {
-        case KEYS: return function keys() { return new Constructor(this, kind); };
-        case VALUES: return function values() { return new Constructor(this, kind); };
-      } return function entries() { return new Constructor(this, kind); };
-    };
-    var TAG = NAME + ' Iterator';
-    var DEF_VALUES = DEFAULT == VALUES;
-    var VALUES_BUG = false;
-    var proto = Base.prototype;
-    var $native = proto[ITERATOR] || proto[FF_ITERATOR] || DEFAULT && proto[DEFAULT];
-    var $default = $native || getMethod(DEFAULT);
-    var $entries = DEFAULT ? !DEF_VALUES ? $default : getMethod('entries') : undefined;
-    var $anyNative = NAME == 'Array' ? proto.entries || $native : $native;
-    var methods, key, IteratorPrototype;
-    // Fix native
-    if ($anyNative) {
-      IteratorPrototype = _objectGpo($anyNative.call(new Base()));
-      if (IteratorPrototype !== Object.prototype && IteratorPrototype.next) {
-        // Set @@toStringTag to native iterators
-        _setToStringTag(IteratorPrototype, TAG, true);
-        // fix for some old engines
-        if (!_library && typeof IteratorPrototype[ITERATOR] != 'function') _hide(IteratorPrototype, ITERATOR, returnThis);
-      }
-    }
-    // fix Array#{values, @@iterator}.name in V8 / FF
-    if (DEF_VALUES && $native && $native.name !== VALUES) {
-      VALUES_BUG = true;
-      $default = function values() { return $native.call(this); };
-    }
-    // Define iterator
-    if ((!_library || FORCED) && (BUGGY || VALUES_BUG || !proto[ITERATOR])) {
-      _hide(proto, ITERATOR, $default);
-    }
-    // Plug for library
-    _iterators[NAME] = $default;
-    _iterators[TAG] = returnThis;
-    if (DEFAULT) {
-      methods = {
-        values: DEF_VALUES ? $default : getMethod(VALUES),
-        keys: IS_SET ? $default : getMethod(KEYS),
-        entries: $entries
-      };
-      if (FORCED) for (key in methods) {
-        if (!(key in proto)) _redefine(proto, key, methods[key]);
-      } else _export(_export.P + _export.F * (BUGGY || VALUES_BUG), NAME, methods);
-    }
-    return methods;
-  };
-
-  // 22.1.3.4 Array.prototype.entries()
-  // 22.1.3.13 Array.prototype.keys()
-  // 22.1.3.29 Array.prototype.values()
-  // 22.1.3.30 Array.prototype[@@iterator]()
-  var es6_array_iterator = _iterDefine(Array, 'Array', function (iterated, kind) {
-    this._t = _toIobject(iterated); // target
-    this._i = 0;                   // next index
-    this._k = kind;                // kind
-  // 22.1.5.2.1 %ArrayIteratorPrototype%.next()
-  }, function () {
-    var O = this._t;
-    var kind = this._k;
-    var index = this._i++;
-    if (!O || index >= O.length) {
-      this._t = undefined;
-      return _iterStep(1);
-    }
-    if (kind == 'keys') return _iterStep(0, index);
-    if (kind == 'values') return _iterStep(0, O[index]);
-    return _iterStep(0, [index, O[index]]);
-  }, 'values');
-
-  // argumentsList[@@iterator] is %ArrayProto_values% (9.4.4.6, 9.4.4.7)
-  _iterators.Arguments = _iterators.Array;
-
-  _addToUnscopables('keys');
-  _addToUnscopables('values');
-  _addToUnscopables('entries');
-
-  var ITERATOR$1 = _wks('iterator');
-  var TO_STRING_TAG = _wks('toStringTag');
-  var ArrayValues = _iterators.Array;
-
-  var DOMIterables = {
-    CSSRuleList: true, // TODO: Not spec compliant, should be false.
-    CSSStyleDeclaration: false,
-    CSSValueList: false,
-    ClientRectList: false,
-    DOMRectList: false,
-    DOMStringList: false,
-    DOMTokenList: true,
-    DataTransferItemList: false,
-    FileList: false,
-    HTMLAllCollection: false,
-    HTMLCollection: false,
-    HTMLFormElement: false,
-    HTMLSelectElement: false,
-    MediaList: true, // TODO: Not spec compliant, should be false.
-    MimeTypeArray: false,
-    NamedNodeMap: false,
-    NodeList: true,
-    PaintRequestList: false,
-    Plugin: false,
-    PluginArray: false,
-    SVGLengthList: false,
-    SVGNumberList: false,
-    SVGPathSegList: false,
-    SVGPointList: false,
-    SVGStringList: false,
-    SVGTransformList: false,
-    SourceBufferList: false,
-    StyleSheetList: true, // TODO: Not spec compliant, should be false.
-    TextTrackCueList: false,
-    TextTrackList: false,
-    TouchList: false
-  };
-
-  for (var collections = _objectKeys(DOMIterables), i = 0; i < collections.length; i++) {
-    var NAME$1 = collections[i];
-    var explicit = DOMIterables[NAME$1];
-    var Collection = _global[NAME$1];
-    var proto = Collection && Collection.prototype;
-    var key;
-    if (proto) {
-      if (!proto[ITERATOR$1]) _hide(proto, ITERATOR$1, ArrayValues);
-      if (!proto[TO_STRING_TAG]) _hide(proto, TO_STRING_TAG, NAME$1);
-      _iterators[NAME$1] = ArrayValues;
-      if (explicit) for (key in es6_array_iterator) if (!proto[key]) _redefine(proto, key, es6_array_iterator[key], true);
-    }
-  }
-
   function StateSubject(value) {
     this.observerList = [];
     this.value = value;
@@ -26731,9 +26057,9 @@
     function StateMachine(state$, options) {
       var _this = this;
 
-      _classCallCheck(this, StateMachine);
+      classCallCheck(this, StateMachine);
 
-      _defineProperty(this, "value", null);
+      defineProperty(this, "value", null);
 
       this.name = options.name;
 
@@ -26775,13 +26101,13 @@
       }
     }
 
-    _createClass(StateMachine, [{
+    createClass(StateMachine, [{
       key: "producer",
       value: function producer(action) {
         var _this2 = this;
 
         this._producer(function (result) {
-          eventBus.next(_defineProperty({}, _this2.name, Object.assign({}, action, {
+          eventBus.next(defineProperty({}, _this2.name, Object.assign({}, action, {
             type: _this2.name,
             result: result
           })));
@@ -26799,6 +26125,8 @@
     return state$;
   }
 
+  /* import eventBus from "./eventBus";
+  import { isCorrectVal } from "./utils"; */
   var stateMap$1 = store.stateMap;
 
   var dispatch = function dispatch(stateName, action) {
@@ -26825,25 +26153,26 @@
     stateMap$1[stateName]["producer"](action);
   };
 
-  // most Object methods by ES6 should accept primitives
+  var _extends_1 = createCommonjsModule(function (module) {
+  function _extends() {
+    module.exports = _extends = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
 
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
 
-
-  var _objectSap = function (KEY, exec) {
-    var fn = (_core.Object || {})[KEY] || Object[KEY];
-    var exp = {};
-    exp[KEY] = exec(fn);
-    _export(_export.S + _export.F * _fails(function () { fn(1); }), 'Object', exp);
-  };
-
-  // 19.1.2.14 Object.keys(O)
-
-
-
-  _objectSap('keys', function () {
-    return function keys(it) {
-      return _objectKeys(_toObject(it));
+      return target;
     };
+
+    return _extends.apply(this, arguments);
+  }
+
+  module.exports = _extends;
   });
 
   /**
@@ -26862,14 +26191,14 @@
       var Permeate =
       /*#__PURE__*/
       function (_React$PureComponent) {
-        _inherits(Permeate, _React$PureComponent);
+        inherits(Permeate, _React$PureComponent);
 
         function Permeate() {
           var _this;
 
-          _classCallCheck(this, Permeate);
+          classCallCheck(this, Permeate);
 
-          _this = _possibleConstructorReturn(this, _getPrototypeOf(Permeate).call(this));
+          _this = possibleConstructorReturn(this, getPrototypeOf(Permeate).call(this));
           _this.state = {};
           _this.subscriptionArr = [];
           _this.suspendedObservableKeys = Object.keys(observablesMap);
@@ -26888,7 +26217,7 @@
           return _this;
         }
 
-        _createClass(Permeate, [{
+        createClass(Permeate, [{
           key: "componentWillMount",
           value: function componentWillMount() {
             var _this2 = this;
@@ -26902,7 +26231,7 @@
                 // const pushHeaders = eventLog.pushHeadersMap[type];
                 if (_this2.state[_this2.suspendedObservableKeys[i]] !== data) {
                   // if (isCorrectVal(pushHeaders))  console.log(pushHeaders);
-                  _this2.setState(_defineProperty({}, _this2.suspendedObservableKeys[i], data));
+                  _this2.setState(defineProperty({}, _this2.suspendedObservableKeys[i], data));
                 }
               });
 
@@ -26923,7 +26252,7 @@
         }, {
           key: "render",
           value: function render() {
-            return react.createElement(Comp, _extends({}, this.props, this.state));
+            return react.createElement(Comp, _extends_1({}, this.props, this.state));
           }
         }]);
 
@@ -27019,26 +26348,26 @@
   }), _dec(_class = (_temp =
   /*#__PURE__*/
   function (_React$Component) {
-    _inherits(TodoList, _React$Component);
+    inherits(TodoList, _React$Component);
 
     function TodoList() {
       var _getPrototypeOf2;
 
       var _this;
 
-      _classCallCheck(this, TodoList);
+      classCallCheck(this, TodoList);
 
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
-      _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(TodoList)).call.apply(_getPrototypeOf2, [this].concat(args)));
+      _this = possibleConstructorReturn(this, (_getPrototypeOf2 = getPrototypeOf(TodoList)).call.apply(_getPrototypeOf2, [this].concat(args)));
 
-      _defineProperty(_assertThisInitialized(_this), "state", {
+      defineProperty(assertThisInitialized(_this), "state", {
         newTodoContent: ''
       });
 
-      _defineProperty(_assertThisInitialized(_this), "checkItem", function (n, item) {
+      defineProperty(assertThisInitialized(_this), "checkItem", function (n, item) {
         if (!item.check) {
           dispatch("toastVisible", {
             type: "show"
@@ -27051,14 +26380,14 @@
         });
       });
 
-      _defineProperty(_assertThisInitialized(_this), "handleDel", function (n) {
+      defineProperty(assertThisInitialized(_this), "handleDel", function (n) {
         dispatch("todos", {
           type: "delItem",
           index: n
         });
       });
 
-      _defineProperty(_assertThisInitialized(_this), "setNewTodoContent", function (e) {
+      defineProperty(assertThisInitialized(_this), "setNewTodoContent", function (e) {
         var val = e.currentTarget.value;
 
         _this.setState({
@@ -27066,7 +26395,7 @@
         });
       });
 
-      _defineProperty(_assertThisInitialized(_this), "addTodo", function () {
+      defineProperty(assertThisInitialized(_this), "addTodo", function () {
         dispatch("todos", {
           type: "addItem",
           item: {
@@ -27079,7 +26408,7 @@
       return _this;
     }
 
-    _createClass(TodoList, [{
+    createClass(TodoList, [{
       key: "render",
       value: function render() {
         var _this2 = this;
@@ -27127,15 +26456,15 @@
   }), _dec$1(_class$1 = (_temp$1 = _class2 =
   /*#__PURE__*/
   function (_React$Component) {
-    _inherits(Toast, _React$Component);
+    inherits(Toast, _React$Component);
 
     function Toast() {
-      _classCallCheck(this, Toast);
+      classCallCheck(this, Toast);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(Toast).apply(this, arguments));
+      return possibleConstructorReturn(this, getPrototypeOf(Toast).apply(this, arguments));
     }
 
-    _createClass(Toast, [{
+    createClass(Toast, [{
       key: "render",
       value: function render() {
         return react.createElement("div", {
@@ -27165,7 +26494,7 @@
     }]);
 
     return Toast;
-  }(react.Component), _defineProperty(_class2, "defaultProps", {
+  }(react.Component), defineProperty(_class2, "defaultProps", {
     toastVisible: false,
     undoneCount: 0
   }), _temp$1)) || _class$1);
@@ -27173,15 +26502,15 @@
   var Root =
   /*#__PURE__*/
   function (_React$Component) {
-    _inherits(Root, _React$Component);
+    inherits(Root, _React$Component);
 
     function Root() {
-      _classCallCheck(this, Root);
+      classCallCheck(this, Root);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(Root).apply(this, arguments));
+      return possibleConstructorReturn(this, getPrototypeOf(Root).apply(this, arguments));
     }
 
-    _createClass(Root, [{
+    createClass(Root, [{
       key: "render",
       value: function render() {
         return react.createElement("div", {

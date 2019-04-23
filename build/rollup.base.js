@@ -24,7 +24,7 @@ export default {
   ],
   external: function(name) {
     return (
-      /core-js/.test(name) ||
+      /@babel\/runtime/.test(name) ||
       /prop-types/.test(name) ||
       /rxjs/.test(name) ||
       /react/.test(name) ||

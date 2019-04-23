@@ -50,12 +50,11 @@
     "rollup-plugin-node-resolve": "^4.0.1",
     "rollup-plugin-replace": "^2.1.0",
     "rollup-plugin-sass": "^1.1.0",
-    "rollup-plugin-typescript2": "^0.20.1",
     "rollup-plugin-uglify": "^6.0.2",
     "typescript": "^3.4.3"
   },
   "dependencies": {
-    "core-js": "^2.6.5",
+    "@babel/runtime": "^7.4.3",
     "react": "^16.8.4",
     "react-dom": "^16.8.5",
     "rxjs": "^6.4.0"
@@ -70,14 +69,13 @@
       [
         "@babel/preset-env",
         {
-          "useBuiltIns": "usage",
-          "modules": false,
-          "shippedProposals": true
+          "modules": false
         }
       ],
       "@babel/preset-react"
     ],
     "plugins": [
+      "@babel/plugin-transform-runtime",
       [
         "@babel/plugin-proposal-decorators",
         {

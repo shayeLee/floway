@@ -41,4 +41,5 @@ function isEmptyObject(obj) {
   }
   return true;
 }
+
 export { isCorrectVal, isObject, isEmptyObject }
