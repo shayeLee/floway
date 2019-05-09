@@ -1,11 +1,19 @@
 {
   "compilerOptions": {
-    "module": "ES2015",
-    "target": "es5",
+    "module": "es2015",
+    "target": "es2015",
+    "jsx": "react",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "declaration": true,
+    "declarationDir": "types",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
     "noImplicitAny": true,
-    "removeComments": true,
-    "preserveConstEnums": true
+    "removeComments": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "__mocks__", "__tests__"]
+  "exclude": ["node_modules", "__mocks__", "__tests__", "dist", "lib", "es"]
 }

@@ -1,5 +1,9 @@
+interface StateMap {
+  [key: string]: any
+}
+
 class Store {
-  stateMap = {};
+  stateMap: StateMap = {};
   eventLog = {
     dataMap: {},
     pushHeadersMap: {}

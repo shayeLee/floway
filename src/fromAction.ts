@@ -6,7 +6,7 @@ import { pluck, filter, switchMap } from "rxjs/operators";
 import { pipeFromArray } from "rxjs/internal/util/pipe";
 import eventBus from "./eventBus";
 
-const fromAction = function(type, options) {
+const fromAction = function(type: string, options: object): void {
   if (!(typeof type === "string")) {
     throw new Error("action's type must be string");
   }

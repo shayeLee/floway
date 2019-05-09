@@ -3,7 +3,7 @@ import { isCorrectVal } from "./utils"; */
 import store from './store';
 const stateMap = store.stateMap;
 
-const dispatch = function(stateName, action) {
+const dispatch = function(stateName: string, action: object|string): void {
   /* if (!Array.isArray(actions)) {
     actions = [actions];
   }

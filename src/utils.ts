@@ -1,4 +1,4 @@
-function isCorrectVal(variable, notBezero) {
+function isCorrectVal(variable: any, notBezero?: boolean) {
   var result = true;
   if (typeof variable === "string") {
     if (
